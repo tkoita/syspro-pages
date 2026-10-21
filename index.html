@@ -1,0 +1,76 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>システムプログラミング ／ 授業資料（小板）</title><style>
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:40px 16px 80px;}
+.sheet{max-width:880px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;--accent:#1668B5;--accent-deep:#0E4A82;--accentbg:#E6F1FB;--accentbd:#B6D6EF;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+.docs{margin-top:14px;display:flex;flex-direction:column;gap:12px;}
+.doc{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid var(--accentbd);border-left:4px solid var(--accent);border-radius:8px;padding:17px 20px;transition:box-shadow .14s,transform .14s;}
+.doc:hover{box-shadow:0 6px 18px rgba(20,30,45,.10);transform:translateY(-1px);}
+.doc .tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--accent);border-radius:20px;padding:2px 10px;}
+.doc .t{font-size:16px;font-weight:800;margin:8px 0 5px;}
+.doc .d{font-size:12.8px;color:var(--soft);margin:0;line-height:1.7;}
+.doc .d code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.doc.now{--accent:#E8A317;--accentbd:#EFD193;background:#FFFBF0;border-width:2px;border-left-width:6px;}
+.doc.now .tag{color:#1C2027;}
+.doc.ref{--accent:#334155;--accentbd:#cbd5e1;}
+.doc .url{display:block;font-size:11px;word-break:break-all;color:#52606d;margin-top:4px;}
+.ainote{margin-top:20px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.75;}
+.ainote b{font-weight:800;}
+.ainote.amber{background:#FDF6E6;border-color:#EFD193;border-left-color:#E8A317;color:#6B4D00;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+@media (max-width:640px){.sheet{padding:30px 22px 40px;}h1{font-size:23px;}body{padding:20px 12px 60px;}}
+</style></head><body>
+<section class="sheet">
+  <div class="eyebrow">System Programming</div>
+  <h1>システムプログラミング　授業資料</h1>
+  <p class="lead">同志社大学　理工学部 情報システムデザイン学科 ／ 担当：小板<br><b>受講者向けの資料をここにまとめています。</b>スマホからも読めます。授業中は、このページから資料を開いてください。</p>
+
+  <h2>今週の資料</h2>
+  <p class="note"><b>授業の前に一度、上から目を通しておいてください。</b>当日は資料を見ながら手を動かします。</p>
+  <div class="docs">
+    <a class="doc now" href="第4週目_授業資料_地図を手に入れる.html">
+      <span class="tag">第4週目　今週</span>
+      <div class="t">地図を手に入れる ― Linux・バザール・AI</div>
+      <p class="d">コンピューターを「4段の地図」で見る回。Linux はどこから来たか、『伽藍とバザール』、そして <b>Copilot の答えをコマンドで確かめる「AI証言カード」</b>。今日は C のプログラムは書きません。<b>課題2では、学籍番号の末尾が奇数なら A 組、偶数なら B 組です。</b></p>
+    </a>
+  </div>
+
+  <h2>これまでの資料</h2>
+  <p class="note">復習や宿題のときに。</p>
+  <div class="docs">
+    <a class="doc" href="第3週目_授業資料_標準入出力とパイプ.html">
+      <span class="tag">第3週目</span>
+      <div class="t">標準入出力とパイプ</div>
+      <p class="d">自作の <code>wc</code> をパイプにつなぐと出力が使いものにならない → <code>isatty(1)</code> で直す。0番・1番・2番、リダイレクト、パイプ。</p>
+    </a>
+  </div>
+
+  <h2>参考資料</h2>
+  <p class="note"><b>どちらも無料で読めます。</b>授業中に章や教訓の番号で指すことがあります。</p>
+  <div class="docs">
+    <a class="doc ref" href="https://linuc.org/textbooks/linux/" target="_blank" rel="noopener">
+      <span class="tag">毎回</span>
+      <div class="t">Linux標準教科書（LPI-Japan）</div>
+      <p class="d">コマンドとシェルの説明はこの教科書に合わせています。<b>PDF 版は、アンケートに答えるとメールでダウンロードコードが届きます。</b><span class="url">https://linuc.org/textbooks/linux/</span></p>
+    </a>
+    <a class="doc ref" href="http://cruel.org/freeware/cathedral.html" target="_blank" rel="noopener">
+      <span class="tag">毎回少しずつ</span>
+      <div class="t">伽藍とバザール ／ Eric S. Raymond（山形浩生 訳）</div>
+      <p class="d">Linux がなぜ、世界中の人の片手間の協力でうまく作れたのかを考えた文章。授業では毎回、19の「教訓」のうちいくつかを読みます。<span class="url">http://cruel.org/freeware/cathedral.html</span></p>
+    </a>
+  </div>
+
+  <div class="ainote amber"><b>共有シートの URL と提出先は、このページには載せていません。</b>共有シート（振り返り）の URL は授業中に先生が画面に出します。宿題の提出先は、これまでどおり <b>eclass</b> です。</div>
+
+  <div class="ainote"><b>この授業の AI の使い方。</b>「Copilot がそう言ったので」は答えになりません。<b>AI の答えは、自分でコマンドを打って確かめてから使う。</b>自分が出したコードやコマンドは、<b>1語残らず説明できる状態</b>にしておいてください。</div>
+
+  <div class="foot">同志社大学　システムプログラミング ／ 担当：小板</div>
+</section>
+</body></html>

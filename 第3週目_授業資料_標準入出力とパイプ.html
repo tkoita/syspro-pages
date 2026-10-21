@@ -1,0 +1,980 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第3週目 授業資料：標準入出力とパイプ — システムプログラミング</title><style>
+
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 16px 80px;}
+/* ---- Web閲覧向け：固定ナビゲーション ---- */
+.topnav{position:sticky;top:0;z-index:60;margin:0 -16px 24px;padding:0 16px;background:rgba(232,235,239,.93);backdrop-filter:saturate(150%) blur(10px);-webkit-backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid #d3d9e0;}
+.topnav .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;height:54px;}
+.topnav .brand{font-size:12.5px;font-weight:800;color:#1f2933;white-space:nowrap;letter-spacing:.02em;}
+.topnav .brand span{display:block;font-size:10.5px;font-weight:700;color:#7b8794;letter-spacing:.06em;}
+.topnav .links{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;}
+.topnav .links::-webkit-scrollbar{display:none;}
+.topnav .links a{font-size:12px;font-weight:700;color:#52606d;text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap;transition:background .12s,color .12s;}
+.topnav .links a:hover{background:#dde2e8;color:#1f2933;}
+.topnav .links a.on{background:#1f2933;color:#fff;}
+.topnav .go{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#fff;background:#4338ca;border-radius:6px;padding:7px 13px;text-decoration:none;white-space:nowrap;}
+.topnav .go:hover{background:#312e81;}
+.sheet,.topnotice{scroll-margin-top:70px;}
+/* ---- リンク ---- */
+a.ulink{text-decoration:none;border-bottom:1px solid rgba(11,108,181,.35);}
+a.ulink code{color:#0b6cb5;cursor:pointer;}
+a.ulink:hover code{background:#eef6fc;border-color:#bcdcf2;}
+/* ---- コードのコピーボタン ---- */
+.codewrap{position:relative;}
+.copybtn{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;color:#52606d;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 11px;cursor:pointer;font-family:inherit;line-height:1.6;}
+.copybtn:hover{background:#eef1f4;color:#1f2933;}
+.copybtn.done{background:#eafaf0;border-color:#b9e4c8;color:#1f6631;}
+/* ---- チェックリストを操作可能に ---- */
+.checklist li{cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:5px;transition:opacity .15s,background .12s;}
+.checklist li:hover{background:#f7f9fb;}
+.checklist li.done{opacity:.45;}
+.checklist li.done::before{background:var(--accent);border-color:var(--accent);}
+.checklist li.done::after{content:"\2713";position:absolute;left:3px;top:1px;color:#fff;font-size:12px;font-weight:900;line-height:1.45;}
+.ckprog{float:right;font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.04em;}
+.ckhint{font-size:11px;color:#8a97a3;font-weight:600;margin:0 0 9px;}
+.sheet{max-width:880px;margin:0 auto 26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;}
+.sheet.k1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 観察＝人間が見る */
+.sheet.k2{--accent:#1668B5;--accent-deep:#0E4A82;--accentbg:#E6F1FB;--accentbd:#B6D6EF;}  /* 機械・構造 */
+.sheet.k3{--accent:#BE3E1B;--accent-deep:#8C2D12;--accentbg:#FAE5DD;--accentbd:#EDBCA9;}  /* 壊れている */
+.sheet.k4{--accent:#4FA8A0;--accent-deep:#0F6B60;--accentbg:#EAF6F4;--accentbd:#B6DED8;}  /* 予備 */
+.sheet.k5{--accent:#0F6B60;--accent-deep:#0A4A42;--accentbg:#E3F5F2;--accentbd:#A8DCD4;}  /* 直った */
+.sheet.k6{--accent:#0E4A82;--accent-deep:#0A3760;--accentbg:#E9F0F7;--accentbd:#BDD2E6;}  /* 宿題 */
+.sheet.i1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 導入 */
+.sheet.i2{--accent:#334155;--accent-deep:#1e293b;--accentbg:#f1f5f9;--accentbd:#cbd5e1;}
+.figure{margin-top:14px;padding:16px 18px 10px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow-x:auto;}
+.figure .cap{font-size:11.5px;color:var(--soft);margin:6px 0 0;text-align:left;line-height:1.7;}
+.figure svg{display:block;min-width:620px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.eyebrow .no{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:15px;}
+.badge{font-size:11px;letter-spacing:.08em;font-weight:800;color:#fff;background:var(--accent);padding:2px 9px;border-radius:20px;}
+.badge.alt{background:#334155;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;} code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.meta{margin-top:16px;display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;font-size:12.5px;color:var(--soft);}
+.meta b{color:var(--ink);font-weight:700;}
+.grid2{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;}
+.card{flex:1;min-width:240px;padding:14px 16px;border-radius:8px;border:1px solid var(--accentbd);background:var(--accentbg);}
+.card h3{margin:0 0 7px;font-size:13px;font-weight:800;color:var(--accent-deep);letter-spacing:.03em;}
+.card ul{margin:0;padding-left:18px;font-size:12.8px;color:#444;} .card li{margin:3px 0;}
+.card code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.verify{margin-top:14px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.7;}
+.verify b{font-weight:800;} .verify code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.warn{margin-top:12px;padding:11px 15px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:4px solid #BE3E1B;border-radius:8px;font-size:12.6px;color:#8C2D12;line-height:1.65;} .warn b{font-weight:800;}
+.warn code{background:#fff;border:1px solid #EDBCA9;border-radius:4px;padding:0 4px;}
+.timerule{margin-top:14px;padding:13px 16px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:5px solid #BE3E1B;border-radius:8px;font-size:13.3px;color:#8C2D12;line-height:1.7;} .timerule b{font-weight:800;} .timerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:5px solid #0F6B60;border-radius:8px;font-size:13.3px;color:#0A4A42;line-height:1.7;} .notimerule b{font-weight:800;} .notimerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.plabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin:26px 0 9px;}
+pre.code{margin:0;background:var(--codebg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px;padding:18px 20px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:13px;line-height:1.9;color:#27313b;white-space:pre;}
+.cmt{color:#8a97a3;} .kw{color:#0b6cb5;font-weight:600;} .str{color:#1f7a3d;}
+.idnote{margin:14px 0 0;padding:11px 15px;background:#FDF0D4;border:1px solid #EFD193;border-left:4px solid #E8A317;border-radius:8px;font-size:13px;color:#6B4D00;line-height:1.6;}
+.idnote b{font-weight:800;} .idnote code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.dayof{margin-top:14px;padding:13px 16px;background:#1C2027;border-radius:8px;color:#E6EAF0;font-size:12.8px;line-height:1.8;}
+.dayof b{color:#E8A317;font-weight:800;}
+.dayof code{background:#3a4049;border-radius:4px;padding:0 5px;color:#e6edf3;}
+.ainote{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:8px;font-size:12.8px;color:#0A4A42;line-height:1.75;}
+.ainote b{font-weight:800;} .ainote code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.design{margin-top:14px;padding:13px 16px;background:#f4f6f9;border:1px solid var(--line);border-left:4px solid var(--soft);border-radius:8px;font-size:12.6px;color:#3a4654;line-height:1.75;}
+.design b{color:var(--ink);}
+.topnotice{max-width:880px;margin:0 auto 26px;background:#FDF6E6;border:2px solid #E8A317;border-radius:8px;padding:22px 26px;box-shadow:0 8px 30px rgba(20,30,45,.10);}
+.topnotice h2{margin:0 0 10px;font-size:16px;font-weight:800;color:#8A6200;display:flex;align-items:center;gap:8px;}
+.topnotice h2::before{content:"";width:4px;height:18px;background:#E8A317;border-radius:2px;}
+.topnotice p{margin:0 0 8px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice ul{margin:6px 0 8px;padding-left:20px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice li{margin:4px 0;}
+.topnotice b{color:#5c4700;}
+.topnotice .axis{margin-top:10px;padding:11px 15px;background:#fff;border:1px solid #E8A317;border-radius:6px;font-size:13px;color:#4a3c00;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+table.levels{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:13px;}
+table.levels th,table.levels td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;}
+table.levels thead th{background:var(--accentbg);color:var(--accent-deep);font-weight:800;}
+table.levels tbody tr:nth-child(even){background:#fafbfc;}
+table.levels code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:11.6px;word-break:break-all;}
+table.levels b{font-weight:700;}
+.level{margin-bottom:12px;border:1px solid var(--accentbd);border-radius:8px;overflow:hidden;background:#fff;}
+.lvhead{display:flex;align-items:center;gap:10px;padding:8px 13px;background:var(--accentbg);border-bottom:1px solid var(--accentbd);}
+.chip{font-size:11px;font-weight:800;color:#fff;padding:2px 10px;border-radius:20px;}
+.c-beg{background:#E8A317;color:#1C2027;}.c-mid{background:#1668B5;}.c-adv{background:#BE3E1B;}.c-exp{background:#0F6B60;}
+.lvhead .t{font-size:13px;font-weight:700;} .level ul,.level ol{margin:9px 15px 13px;padding-left:20px;font-size:12.8px;line-height:1.7;color:#3a4654;} .level li{margin:4px 0;}
+.level code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;word-break:break-all;} .level b{font-weight:700;color:var(--ink);}
+.level p{margin:9px 15px 11px;font-size:12.8px;line-height:1.7;color:#3a4654;}
+.cmdlist{margin:10px 15px 15px;}
+.cmdlist .cmd{border:1px solid #e0e4ea;border-left:3px solid var(--accent);border-radius:6px;background:#fafbfc;padding:12px 15px;margin:10px 0;}
+.cmdlist .cmdhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmdlist .cmdname{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:2px 9px;}
+.cmdlist .cmdtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.cmdlist .cmdtag.red{background:#c0392b;}
+.cmdlist p{margin:9px 0 0;font-size:12.6px;line-height:1.8;color:#3a4654;}
+.cmdlist p .lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.cmdlist code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.cmdlist .ex{margin-top:9px;padding:9px 12px;background:#fff;border:1px dashed #b8c2ce;border-radius:5px;font-size:12px;line-height:1.8;color:#52606d;}
+.cmdlist .ex .q{display:block;font-family:"SFMono-Regular",Consolas,Menlo,"Hiragino Kaku Gothic ProN",monospace;color:#27313b;margin:3px 0;}
+.cmdlist .ex b{color:var(--accent-deep);}
+.lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.stat{flex:1;min-width:148px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;padding:14px 14px 12px;text-align:center;}
+.stat .n{font-size:31px;font-weight:800;color:var(--accent);line-height:1.05;letter-spacing:-.02em;}
+.stat .n small{font-size:16px;font-weight:800;}
+.stat .l{font-size:11.5px;color:#3a4654;margin-top:8px;line-height:1.6;}
+.stat.bad{border-color:#f3b9b9;background:#fffafa;}
+.stat.bad .n{color:#c0392b;}
+.statsrc{font-size:11px;color:var(--soft);margin-top:9px;line-height:1.6;}
+.statlead{font-size:12.5px;font-weight:800;color:var(--accent-deep);margin:18px 0 0;letter-spacing:.03em;}
+.statlead.bad{color:#c0392b;}
+.qrbox{flex:0 0 auto;width:158px;text-align:center;}
+.qrimg{width:158px;height:158px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;}
+.qrimg svg{width:100%;height:auto;display:block;flex:0 0 auto;}
+.qrimg .ph{font-size:11.5px;font-weight:800;color:var(--accent);line-height:1.7;}
+.qrcap{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.55;}
+.formurl{margin:11px 0 0;padding:11px 14px;background:#fff;border:1px solid var(--accentbd);border-radius:6px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#0b6cb5;word-break:break-all;font-weight:700;}
+.formfields{margin:11px 0 0;padding:0;list-style:none;}
+.formfields li{font-size:12.6px;line-height:1.75;color:#3a4654;padding:5px 0 5px 26px;position:relative;border-bottom:1px dotted var(--accentbd);}
+.formfields li:last-child{border-bottom:none;}
+.formfields li::before{content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:2px;background:var(--accent);}
+.formfields li b{color:var(--ink);}
+.record{margin-top:30px;display:flex;gap:22px;align-items:center;background:var(--accentbg);border:1px solid var(--accentbd);border-left:4px solid var(--accent);border-radius:8px;padding:20px 22px;}
+.record .txt{flex:1;min-width:0;} .record .rh{font-size:15px;font-weight:800;margin:0 0 7px;display:flex;align-items:center;gap:9px;color:var(--accent-deep);}
+.record .rh .ic{width:25px;height:25px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.record p{margin:0 0 8px;font-size:13px;line-height:1.65;color:#444;}
+.record .vals{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0 11px;}
+.record .vals span{background:#fff;border:1px solid var(--accentbd);border-radius:5px;padding:5px 12px;font-size:12.3px;font-weight:700;color:var(--accent-deep);}
+.record .lnk{font-size:12px;word-break:break-all;} .record .lnk a{color:#0b6cb5;font-weight:700;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+ol.steps{margin:12px 0 0;padding-left:22px;font-size:13.3px;line-height:1.85;}
+ol.steps li{margin:7px 0;} ol.steps code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 5px;font-size:12.3px;word-break:break-all;}
+ol.steps b{font-weight:700;}
+.checklist{margin-top:16px;padding:16px 18px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.checklist h4{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent-deep);text-transform:uppercase;}
+.checklist ul{margin:0;padding:0;list-style:none;font-size:13px;}
+.checklist li{margin:8px 0;padding-left:29px;position:relative;line-height:1.7;color:#3a4654;}
+.checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border:2px solid var(--accent);border-radius:3px;background:#fff;}
+.checklist li b{color:var(--ink);font-weight:700;}
+.checklist code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.checklist .fill{display:inline-block;min-width:80px;border-bottom:1.5px dashed var(--accent);}
+.flowbox{margin-top:12px;display:flex;flex-direction:column;gap:0;}
+.frow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E8A317;border-radius:6px;padding:10px 14px;}
+.frow .fno{flex:0 0 auto;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;color:#8A6200;background:#fff7e0;border:1px solid #EFD193;border-radius:20px;padding:2px 11px;}
+.frow .ftxt{flex:1;font-size:13px;color:#4a3c00;}
+.frow .ftime{flex:0 0 auto;font-size:11.5px;color:#8A6200;font-weight:700;}
+.farrow{text-align:center;color:#C08A12;font-size:14px;line-height:1;padding:3px 0;}
+.frow.home{background:#fffdf5;}
+.ftag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#fff;background:#C08A12;border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.roomnote{margin-top:12px;padding:13px 16px;background:#eafaf0;border:2px solid #2f9e44;border-radius:8px;font-size:13.2px;color:#1f6631;line-height:1.8;}
+.roomnote b{font-weight:800;}
+.roomnote .rt{display:block;font-size:14px;font-weight:800;margin-bottom:7px;}
+.roomnote code{background:#fff;border:1px solid #b9e4c8;border-radius:4px;padding:0 4px;}
+.roomtag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 14px;background:#eafaf0;border:1px solid #b9e4c8;border-left:4px solid #2f9e44;border-radius:8px;font-size:12.8px;color:#1f6631;line-height:1.7;}
+.fwait{background:#fdecec;border:1px dashed #c0392b;border-radius:6px;padding:8px 14px;font-size:12.6px;color:#7a1f1f;font-weight:700;text-align:center;}
+@media print{html{scroll-behavior:auto;}body{background:#fff;padding:0;}.topnav,.copybtn,.ckprog,.ckhint{display:none!important;}a.ulink{border-bottom:none;}.sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:24px 28px;margin:0;}.topnotice{box-shadow:none;max-width:none;margin:0 0 14px;}.sheet.i2,.sheet.k1,.sheet.k2,.sheet.k3,.sheet.k4,.sheet.k5,.sheet.k6{page-break-before:always;}.level,pre.code,.record,.card,.verify,.checklist,.ainote,.warn,.dayof,.idnote,.figure,table.levels{break-inside:avoid;}}
+@media (max-width:640px){.topnav .inner{height:50px;gap:9px;}.topnav .brand span{display:none;}.topnav .go{padding:6px 10px;font-size:11px;}.qrbox{width:100%;}.qrimg{margin:0 auto;}.sheet{padding:30px 22px 40px;}h1{font-size:23px;}pre.code{font-size:12px;padding:15px;}.record{flex-direction:column;align-items:flex-start;}.frow{flex-wrap:wrap;gap:7px;}}
+</style></head>
+<body>
+
+<header class="topnav">
+  <div class="inner">
+    <div class="brand">第3週目 授業資料：標準入出力とパイプ<span>システムプログラミング</span></div>
+    <div class="links">
+      <a href="#intro">今日の90分</a>
+      <a href="#lecture">講義</a>
+      <a href="#stageA">Stage A</a>
+      <a href="#stageB">Stage B</a>
+      <a href="#stageC">Stage C</a>
+      <a href="#wrap">振り返り</a>
+      <a href="#hw">宿題</a>
+      <a href="#appendix">用語集・早見表</a>
+    </div>
+    <a class="go" href="#hw">宿題を見る</a>
+  </div>
+</header>
+
+<section class="topnotice" id="top">
+  <h2>★ 今日の90分で、あなたがやること</h2>
+  <p><b>先週は「入口」が壊れました。今日は「出口」が壊れます。</b>先週の <code>more01</code> は、標準入力がパイプに差し替えられていることを知らないまま <code>getchar()</code> を呼んで壊れました。<b>今日は、自分で書いたコマンドの出力が、パイプにつないだ瞬間に「使えないデータ」になるところを見ます。</b></p>
+  <ul>
+    <li><b>今日の合格ラインは「動いた」ことではありません。</b>「<b><code>ls</code> は何を見て、色を出すか出さないかを決めているのか</b>」を1文で言えることです。</li>
+    <li><b>管理者権限（<code>sudo</code>）は使いません。</b>今日打つコマンドは、すべて一般ユーザーの権限で動きます。</li>
+    <li><b>壊した <code>mywc01</code> は、直さずに残しておいてください。</b>宿題のレポートで、直す前と後を並べて書きます。</li>
+  </ul>
+  <div class="axis">
+    <b>始める前に、手元にあること</b>
+    <div class="flowbox" style="margin-top:8px;">
+      <div class="frow"><span class="fno">1</span><span class="ftxt"><b>ターミナルが開けて、プロンプト（<code>$</code>）が出ている</b></span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">2</span><span class="ftxt"><b>配布された <code>numbers.txt</code></b>（200行のテストデータ。今日の演習で最初から最後まで使います）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">3</span><span class="ftxt">Linux標準教科書（PDF可）。<b>今日は6章を正面から開きます</b></span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">4</span><span class="ftxt"><b>配布スライド</b>（<b>Stage A-3 のページに仮説を書きます</b>）と、<b>共有シートのURL</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ INTRO ============================ -->
+<section class="sheet i1" id="intro">
+  <div class="eyebrow">INTRO<span class="badge">90分</span></div>
+  <h1>プログラムは、自分のつなぎ先を知らない</h1>
+  <p class="lead">先週の結論は「<b>プログラムは装置に直結していない。すべての出入りはカーネルを通る</b>」でした。今日は、その一文を<b>3行に分解</b>します。</p>
+
+  <div class="meta">
+    <span><b>時間</b> 90分</span>
+    <span><b>環境</b> Linux ／ ターミナル ／ gcc</span>
+    <span><b>言語</b> C</span>
+    <span><b>権限</b> 一般ユーザーのみ</span>
+    <span><b>教材</b> 教科書2章の入口 ／ Linux標準教科書 6章</span>
+  </div>
+
+  <h2>今日の3行</h2>
+  <table class="levels">
+    <thead><tr><th style="width:60px;">　</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><b>［1］</b></td><td><b>プロセスが外の世界を知る手段は、<code>0</code> <code>1</code> <code>2</code> という番号だけである</b></td></tr>
+      <tr><td><b>［2］</b></td><td><b>その番号の先を差し替えるのは、シェルの仕事である。プログラムは差し替えられたことを知らない</b></td></tr>
+      <tr><td><b>［3］</b></td><td><b>ただし、知りたければカーネルに聞ける。先週の <code>more01</code> は、聞かなかった</b></td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:12px;"><b>［1］と［2］は、先週あなたが体験したことに名前を付け直しているだけです。</b>新しいのは［3］だけ。<b>今日の90分は、［3］にたどり着くためにあります。</b></p>
+
+  <h2>今日の到達目標</h2>
+  <div class="checklist">
+    <h4>Goal of the day</h4>
+    <ul>
+      <li><b><code>0</code> / <code>1</code> / <code>2</code> が何であるかを、自分の言葉で説明できた</b></li>
+      <li><b><code>&gt;</code> <code>2&gt;</code> <code>&lt;</code> <code>|</code> を使い分けて、出力を意図した場所に送れた</b></li>
+      <li><b>自作コマンドの出力が、パイプにつないだ瞬間に「使えないデータ」になる現象を、自分の画面で再現できた</b></li>
+      <li><b><code>ls</code> が何を見て色を出し分けているかを、1文で説明できる</b> ← <b>本命。他の3つは前提です</b></li>
+    </ul>
+  </div>
+
+  <h2>今日の流れ</h2>
+  <table class="levels">
+    <thead><tr><th style="width:110px;">経過時間</th><th>内容</th><th style="width:60px;">分</th></tr></thead>
+    <tbody>
+      <tr><td>0:00〜0:05</td><td>環境の確認 ／ 今日の作業場所を作る</td><td>5</td></tr>
+      <tr><td>0:05〜0:28</td><td><b>講義</b>：0番・1番・2番 ／ シェルの仕事 ／ カーネルに聞く方法</td><td>23</td></tr>
+      <tr><td>0:28〜0:30</td><td>今日の流れと、<b>「書く前に、15秒」</b></td><td>2</td></tr>
+      <tr><td>0:30〜1:15</td><td><b>演習</b>：Stage A 観察 → <b>Stage B 壊す</b> → Stage C 直す</td><td>45</td></tr>
+      <tr><td>1:15〜1:30</td><td><b>振り返り</b>：本物のコマンドの作法 ／ 結果共有 ／ 宿題説明</td><td>15</td></tr>
+    </tbody>
+  </table>
+
+  <h2>今日のルール ― 書く前に、15秒</h2>
+  <p>今日は45分間、手を動かします。その間ずっと効いているルールを、先に1つだけ渡しておきます。</p>
+
+  <div class="ainote"><b>何かを作ろうとしたら、15秒だけ「既存のコマンドの組み合わせで済まないか」を考える。</b><br><br>
+  Unixには、すでに何百ものコマンドがあります。<b>そのほとんどは、あなたが生まれる前から使われていて、バグが出尽くしています。</b>同じものを書き直すのは、時間の無駄であるだけでなく、<b>わざわざ新しいバグを増やす行為</b>です。</div>
+
+  <table class="levels" style="margin-top:14px;">
+    <thead><tr><th style="width:60px;">　</th><th>15秒で、自分にこの3つを聞く</th></tr></thead>
+    <tbody>
+      <tr><td><b>［1］</b></td><td><b>この処理に、名前はついていないか</b><br>数える→<code>wc</code>　選び出す→<code>grep</code>　並べる→<code>sort</code>　重複を消す→<code>uniq</code></td></tr>
+      <tr><td><b>［2］</b></td><td><b>パイプでつなげば、済まないか</b><br>1つのコマンドで無理でも、2つ3つつなげば届くことがほとんどです</td></tr>
+      <tr><td><b>［3］</b></td><td><b><code>man -k</code> で、探したか</b><br><code>man -k count</code> のように、<b>キーワードからコマンドを探せます</b></td></tr>
+    </tbody>
+  </table>
+
+  <p class="note" style="margin-top:12px;"><b>ただし、これは「何も書くな」というルールではありません。</b>書く価値があるのは、<b>既存のコマンドに無い部分</b>です。その線引きを、今日の題材で見ておきます。</p>
+
+  <table class="levels">
+    <thead><tr><th style="width:110px;">　</th><th>今日の題材でいうと</th></tr></thead>
+    <tbody>
+      <tr><td><b>× 書かない</b></td><td>「ファイルの行数を数えるCプログラムを書く」<br>→ <code>wc -l</code> がもうあります。<b>50年バグが出ていません。</b></td></tr>
+      <tr><td><b>○ 書く</b></td><td>「<b>端末につながっているかどうかで、出力を変える</b>」<br>→ <code>wc -l</code> には無い機能です。<b>だから今日、これを書きます。</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="idnote"><b>15秒たって出てこなければ、書いてください。</b>これは<b>考え込むためのルールではなく、考えすぎないためのルール</b>です。探すのに10分かけるくらいなら、書いたほうが早い。<b>15秒という上限のほうが、このルールの本体です。</b><br>
+  なぜこれをルールにするのか、その出典は、<b>Stage C のあとの<a class="ulink" href="#wrap">振り返り</a></b>で明かします。</div>
+
+  <h2>0. 環境の確認（最初の5分）</h2>
+  <pre class="code">whoami               <span class="cmt"># 自分のユーザー名が出るか</span>
+pwd                  <span class="cmt"># いま自分がどこにいるか</span>
+gcc --version        <span class="cmt"># Cコンパイラがあるか  ← 最重要</span></pre>
+  <div class="verify"><b>ここで確認</b>　<code>gcc --version</code> でバージョン番号が数行出れば合格です。<b><code>command not found</code> が出た人は、いま手を挙げてください。</b></div>
+
+  <p class="note" style="margin-top:14px;">続けて、<b>今日の作業場所</b>を作ります。</p>
+  <pre class="code">mkdir -p ~/syspro/week04
+cd ~/syspro/week04
+pwd
+
+<span class="cmt"># 配布された numbers.txt を、このディレクトリにコピーする</span>
+<span class="cmt"># （保存した場所が違う人は、~/Downloads のところを自分の場所に読みかえる）</span>
+cp ~/Downloads/numbers.txt .   <span class="cmt"># ← 最後の . に注目</span>
+wc -l numbers.txt              <span class="cmt"># 200 と出るか</span></pre>
+  <div class="verify"><b>ここで確認</b>　<code>pwd</code> の末尾が <code>/syspro/week04</code> になっていて、<code>wc -l numbers.txt</code> が <b>200</b> と出れば成功です。<b>以降の作業は、すべてこのディレクトリで行います。</b><br>
+  <code>numbers.txt</code> が見つからない人は、いま手を挙げてください。その場で渡します。</div>
+
+  <p class="note" style="margin-top:14px;">最後に、<b>共有シート（URLは授業中に先生が画面に出します）をブラウザのタブに開いたままにしておいてください。</b>最後の15分で使います（<a class="ulink" href="#wrap">振り返り</a>）。<b>B列に全員の学籍番号が入っています。自分の学籍番号の行を探しておいてください。</b></p>
+  <div class="idnote"><b>いまの <code>cp ~/Downloads/numbers.txt .</code> の、最後の <code>.</code> は何ですか。</b><br>
+  <code>cp</code> は「<b>何を</b> <b>どこへ</b>」の2つを取ります。<b>最後の <code>.</code> が「どこへ」です。</b>先週の宿題で <code>.</code> <code>..</code> <code>~</code> <code>/</code> を調べているはずです。<b>いま答えられなければ、Linux標準教科書 5.5 をもう一度開いてください。</b></div>
+
+  <div class="foot">システムプログラミング ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ LECTURE ============================ -->
+<section class="sheet k2" id="lecture">
+  <div class="eyebrow">LECTURE<span class="badge">0:05〜0:30</span></div>
+  <h1>0番、1番、2番</h1>
+  <p class="lead">4つの話をします。<b>このパートで手を動かす必要はありません。</b>ただし <code>1-4</code> は演習のルールそのものなので、聞き逃さないでください。</p>
+
+  <h2>1-1 先週、<code>more01</code> の中で起きていたこと</h2>
+  <p>先週、<code>cat numbers.txt | ./more01</code> と打ったとき、<code>q</code> を押しても止まりませんでした。あのとき何が起きていたのかを、図にします。</p>
+
+  <div class="figure" style="display:flex;gap:18px;flex-wrap:wrap;">
+
+    <div style="flex:1;min-width:280px;border:1px solid #d9dee5;border-radius:8px;padding:14px 16px;background:#fbfaf7;">
+      <p style="margin:0 0 12px;font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 10px;color:#27313b;">① more numbers.txt</p>
+      <div style="display:flex;align-items:stretch;gap:10px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 4px;">numbers.txt</span>
+            <span style="color:#7E8894;">→</span>
+            <span style="width:42px;text-align:center;font-size:12.5px;font-weight:800;color:#1668B5;">0番</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 4px;">キーボード</span>
+            <span style="color:#7E8894;">→</span>
+            <span style="width:42px;text-align:center;font-size:12.5px;font-weight:800;color:#52606d;">端末</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 4px;">画面</span>
+            <span style="color:#7E8894;">←</span>
+            <span style="width:42px;text-align:center;font-size:12.5px;font-weight:800;color:#1668B5;">1番</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:stretch;">
+          <span style="width:10px;border:2px solid #b8c2ce;border-left:none;border-radius:0 6px 6px 0;"></span>
+          <span style="display:flex;align-items:center;font-size:13px;font-weight:800;background:#fff;border:1px solid #b8c2ce;border-radius:6px;padding:8px 10px;margin-left:8px;font-family:'SFMono-Regular',Consolas,Menlo,monospace;">more01</span>
+        </div>
+      </div>
+      <p style="margin:12px 0 0;font-size:12.5px;color:#0F6B60;line-height:1.7;"><b><code>q</code> を押すと止まった。</b>読む先と押す先が別だったから。</p>
+    </div>
+
+    <div style="flex:1;min-width:280px;border:2px solid #BE3E1B;border-radius:8px;padding:14px 16px;background:#fff;">
+      <p style="margin:0 0 12px;font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:12.5px;background:#FAE5DD;border-radius:5px;padding:6px 10px;color:#27313b;">② cat numbers.txt | ./more01</p>
+      <div style="display:flex;align-items:stretch;gap:10px;">
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 4px;">cat の出力</span>
+            <span style="color:#7E8894;">→</span>
+            <span style="width:42px;text-align:center;font-size:12.5px;font-weight:800;color:#1668B5;">0番</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#FAE5DD;border-radius:5px;padding:6px 4px;">キーボード</span>
+            <span style="color:#BE3E1B;">→</span>
+            <span style="width:42px;text-align:center;font-size:11.5px;font-weight:800;color:#BE3E1B;line-height:1.3;">どこにも</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="flex:1;text-align:center;font-size:12.5px;background:#eef1f4;border-radius:5px;padding:6px 4px;">画面</span>
+            <span style="color:#7E8894;">←</span>
+            <span style="width:42px;text-align:center;font-size:12.5px;font-weight:800;color:#1668B5;">1番</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:stretch;">
+          <span style="width:10px;border:2px solid #b8c2ce;border-left:none;border-radius:0 6px 6px 0;"></span>
+          <span style="display:flex;align-items:center;font-size:13px;font-weight:800;background:#fff;border:1px solid #b8c2ce;border-radius:6px;padding:8px 10px;margin-left:8px;font-family:'SFMono-Regular',Consolas,Menlo,monospace;">more01</span>
+        </div>
+      </div>
+      <p style="margin:12px 0 0;font-size:12.5px;color:#8C2D12;line-height:1.7;"><b><code>q</code> を押しても止まらない。</b>more01 は <code>cat</code> の出力を読んでいた。<b>キーボードはどこにもつながっていない。</b></p>
+    </div>
+
+    <p class="cap" style="width:100%;">図1：①と②で <b>more01 のコードは1文字も違いません。</b>違うのは <b>0番の先が何か</b>だけです。</p>
+  </div>
+  <p class="note"><b>図1：<code>more01</code> のコードには「0番から読む」としか書かれていない。0番が何につながっているかは、コードのどこにも書かれていない。</b></p>
+
+  <div class="ainote"><b><code>more01</code> は、キーボードから読んだつもりでいました。</b>しかし実際には <code>cat</code> の出力を読んでいた。<br><br>
+  <b>コードは1文字も間違っていません。間違っていたのは、「0番の先はキーボードだ」という思い込みのほうです。</b></div>
+
+  <p class="note" style="margin-top:16px;">そこで、まず<b>3本の口に名前を与えます。</b></p>
+  <table class="levels">
+    <thead><tr><th style="width:70px;">番号</th><th style="width:150px;">名前</th><th>C言語では</th><th>既定のつなぎ先</th></tr></thead>
+    <tbody>
+      <tr><td><b>0</b></td><td>標準入力</td><td><code>stdin</code>／<code>getchar()</code> が読む先</td><td>キーボード（端末）</td></tr>
+      <tr><td><b>1</b></td><td>標準出力</td><td><code>stdout</code>／<code>printf()</code> が書く先</td><td>画面（端末）</td></tr>
+      <tr><td><b>2</b></td><td>標準エラー出力</td><td><code>stderr</code>／<code>fprintf(stderr,...)</code></td><td>画面（端末）</td></tr>
+    </tbody>
+  </table>
+  <div class="idnote"><b>「既定の」という言葉に注目してください。</b>既定であるということは、<b>変えられるということ</b>です。次の話がまさにそれです。</div>
+
+  <h2>1-2 差し替えているのは、シェルである</h2>
+  <p>Linux標準教科書6章に出てくる <code>&gt;</code> <code>&lt;</code> <code>2&gt;</code> <code>|</code> は、<b>すべてシェルの機能</b>です。プログラムの機能ではありません。</p>
+
+  <table class="levels">
+    <thead><tr><th style="width:34%;">コマンドライン</th><th style="width:22%;">0番</th><th style="width:22%;">1番</th><th style="width:22%;">2番</th></tr></thead>
+    <tbody>
+      <tr><td><code>./a.out</code></td><td>端末</td><td>端末</td><td>端末</td></tr>
+      <tr><td><code>./a.out &gt; out.txt</code></td><td>端末</td><td><b>out.txt</b></td><td>端末</td></tr>
+      <tr><td><code>./a.out &lt; in.txt</code></td><td><b>in.txt</b></td><td>端末</td><td>端末</td></tr>
+      <tr><td><code>./a.out 2&gt; err.txt</code></td><td>端末</td><td>端末</td><td><b>err.txt</b></td></tr>
+      <tr><td><code>./a.out | ./b.out</code></td><td>端末</td><td><b>パイプ</b></td><td>端末</td></tr>
+    </tbody>
+  </table>
+  <p class="note" style="margin-top:8px;"><b>5つとも、<code>a.out</code> のソースコードは1文字も違いません。</b></p>
+
+  <p><b>これはUnixの弱点ではなく、設計です。</b>プログラムがつなぎ先を知らなくていいからこそ、<code>sort</code> は<b>ファイルにもパイプにも端末にも</b>つなげます。何百というコマンドが、どんな順番でもつながるのはこのためです。</p>
+  <div class="ainote"><b>そして、同じ理由で先週の <code>more01</code> は壊れました。</b><br><br>
+  <b>強さと事故は、同じ設計から出てきています。</b>どちらか片方だけを取ることはできません。</div>
+
+  <h2>1-3 では、どうしても知りたいときは ― <b>今日の核心</b></h2>
+  <p>ここで1つ、実演を見てください。</p>
+  <pre class="code">ls --color=auto /usr          <span class="cmt"># ディレクトリに色がつく</span>
+ls --color=auto /usr | cat     <span class="cmt"># 色が消える</span></pre>
+
+  <div class="verify"><b>考えてみてください。</b><br><code>ls</code> のコマンドラインは1文字も変えていません。<b>なのに出力が変わりました。<code>ls</code> は、何を見て決めたのでしょうか。</b></div>
+
+  <p style="margin-top:14px;">答えは、<b><code>ls</code> は自分の1番がどこにつながっているかをカーネルに聞いている</b>、です。</p>
+
+  <pre class="code"><span class="cmt">/* 「1番の先は端末ですか？」とカーネルに聞く */</span>
+#include &lt;unistd.h&gt;
+
+if (isatty(1))      <span class="cmt">/* 端末なら 1、そうでなければ 0 */</span>
+    ... 色をつけて出す（<b>人間</b>が見るから）
+else
+    ... 素のまま出す（<b>機械</b>が読むから）</pre>
+
+  <div class="dayof"><b>今日の一文</b><br><br>
+  <b>プログラムは、自分のつなぎ先を知らない。しかし、カーネルに聞けば教えてもらえる。</b><br>
+  <b>先週の <code>more01</code> は、聞かなかった。</b><br><br>
+  先週の解決策（<code>/dev/tty</code> を開く）は、<b>「聞かずに、端末を強引につかみに行く」</b>方法でした。今日やるのは、<b>「まず聞く」</b>方法です。</div>
+
+  <h2>1-4 なぜ本物のコマンドは飾らないのか</h2>
+  <p>1970年代のUnixから今日まで、<code>wc</code> も <code>sort</code> も <code>grep</code> も、<b>パイプにつながれたときは飾りを出しません。</b>なぜでしょうか。</p>
+  <div class="idnote"><b>この答えは、いまは出しません。</b>Stage B で、あなたの自作コマンドが同じ失敗をします。<b>自分で壊してから聞いたほうが、理由は腹に落ちます。</b>答え合わせは Stage C のあと、<b><a class="ulink" href="#wrap">振り返り</a></b>でやります。</div>
+
+  <div class="foot">講義 ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ STAGE A ============================ -->
+<section class="sheet k1" id="stageA">
+  <div class="eyebrow">STAGE <span class="no">A</span><span class="badge">12分</span></div>
+  <h1>観察する</h1>
+  <p class="lead">ここから45分、手を動かします。<b>まずは本物を観察します。</b>説明を読むのではなく、動かして答えてください。</p>
+
+  <h2>A-1　3本の口を、別々の場所に送る（4分）</h2>
+  <pre class="code">ls /usr &gt; ok.txt                <span class="cmt"># 成功したときの出力はどこへ？</span>
+ls /nonexistent &gt; ng.txt        <span class="cmt"># エラーメッセージは ng.txt に入る？</span>
+cat ng.txt
+ls /nonexistent 2&gt; err.txt      <span class="cmt"># 今度は？</span>
+cat err.txt
+ls /nonexistent &gt; all.txt 2&gt;&amp;1  <span class="cmt"># 1番と2番を同じ場所へ</span>
+cat all.txt</pre>
+
+  <div class="verify"><b>観察して答える（口で言えること）</b><br>
+  ① <code>ng.txt</code> は<b>空でしたか</b>。空だったのはなぜですか。<br>
+  ② <code>2&gt;</code> と <code>&gt;</code> は、何が違いますか。<br>
+  ③ <code>2&gt;&amp;1</code> は、日本語にするとどういう意味ですか。</div>
+
+  <div class="idnote"><b>エラーメッセージは1番ではなく2番から出ています。</b>だから <code>&gt;</code>（＝1番の差し替え）では捕まえられません。<b>この分離があるおかげで、「結果はファイルへ、エラーは画面へ」ができます。</b></div>
+
+  <h2>A-2　フィルタをつなぐ（4分）― Linux標準教科書6章</h2>
+  <pre class="code">cat /etc/passwd | cut -d: -f7 | sort | uniq -c | sort -rn
+cat /etc/passwd | wc -l
+grep bash /etc/passwd | head -3
+seq 1 200 | tail -5
+cat numbers.txt | tr '\n' ' ' | head -c 60 ; echo</pre>
+
+  <div class="ainote"><b>1つだけ、気づいてほしいことがあります。</b><br><br>
+  いま出てきた <code>cut</code> <code>sort</code> <code>uniq</code> <code>grep</code> <code>wc</code> <code>head</code> <code>tail</code> <code>tr</code> は、<b>全員が「0番から読んで、1番に書く」という同じ形をしています。</b><br><br>
+  <b>形が同じだから、どの順番でもつなげます。</b>これがパイプの正体です。<b>各コマンドの詳しい使い方は宿題でやります。</b></div>
+
+  <h2>A-3　<code>ls</code> の色が消える（4分）― <b>今日の起点</b></h2>
+  <pre class="code">ls --color=auto                    <span class="cmt"># 色がつく</span>
+ls --color=auto | cat              <span class="cmt"># 色が消える</span>
+ls --color=auto | cat -A           <span class="cmt"># 中身を全部見る</span>
+ls --color=always | cat -A         <span class="cmt"># 強制的に色を出すと…</span></pre>
+
+  <div class="verify"><b>ここで確認</b>　最後の行で <code>^[[01;34m</code> のような文字列が見えれば成功です。<br>
+  <b>「色」とは、画面に混ぜられた見えない文字だったということです。</b><code>^[</code> は ESC（エスケープ）という1文字を表しています。</div>
+
+  <div class="record">
+    <div class="txt">
+      <p class="rh"><span class="ic">✎</span>配布スライドの <b>Stage A-3</b> のページに書く（1分）― 1回目の仮説</p>
+      <p><b>「<code>ls</code> は、何を見て、色を出すか出さないかを決めているのか」</b><br>
+      いまの時点の仮説を、<b>1文で</b>、配布スライドの <b>Stage A-3</b> のページの余白に書いてください。<b>正解でなくて構いません。</b>Stage C の後に、自分で採点します。</p>
+    </div>
+  </div>
+
+  <div class="warn"><b>先生の画面と違う場合。</b>環境によっては <code>ls</code> と打っただけで色がつく設定（<code>alias</code>）になっています。<b><code>alias ls</code> と打つと、自分の環境がどうなっているか分かります。</b>この資料では、差が出ないように <code>--color=auto</code> を毎回書いています。</div>
+
+  <div class="foot">Stage A ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ STAGE B ============================ -->
+<section class="sheet k3" id="stageB">
+  <div class="eyebrow">STAGE <span class="no">B</span><span class="badge">18分</span></div>
+  <h1>自作コマンドを、わざと壊す</h1>
+  <p class="lead"><b>ここが今日の中心です。</b>18分を、①読む4分 ②動かす4分 ③壊す5分 ④聞く5分 に使います。</p>
+
+  <h2>B-1　<code>mywc01.c</code> を読む（4分）― コンパイルはまだしない</h2>
+  <p class="note">エディタで <code>mywc01.c</code> を作り、下のコードを入れてください。<b>入れたら、コンパイルの前に3問に答えてください。</b></p>
+
+  <pre class="code"><span class="cmt">/* mywc01.c ---- 行数を数える : バージョン 0.1 */</span>
+#include &lt;stdio.h&gt;
+
+int main(void)
+{
+    int  c;
+    long lines = 0;
+
+    while ((c = getchar()) != EOF)
+        if (c == '\n')
+            lines++;
+
+    printf("\033[1;36m======================\033[m\n");
+    printf("  行数 : \033[1;32m%ld\033[m 行\n", lines);
+    printf("\033[1;36m======================\033[m\n");
+    return 0;
+}</pre>
+
+  <div class="checklist">
+    <h4>読んでから答える3問</h4>
+    <ul>
+      <li><b>このプログラムは、0番から読んでいますか。それともファイルから読んでいますか。</b></li>
+      <li><b><code>\033[1;32m</code> は何ですか。</b>（ヒント：Stage A-3 で <code>cat -A</code> に見えたもの）</li>
+      <li><b>この出力を受け取るのは、人間ですか、機械ですか。</b>——<b>このプログラムは、どちらだと決めつけていますか。</b></li>
+    </ul>
+  </div>
+
+  <h2>B-2　動かす（4分）</h2>
+  <pre class="code">gcc -Wall -o mywc01 mywc01.c
+./mywc01 &lt; numbers.txt
+ls /usr/bin | ./mywc01</pre>
+  <div class="verify"><b>ここで確認</b>　枠が水色、数字が緑で出れば成功です。<b>この時点では「よくできている」ように見えます。</b>——それでいいです。次で壊します。</div>
+
+  <h2>B-3　壊す（5分）</h2>
+  <p class="note"><b>次の2つを、この順番で打ってください。</b></p>
+  <pre class="code"><span class="cmt"># ① 中身を全部見てみる</span>
+./mywc01 &lt; numbers.txt | cat -A
+
+<span class="cmt"># ② 数えた結果を、他のコマンドに渡してみる</span>
+N=$(./mywc01 &lt; numbers.txt)
+echo $((N * 2))</pre>
+
+  <div class="warn"><b>②で、こういうエラーが出ます。</b><br>
+  <code>bash: ...: syntax error: operand expected</code><br>
+  日本語環境なら <code>構文エラー: 演算子が必要です</code> のように出ます。<b>文言はシェルと言語設定で変わりますが、「数として読めない」と言われている点は同じです。</b><br><br>
+  <b>これが今日の「壊れた瞬間」です。</b></div>
+
+  <div class="ainote"><b><code>mywc01</code> は、<code>200</code> という数字を出したつもりでいます。</b><br><br>
+  しかし <code>N</code> に入ったのは、<b>飾りの枠まで含めた3行ぶんの文字の列</b>です。<code>ESC [ 1 ; 3 6 m = = = …</code> で始まり、途中に <code>ESC [ 1 ; 3 2 m 2 0 0 ESC [ m</code> が埋まっています。<b>エラーが <code>200</code> ではなく <code>======</code> を指しているのは、そのためです。</b><br>
+  <b>人間の目には 200 に見える。機械には見えない。</b><br><br>
+  <b><code>more01</code> と同じで、コードは1文字も間違っていません。</b>間違っていたのは、<b>「1番の先には人間がいる」という思い込み</b>のほうです。</div>
+
+  <h2>B-4　カーネルに聞いてみる（5分）</h2>
+  <p class="note"><b>これは配布されています。</b>配布セットの <code>whereami.c</code> を作業ディレクトリにコピーしてください（<code>cp ~/Downloads/whereami.c .</code>）。<b>今日の主役ではないので、打たずに済ませます。</b>ただし<b>下のコードには目を通してください。</b>やっていることは、3本の口それぞれについて <code>isatty</code> と <code>ttyname</code> を呼んでいるだけです。</p>
+
+  <pre class="code"><span class="cmt">/* whereami.c ---- 自分の 0/1/2 がどこにつながっているかを聞く */</span>
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;
+
+void report(int fd, const char *name)
+{
+    if (isatty(fd))
+        fprintf(stderr, "fd %d (%s) : 端末です  -&gt; %s\n", fd, name, ttyname(fd));
+    else
+        fprintf(stderr, "fd %d (%s) : 端末ではありません\n", fd, name);
+}
+
+int main(void)
+{
+    report(0, "標準入力      ");
+    report(1, "標準出力      ");
+    report(2, "標準エラー出力");
+    return 0;
+}</pre>
+
+  <pre class="code">gcc -Wall -o whereami whereami.c
+./whereami                 <span class="cmt"># 3本とも端末</span>
+./whereami | cat           <span class="cmt"># 1番だけ変わる</span>
+echo hi | ./whereami       <span class="cmt"># 0番だけ変わる</span>
+./whereami &gt; log.txt        <span class="cmt"># 報告は画面に出たまま</span>
+./whereami 2&gt; log.txt ; cat log.txt</pre>
+
+  <div class="verify"><b>観察して答える</b><br>
+  ① <code>./whereami | cat</code> のとき、<b>報告が画面から消えなかったのはなぜですか。</b><br>
+  ② <code>./whereami &gt; log.txt</code> のとき、<code>log.txt</code> の中身はどうなっていますか。<br>
+  ③ 端末のときに出る <code>/dev/pts/0</code> のような名前。<b>先週これに似たものを開きませんでしたか。</b></div>
+
+  <div class="idnote"><b>①の答えは「報告を2番に出しているから」です。</b>パイプが差し替えたのは1番だけでした。<br>
+  <b>そして、いま自分が書いた <code>fprintf(stderr, ...)</code> と、Stage A-1 で打った <code>2&gt;</code> は、同じ「2番」の話です。</b>C言語側とシェル側から、同じものを見ていたことになります。</div>
+
+  <div class="foot">Stage B ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ STAGE C ============================ -->
+<section class="sheet k5" id="stageC">
+  <div class="eyebrow">STAGE <span class="no">C</span><span class="badge">15分</span></div>
+  <h1>本物と同じ方法で直す</h1>
+  <p class="lead"><b>変更は3か所だけです。</b>そして直したあと、それを<b>シェルスクリプトの部品として使います。</b></p>
+
+  <h2>C-1　<code>isatty</code> で直す（7分）</h2>
+  <pre class="code">cp mywc01.c mywc02.c</pre>
+  <p class="note"><b><code>mywc01.c</code> は消さないでください。</b>提出物で両方使います。</p>
+
+  <pre class="code"><span class="cmt">/* mywc02.c ---- 行数を数える : バージョン 0.2 */</span>
+#include &lt;stdio.h&gt;
+#include &lt;unistd.h&gt;              <span class="cmt">/* ★変更1：isatty を使うため */</span>
+
+int main(void)
+{
+    int  c;
+    long lines = 0;
+
+    while ((c = getchar()) != EOF)
+        if (c == '\n')
+            lines++;
+
+    if (isatty(1)) {              <span class="cmt">/* ★変更2：1番の先を聞く */</span>
+        printf("\033[1;36m======================\033[m\n");
+        printf("  行数 : \033[1;32m%ld\033[m 行\n", lines);
+        printf("\033[1;36m======================\033[m\n");
+    } else {                      <span class="cmt">/* ★変更3：機械が読むなら素のまま */</span>
+        printf("%ld\n", lines);
+    }
+    return 0;
+}</pre>
+
+  <div class="ainote"><b>手を動かす前に、説明する。</b><br><br>
+  <code>if (isatty(1)) {</code> まで書けば、あとは機械的に埋められてしまう場所です。<br><br>
+  <b>埋める前に「なぜ <code>else</code> 側は色を消すのか」を隣の人に説明してください。</b>説明できないまま書き写した場合、あなたは今日の90分を失っています。<b>先週と同じルールです。</b></div>
+
+  <h2>C-2　直ったことを確認する（3分）</h2>
+  <pre class="code">gcc -Wall -o mywc02 mywc02.c
+./mywc02 &lt; numbers.txt              <span class="cmt"># 端末：飾りが出る</span>
+./mywc02 &lt; numbers.txt | cat -A     <span class="cmt"># パイプ：200$ だけ</span>
+N=$(./mywc02 &lt; numbers.txt)
+echo $((N * 2))                      <span class="cmt"># 400 と出れば成功</span>
+ls /usr/bin | ./mywc02
+ls /usr/bin | wc -l                  <span class="cmt"># 本物と一致するか</span></pre>
+
+  <div class="verify"><b>ここで確認</b>　<code>400</code> が出て、かつ <b>本物の <code>wc -l</code> と数が一致</b>すれば、今日の到達点です。<br>
+  <b>一致しなかった人は、別のファイルを数えているか、打ち間違いです。</b><code>wc -l numbers.txt</code> と <code>./mywc02 &lt; numbers.txt</code> を並べて打ち直してください。</div>
+
+  <div class="idnote"><b>早く終わった人へ。</b><code>mywc02</code> も <code>wc -l</code> も、数えているのは<b>改行の数</b>です。だから同じファイルなら必ず一致します。<b>では、最終行に改行が無いファイルはどうなるでしょうか。</b><br>
+  <code>printf 'a\nb\nc' &gt; nonl.txt</code> を作って、<code>wc -l nonl.txt</code> と <code>./mywc02 &lt; nonl.txt</code> を試してください。<b>画面には3行見えるのに、どちらも 2 と答えます。</b>「1行」とは何か、という話です。<b>気づいたことを共有シートのE列に書いてください。</b></div>
+
+  <div class="record">
+    <div class="txt">
+      <p class="rh"><span class="ic">✎</span>スライド <b>Stage A-3</b> のページを見返す（1分）</p>
+      <p><b>「<code>ls</code> は何を見て決めているのか」</b>——最初に書いた仮説を、いま自分で採点してください。<br>
+      <b>当たっていた人</b>は、なぜ当たったのかを。<b>外していた人</b>は、どこで思い違いをしていたかを、1行だけ足してください。<b>これを共有シートに書きます。</b></p>
+    </div>
+  </div>
+
+  <h2>C-3　シェルスクリプトにする（5分）</h2>
+  <p class="note"><b>直したからこそ、部品として使えます。</b>ここで初めてシェルスクリプトを書きます。<b>4行です。</b></p>
+
+  <pre class="code"><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># count.sh : ファイルの行数を数えて、報告する</span>
+n=$(./mywc02 &lt; "$1")
+echo "$1 は $n 行あります"</pre>
+
+  <pre class="code">chmod +x count.sh      <span class="cmt"># 実行できるようにする</span>
+./count.sh numbers.txt</pre>
+
+  <div class="verify"><b>ここで確認</b>　<code>numbers.txt は 200 行あります</code> と出れば成功です。<br>
+  <b>試しに、スクリプトの <code>mywc02</code> を <code>mywc01</code> に書き換えて実行してみてください。</b>報告が壊れます。<b>「飾ったままでは、部品にできない」</b>——これが今日の結論です。</div>
+
+  <div class="idnote"><b><code>chmod +x</code> の <code>x</code> は、先週の宿題で調べた <code>drwxr-xr-x</code> の <code>x</code> です。</b>先週は「読むもの」だったものが、今日「自分で付けるもの」になりました。</div>
+
+  <div class="foot">Stage C ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ WRAP-UP ============================ -->
+<section class="sheet k2" id="wrap">
+  <div class="eyebrow">WRAP-UP<span class="badge">15分</span></div>
+  <h1>なぜ本物のコマンドは飾らないのか</h1>
+  <p class="lead">講義の <b>1-4</b> で出した問いの、答え合わせです。<b>あなたの <code>mywc01</code> は、さっき <code>ls</code> と同じ失敗をしました。</b>だから、いまなら理由が入ります。</p>
+
+  <div class="card" style="max-width:none;">
+    <h3>『伽藍とバザール』教訓15（Eric S. Raymond ／ 山形浩生 訳）</h3>
+    <ul><li><b>ゲートウェイソフトを書くときはいかなる場合でも、データストリームへの干渉は最低限におさえるように必死で努力すること。そして受け手がわがどうしてもと言わない限り、絶対に情報を捨てないこと！</b></li></ul>
+  </div>
+  <p class="note" style="margin-top:10px;">色のエスケープシーケンスは、<b>データストリームへの干渉</b>です。人間には便利ですが、<b>次のコマンドにとってはゴミ</b>です。だから <code>ls</code> は、受け手が人間でないと分かった瞬間に、干渉をやめます。<b><code>mywc01</code> は、やめませんでした。</b></p>
+
+  <div class="card" style="max-width:none;">
+    <h3>『伽藍とバザール』教訓9</h3>
+    <ul><li><b>賢いデータ構造と間抜けなコードのほうが、その逆よりずっとまし。</b></li></ul>
+  </div>
+  <p class="note" style="margin-top:10px;">Unixの何百というコマンドが共有している「賢いデータ構造」は、たった1つ―― <b>改行で区切られたテキスト</b>です。<b>これが50年間壊れていないから、今日あなたが打つパイプラインが成立します。</b>飾りを混ぜるということは、この共有財産を壊すということです。</p>
+
+  <div class="ainote"><b>冒頭に渡した「書く前に、15秒」は、この教訓のことです。</b><br><br>
+  『伽藍とバザール』教訓2：<b>「何を書けばいいかわかってるのがよいプログラマ。なにを書き直せば（そして使い回せば）いいかわかってるのが、すごいプログラマ」</b>――そして<b>「すごいプログラマの大事な特徴の一つが、建設的な面倒くさがり」</b>。<br><br>
+  <b><code>sort</code> を自作する人はいません。</b>パイプは「書かずに済ませる」ための技術です。</div>
+
+  <h2>振り返りシートに書く</h2>
+  <p>口頭での発表はしません。<b>全員が共有シートに書き込み、他の人の書き込みを読み、答えられるものに答えます。</b></p>
+
+  <div class="idnote"><b>共有シート（Googleスプレッドシート）</b><br>
+  （URLは授業中に先生が画面に出します）<br>
+  <b>B列に全員の学籍番号が入っています。自分の学籍番号の行に書いてください。</b>2行目に記入例があります。<b>左端の番号（No.01〜No.48）は、F列で名乗るときに使います。</b><b>他の人の行を書き換えたり消したりしないこと</b>（編集履歴はすべて残ります）。</div>
+
+  <table class="levels" style="margin-top:14px;">
+    <thead><tr><th style="width:58px;">列</th><th>書くこと</th></tr></thead>
+    <tbody>
+      <tr><td><b>B</b></td><td>学籍番号　<b>記入済み。自分の行を見つけるための目印です</b></td></tr>
+      <tr><td><b>C</b></td><td>スライド Stage A-3 に書いた仮説は、当たっていたか（<b>○</b> か <b>×</b> の1文字だけ）</td></tr>
+      <tr><td><b>D</b></td><td><b>★ <code>ls</code> は何を見て色を出し分けているのか、を1文で</b>　← <b>今日の本命</b></td></tr>
+      <tr><td><b>E</b></td><td><b>まだ分かっていないことを1つ。空欄禁止</b></td></tr>
+      <tr><td><b>F</b></td><td>他の人の <b>E列</b> に答える。末尾に自分の番号（例：<code>…だと思います（No.07）</code>）</td></tr>
+    </tbody>
+  </table>
+
+  <p class="note" style="margin-top:10px;"><b>書くのは C・D・E の3セルと、F列への1件だけです。</b>パイプにつないだときのエラーは、シートではなく<b>宿題のWordファイル</b>に貼ってください。</p>
+
+  <div class="verify"><b>F列は、自分の番号の前後5人ぶんだけ読んでください。</b><br>
+  48人ぶんを全部読む時間はありません。<b>No.07 の人なら No.02〜No.12</b> の E列 を見て、<b>答えられるものを1つ以上</b>見つけて書きます。<br>
+  答えられなくても、<b>同じところで引っかかっている人</b>がいたら <code>同じく（No.07）</code> と書いてください。<b>合格は「1つ以上、他の人の行に書き込んだ」ことです。</b>正解でなくて構いません。間違っていたら、次の人が直せます。</div>
+
+  <div class="ainote"><b>E列が、このシートでいちばん価値のある列です。</b><br><br>
+  分かったことを書くのは簡単です。しかし<b>「まだ分かっていないこと」を言葉にできるのは、その手前まで理解できている人だけ</b>です。「全部分からない」でも構いません。<b>ただし、どこから分からなくなったかは書いてください。</b><br><br>
+  <b>答えの付かなかった E列 は、消さずに残します。次週の冒頭で、そこから始めます。</b></div>
+
+  <div class="verify"><b>D列の採点基準</b>（自分で判定できます）<br>
+  <b>合格</b>　<code>ls</code> は<b>自分の1番が端末かどうか</b>を見ている<br>
+  <b>惜しい</b>　パイプかどうかを見ている（<b>向きが逆</b>。見ているのは自分の出口のほうです）<br>
+  <b>不合格</b>　<code>cat</code> が色を消している（<b>主語が違う</b>。色を出さなかったのは <code>ls</code> 自身です）</div>
+
+  <div class="foot">振り返り ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ HOMEWORK ============================ -->
+<section class="sheet k6" id="hw">
+  <div class="eyebrow">HOMEWORK<span class="badge">第3週目</span></div>
+  <h1>宿題</h1>
+  <p class="lead">2つあります。<b>課題Aは40分程度。課題Bは、答えが出なくても構いません。</b>先週と同じく、<b>「出ないこと」に気づくのが課題Bの目的</b>です。<b>提出は2つまとめて1つのWordファイル</b>です。</p>
+
+  <h2>課題A-1：6章のフィルタを1周する（必須）</h2>
+  <table class="levels">
+    <thead><tr><th style="width:170px;">コマンド</th><th>やること</th></tr></thead>
+    <tbody>
+      <tr><td><code>cat</code> / <code>head</code> / <code>tail</code></td><td><code>numbers.txt</code> の先頭・末尾を出す。<b><code>-n</code> の数を変えて挙動を確認</b></td></tr>
+      <tr><td><code>grep</code></td><td><code>/etc/passwd</code> から <code>bash</code> を含む行を抽出。<b><code>-c</code> <code>-v</code> <code>-n</code> の違いを実際に見る</b></td></tr>
+      <tr><td><code>sort</code> / <code>uniq</code></td><td><b><code>sort</code> しないと <code>uniq</code> が効かないことを、実際に効かせ損ねて確認する</b></td></tr>
+      <tr><td><code>cut</code> / <code>tr</code></td><td><code>/etc/passwd</code> を <code>:</code> で切って、ログインシェルの列だけを取り出す<br><b>この2つは教科書6章にありません。</b><code>man cut</code> <code>man tr</code> で調べてください</td></tr>
+      <tr><td><code>wc</code></td><td><code>-l</code> <code>-w</code> <code>-c</code> の3つを比較。<b><code>./mywc02</code> と数が一致するか</b></td></tr>
+      <tr><td><code>&gt;</code> / <code>&gt;&gt;</code> / <code>2&gt;</code> / <code>&lt;</code></td><td><b><code>&gt;</code> と <code>&gt;&gt;</code> の違いを、実際に上書きして失う</b></td></tr>
+    </tbody>
+  </table>
+  <div class="idnote"><b>記録の残し方（先週と同じ）。</b><code>script ~/syspro/week04/kadaiA.log</code> → 作業する → <code>exit</code> で終了。<b>スクリーンショットの束より、はるかに短時間で済みます。</b></div>
+
+  <h2>課題A-2：<code>report.sh</code> を書く（必須）</h2>
+  <div class="level">
+    <div class="lvhead"><span class="chip c-mid">仕様</span><span class="t">引数で受け取ったファイルを調べて報告するスクリプト</span></div>
+    <ul>
+      <li>引数（<code>$1</code>）でファイル名を受け取る</li>
+      <li><b>行数</b>を <code>./mywc02</code> で数えて表示する</li>
+      <li><b>いちばん多く出てくる単語</b>を、<code>tr</code> → <code>sort</code> → <code>uniq -c</code> → <code>sort -rn</code> → <code>head -1</code> のパイプラインで求めて表示する<br><b>ヒント：</b>単語ごとに1行へ割るのが最初の関門です。<code>tr</code> の <code>-s</code>（連続をまとめる）と <code>-c</code>（指定した文字<b>以外</b>）を <code>man tr</code> で調べてください</li>
+      <li><code>chmod +x report.sh</code> して <code>./report.sh /etc/passwd</code> で動くこと</li>
+    </ul>
+    <p><b>調べれば数分で書けます。だからこそ、書いた後に「このパイプラインの各段が何をしているか」を、1段ずつコメントで書き足してください。</b>そのコメントが採点対象です。<b>コメントの無いスクリプトは、動いていても0点です。</b></p>
+  </div>
+
+  <h2>課題B：知りようがないことに、ぶつかる（発展）</h2>
+  <div class="warn"><b>次のことを考えてください。</b><br><br>
+  <code>./mywc02 &lt; numbers.txt | cat</code> を実行したとき、<code>mywc02</code> の <code>isatty(1)</code> は <b>0（端末ではない）</b>を返します。<b>しかし、その先の <code>cat</code> の出力は、画面に出ています。</b><br><br>
+  つまり<b>最終的には人間が見ている</b>のに、<code>mywc02</code> は「機械が読む」と判断して飾りを消しました。<br><br>
+  <b>問い：<code>mywc02</code> から「最終的に人間が見るかどうか」を知る方法はありますか。</b><br>
+  <b>無いなら、なぜ無いのかを3行で書いてください。それが正解です。</b></div>
+
+  <div class="ainote"><b>ここで当たる壁は、先週の課題B（パイプでは全体の行数が分からない）と同じ形です。</b><br><br>
+  <b>手が止まったら、それは失敗ではありません。</b>「分からない」という結論に、根拠をつけて到達できたということです。<b>その先は、プロセスの回で扱います。</b></div>
+
+  <div class="level">
+    <div class="lvhead"><span class="chip c-adv">余力のある人だけ</span><span class="t">パイプの読み手が先に消えたら、書き手はどうなるか</span></div>
+    <ul>
+      <li><code>seq 1 100000000 | head -3</code> を実行し、<b>すぐ止まること</b>を確認する</li>
+      <li><code>echo ${PIPESTATUS[0]}</code> で、<code>seq</code> 側の終了コードを見る</li>
+      <li><b>出てきた数字が何を意味するかを調べ、3行で書く</b></li>
+    </ul>
+    <p><b>答えが出なくても減点しません。</b>「パイプの読み手が先に消えると、書き手はどうなるのか」——この問いだけ持ち帰れば十分です。</p>
+  </div>
+
+  <h2>提出</h2>
+  <div class="verify"><b>提出先：</b>eclass の「第3週目 課題」<br>
+  <b>ファイル名：</b><code>syspro_w03_学籍番号.docx</code>（例：<code>syspro_w03_1116249999.docx</code>）<br>
+  <b>締切：次回授業の開始まで</b><br>
+  <b>雛形：</b><code>課題レポート雛形_第3週目.docx</code> は、<b>配布セットの中と eclass の両方</b>にあります。<b>見出しはそのまま使ってください。</b></div>
+
+  <table class="levels">
+    <thead><tr><th style="width:50px;">節</th><th>書くこと</th><th style="width:110px;">分量の目安</th></tr></thead>
+    <tbody>
+      <tr><td><b>0</b></td><td>学籍番号・氏名</td><td>1行</td></tr>
+      <tr><td><b>1</b></td><td><b>課題A-1：操作ログ</b>（<code>kadaiA.log</code> をテキストで貼る）</td><td>1ページ程度</td></tr>
+      <tr><td><b>2</b></td><td><b>4つの問いへの答え</b>（下記。各2〜3行）</td><td>半ページ</td></tr>
+      <tr><td><b>3</b></td><td><b>課題A-2：<code>report.sh</code> の全文</b>（1段ずつコメント付き）と実行結果</td><td>—</td></tr>
+      <tr><td><b>4</b></td><td><b>課題B：答えと、その根拠3行</b>（「知る方法は無い」で構わない）</td><td>半ページ</td></tr>
+      <tr><td><b>5</b></td><td><b>振り返り</b>：共有シートの E列 に書いた内容と、その後どうなったか</td><td>2〜4行</td></tr>
+    </tbody>
+  </table>
+
+  <div class="checklist">
+    <h4>第2節に書く、4つの問い</h4>
+    <ul>
+      <li><b>1</b>　<code>ls /nonexistent &gt; ng.txt</code> で <code>ng.txt</code> が空になるのはなぜですか。<b><code>0</code> <code>1</code> <code>2</code> という語を使って</b>説明してください。</li>
+      <li><b>2</b>　<code>N=$(./mywc01 ...)</code> は成功したのに、<code>$((N * 2))</code> が失敗したのはなぜですか。<b><code>cat -A</code> の出力を貼って</b>説明してください。</li>
+      <li><b>3</b>　<code>isatty(1)</code> は、何を、誰に聞いていますか。<b><code>man 3 isatty</code> を開いて、セクション3が何かも書いてください。</b>（Linux標準教科書 <b>5.12.1 マニュアルのセクション</b>）</li>
+      <li><b>4</b>　<code>./whereami | cat</code> のとき、報告が画面に残ったのはなぜですか。</li>
+    </ul>
+  </div>
+
+  <div class="checklist">
+    <h4>提出前チェック</h4>
+    <ul>
+      <li><b>1ファイルにまとまっている</b>（<code>.docx</code> が1つだけ。zip や複数ファイルにしない）</li>
+      <li><b>ファイル名が <code>syspro_w03_学籍番号.docx</code> になっている</b></li>
+      <li><b>0〜5 の節が、見出し付きで全部ある</b>（書けなかった節も見出しは残し「できませんでした＋理由」と書く）</li>
+      <li><b>ログとコードがテキストで、等幅フォントになっている</b>（<b>色が論点の箇所だけ画像可</b>）</li>
+      <li><b>eclass にアップロードして、提出済みの表示を自分の目で確認した</b></li>
+    </ul>
+  </div>
+
+  <div class="foot">宿題 ／ 第3週目 授業資料</div>
+</section>
+
+<!-- ============================ APPENDIX ============================ -->
+<section class="sheet i2" id="appendix">
+  <div class="eyebrow">APPENDIX<span class="badge alt">用語集・早見表</span></div>
+  <h1>用語集・コマンド早見表・困ったとき</h1>
+  <p class="lead"><b>先週の用語集に、今日ぶんを足しています。</b>次回以降も同じページを使います。</p>
+
+  <h2>今日の用語</h2>
+  <table class="levels">
+    <thead><tr><th style="width:190px;">用語</th><th>意味</th></tr></thead>
+    <tbody>
+      <tr><td><b>ファイルディスクリプタ</b></td><td>プロセスが持つ入出力の口に付いた<b>番号</b>。<code>0</code>=標準入力、<code>1</code>=標準出力、<code>2</code>=標準エラー出力。<b>プロセスは、この番号を通してしか外の世界とやり取りできない。</b></td></tr>
+      <tr><td><b>標準エラー出力（2番）</b></td><td>エラーメッセージ専用の口。<b>1番と分かれているから、「結果はファイルへ、エラーは画面へ」ができる。</b>C言語では <code>fprintf(stderr, ...)</code>。</td></tr>
+      <tr><td><b>リダイレクト</b></td><td>番号のつなぎ先を差し替えること。<code>&gt;</code>=1番、<code>2&gt;</code>=2番、<code>&lt;</code>=0番、<code>&gt;&gt;</code>=追記、<code>2&gt;&amp;1</code>=2番を1番と同じ場所へ。<b>やっているのはシェル。</b></td></tr>
+      <tr><td><b>パイプ（<code>|</code>）</b></td><td>左のコマンドの1番と、右のコマンドの0番を直結すること。<b>プロセス間通信のいちばん基本的な形。</b></td></tr>
+      <tr><td><b>フィルタ</b></td><td>「0番から読んで、1番に書く」形をしたコマンドの総称。<b>形が同じだから、どの順番でもつながる。</b></td></tr>
+      <tr><td><b><code>isatty(fd)</code></b></td><td>「この番号の先は端末ですか」とカーネルに聞く関数。端末なら1、違えば0。<b><code>#include &lt;unistd.h&gt;</code> が必要。</b></td></tr>
+      <tr><td><b><code>ttyname(fd)</code></b></td><td>その番号がつながっている端末の<b>名前</b>（<code>/dev/pts/0</code> など）を返す。<b>先週の <code>/dev/tty</code> と同じ世界のもの。</b></td></tr>
+      <tr><td><b>エスケープシーケンス</b></td><td><code>ESC</code> で始まる制御用の文字列。<code>\033[1;32m</code> で緑、<code>\033[m</code> で元に戻す。<b>画面には見えないが、データとしては確かに存在する。</b></td></tr>
+      <tr><td><b>シェル変数</b></td><td><code>N=200</code> のように名前に値を入れておく箱。取り出すときは <code>$N</code>。<b>入るのは常に文字列</b>で、数として扱えるかどうかは、使うときに決まる。</td></tr>
+      <tr><td><b>算術評価 <code>$(( ))</code></b></td><td>中身を<b>数式として計算する</b>書き方。<code>$((3 * 2))</code> は <code>6</code>。<b>中身が数として読めないとエラーになる。</b><code>$( )</code> とは別物で、括弧の数が違う。<b>今日壊れたのはこちら。</b></td></tr>
+      <tr><td><b>コマンド置換 <code>$( )</code></b></td><td>コマンドの<b>出力そのもの</b>を値として取り出す書き方。<code>N=$(wc -l &lt; f)</code>。<b>飾りが混ざっていると使えない。</b></td></tr>
+      <tr><td><b>シェルスクリプト</b></td><td>打ったコマンドをファイルに並べたもの。1行目に <code>#!/bin/bash</code>、<code>chmod +x</code> で実行可能にする。<code>$1</code> は1つ目の引数。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>今日使ったコマンド早見表</h2>
+  <table class="levels">
+    <thead><tr><th style="width:220px;">コマンド</th><th>意味</th><th style="width:110px;">教科書</th></tr></thead>
+    <tbody>
+      <tr><td><code>&gt;</code> / <code>&gt;&gt;</code> / <code>&lt;</code> / <code>2&gt;</code> / <code>2&gt;&amp;1</code></td><td>出力を上書き／追記／入力をファイルから／エラーだけ／エラーを出力と同じ場所へ</td><td>6.2 / 6.3</td></tr>
+      <tr><td><code>|</code></td><td>パイプ。左の1番と右の0番を直結</td><td>6.4</td></tr>
+      <tr><td><code>cat -A</code></td><td><b>見えない文字も含めて全部表示する</b>（行末は <code>$</code>、ESC は <code>^[</code>）</td><td>—</td></tr>
+      <tr><td><code>grep</code> / <code>-c</code> <code>-v</code> <code>-n</code></td><td>行の抽出／件数だけ／一致しない行／行番号付き</td><td>6.9</td></tr>
+      <tr><td><code>sort</code> / <code>-r</code> <code>-n</code> <code>-k</code> <code>-t</code></td><td>並べ替え／逆順／数値として／列指定／区切り文字指定</td><td>6.6</td></tr>
+      <tr><td><code>uniq -c</code></td><td>連続する重複をまとめる／個数を付ける。<b><code>sort</code> が先に必要</b></td><td>6.7</td></tr>
+      <tr><td><code>cut -d: -f7</code></td><td>区切り文字を <code>:</code> にして、7列目だけ取り出す</td><td><b>教科書になし</b>　<code>man cut</code></td></tr>
+      <tr><td><code>tr</code> / <code>-s</code> <code>-c</code></td><td>文字の置換・削除／連続をまとめる／指定した文字<b>以外</b>を対象にする</td><td><b>教科書になし</b>　<code>man tr</code></td></tr>
+      <tr><td><code>wc -l</code> / <code>-w</code> / <code>-c</code></td><td>行数／単語数／バイト数</td><td>6.8</td></tr>
+      <tr><td><code>chmod +x</code></td><td>実行権限を付ける（<code>drwxr-xr-x</code> の <code>x</code>）</td><td>9.2</td></tr>
+      <tr><td><code>ls --color=auto</code> / <code>=always</code></td><td>端末のときだけ色を付ける／常に色を付ける</td><td>—</td></tr>
+      <tr><td><code>script ファイル名</code></td><td>端末での操作をファイルに記録する（<code>exit</code> で終了）</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>詰まったときのチェック</h2>
+  <table class="levels">
+    <thead><tr><th style="width:280px;">症状</th><th>まず試すこと</th></tr></thead>
+    <tbody>
+      <tr><td><b><code>ls</code> に色が付かない／逆に <code>| cat</code> でも色が残る</b></td><td><code>alias ls</code> と打って自分の環境を確認。<b><code>/bin/ls --color=auto</code> のようにフルパスで実行すると alias を回避できます。</b></td></tr>
+      <tr><td><b><code>cat -A</code> で特別な文字が見えない</b></td><td>色が出ていない状態です。<code>--color=always</code> を付けて再実行。</td></tr>
+      <tr><td><b><code>isatty</code> で警告が出る</b></td><td><code>#include &lt;unistd.h&gt;</code> の入れ忘れ。<b>★変更1をやっていません。</b></td></tr>
+      <tr><td><b><code>N=$(...)</code> でエラーが出ない</b></td><td><code>mywc01</code> ではなく <code>mywc02</code> を実行しています。<b>B-3 は必ず <code>mywc01</code> で。</b></td></tr>
+      <tr><td><b><code>./count.sh</code> が <code>Permission denied</code></b></td><td><code>chmod +x count.sh</code> を忘れています。</td></tr>
+      <tr><td><b><code>count.sh: command not found</code></b></td><td><code>./</code> が抜けています。<b>先週の <code>echo $PATH</code> の宿題を思い出してください。</b></td></tr>
+      <tr><td><b><code>mywc02</code> の数が <code>wc -l</code> と合わない</b></td><td><b>別のファイルを数えているか、打ち間違いです。</b>どちらも改行の数を数えるので、同じファイルなら必ず一致します。</td></tr>
+      <tr><td><b>画面が変な色のまま戻らない</b></td><td><code>\033[m</code> の打ち間違い。<b><code>reset</code> と打てば戻ります。</b></td></tr>
+      <tr><td><b>先に <code>mywc02</code> を作ってしまった</b></td><td><b><code>mywc01</code> に戻して、B-3 を必ず通してください。</b>壊れる体験を飛ばすと、今日は何も残りません。</td></tr>
+      <tr><td><b>作業ディレクトリを見失った</b></td><td><code>pwd</code> → <code>cd ~/syspro/week04</code>。<b>迷ったら <code>pwd</code>。</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2>次回予告</h2>
+  <table class="levels">
+    <thead><tr><th style="width:90px;">次回</th><th>やること</th><th style="width:250px;">今日つないだ伏線</th></tr></thead>
+    <tbody>
+      <tr><td><b>第4回</b></td><td>システムコール入門（<code>open</code> / <code>read</code> / <code>write</code> / <code>close</code>）とファイルディスクリプタの実体（教科書2章）</td><td><b><code>isatty</code> は、誰に、どうやって聞いていたのか</b></td></tr>
+      <tr><td><b>第5回以降</b></td><td>ファイル属性・ディレクトリ・プロセス・シグナル</td><td>課題Bの「終了コード」／ <code>ttyname</code> が返した <code>/dev/pts/0</code></td></tr>
+    </tbody>
+  </table>
+
+  <div class="dayof"><b>今日の1文（もう一度）</b><br><br>
+  <b>プログラムは、自分のつなぎ先を知らない。しかし、カーネルに聞けば教えてもらえる。</b><br><br>
+  先週の <code>more01</code> は聞かなかった。今日の <code>mywc01</code> も聞かなかった。<b>そして <code>ls</code> は、聞いていた。</b>——違いは、それだけです。</div>
+
+  <div class="foot">同志社大学　システムプログラミング ／ 第3週目 授業資料</div>
+</section>
+
+
+<script>
+(function(){
+  // --- コード欄にコピーボタン ---
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var w=document.createElement('div'); w.className='codewrap';
+    pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    var b=document.createElement('button'); b.type='button'; b.className='copybtn'; b.textContent='コピー';
+    b.addEventListener('click',function(){
+      var t=pre.innerText;
+      var done=function(){ b.textContent='コピーしました'; b.classList.add('done');
+        setTimeout(function(){ b.textContent='コピー'; b.classList.remove('done'); },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done,function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    });
+    w.appendChild(b);
+  });
+  function fallback(t,cb){
+    var ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // --- チェックリストをクリックで消し込み ---
+  document.querySelectorAll('.checklist').forEach(function(cl){
+    var items=cl.querySelectorAll('li'), h4=cl.querySelector('h4');
+    var prog=document.createElement('span'); prog.className='ckprog';
+    if(h4) h4.appendChild(prog);
+    var hint=document.createElement('p'); hint.className='ckhint';
+    hint.textContent='※ クリックすると消し込みできます（保存はされません）';
+    if(h4) h4.insertAdjacentElement('afterend',hint);
+    function upd(){ prog.textContent=cl.querySelectorAll('li.done').length+' / '+items.length; }
+    items.forEach(function(li){
+      li.addEventListener('click',function(e){
+        if(e.target.closest('a')) return;
+        li.classList.toggle('done'); upd();
+      });
+    });
+    upd();
+  });
+
+  // --- 現在位置をナビに反映 ---
+  var links=[].slice.call(document.querySelectorAll('.topnav .links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var idx=-1;
+    secs.forEach(function(s,i){ if(s && s.getBoundingClientRect().top<=96) idx=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===idx); });
+    var on=links[idx];
+    if(on && on.parentNode.scrollWidth>on.parentNode.clientWidth){
+      var p=on.parentNode, l=on.offsetLeft-p.offsetLeft;
+      if(l<p.scrollLeft || l+on.offsetWidth>p.scrollLeft+p.clientWidth){
+        p.scrollTo({left:l-16,behavior:'smooth'});
+      }
+    }
+  }
+  window.addEventListener('scroll',spy,{passive:true});
+  window.addEventListener('resize',spy); spy();
+})();
+</script>
+</body>
+</html>

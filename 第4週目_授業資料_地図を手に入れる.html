@@ -1,0 +1,909 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第4週目 授業資料：地図を手に入れる — システムプログラミング</title><style>
+
+
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 16px 80px;}
+/* ---- Web閲覧向け：固定ナビゲーション ---- */
+.topnav{position:sticky;top:0;z-index:60;margin:0 -16px 24px;padding:0 16px;background:rgba(232,235,239,.93);backdrop-filter:saturate(150%) blur(10px);-webkit-backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid #d3d9e0;}
+.topnav .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;height:54px;}
+.topnav .brand{font-size:12.5px;font-weight:800;color:#1f2933;white-space:nowrap;letter-spacing:.02em;}
+.topnav .brand span{display:block;font-size:10.5px;font-weight:700;color:#7b8794;letter-spacing:.06em;}
+.topnav .links{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;}
+.topnav .links::-webkit-scrollbar{display:none;}
+.topnav .links a{font-size:12px;font-weight:700;color:#52606d;text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap;transition:background .12s,color .12s;}
+.topnav .links a:hover{background:#dde2e8;color:#1f2933;}
+.topnav .links a.on{background:#1f2933;color:#fff;}
+.topnav .go{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#fff;background:#4338ca;border-radius:6px;padding:7px 13px;text-decoration:none;white-space:nowrap;}
+.topnav .go:hover{background:#312e81;}
+.sheet,.topnotice{scroll-margin-top:70px;}
+/* ---- リンク ---- */
+a.ulink{text-decoration:none;border-bottom:1px solid rgba(11,108,181,.35);}
+a.ulink code{color:#0b6cb5;cursor:pointer;}
+a.ulink:hover code{background:#eef6fc;border-color:#bcdcf2;}
+/* ---- コードのコピーボタン ---- */
+.codewrap{position:relative;}
+.copybtn{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;color:#52606d;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 11px;cursor:pointer;font-family:inherit;line-height:1.6;}
+.copybtn:hover{background:#eef1f4;color:#1f2933;}
+.copybtn.done{background:#eafaf0;border-color:#b9e4c8;color:#1f6631;}
+/* ---- チェックリストを操作可能に ---- */
+.checklist li{cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:5px;transition:opacity .15s,background .12s;}
+.checklist li:hover{background:#f7f9fb;}
+.checklist li.done{opacity:.45;}
+.checklist li.done::before{background:var(--accent);border-color:var(--accent);}
+.checklist li.done::after{content:"\2713";position:absolute;left:3px;top:1px;color:#fff;font-size:12px;font-weight:900;line-height:1.45;}
+.ckprog{float:right;font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.04em;}
+.ckhint{font-size:11px;color:#8a97a3;font-weight:600;margin:0 0 9px;}
+.sheet{max-width:880px;margin:0 auto 26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;}
+.sheet.k1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 観察＝人間が見る */
+.sheet.k2{--accent:#1668B5;--accent-deep:#0E4A82;--accentbg:#E6F1FB;--accentbd:#B6D6EF;}  /* 機械・構造 */
+.sheet.k3{--accent:#BE3E1B;--accent-deep:#8C2D12;--accentbg:#FAE5DD;--accentbd:#EDBCA9;}  /* 壊れている */
+.sheet.k4{--accent:#4FA8A0;--accent-deep:#0F6B60;--accentbg:#EAF6F4;--accentbd:#B6DED8;}  /* 予備 */
+.sheet.k5{--accent:#0F6B60;--accent-deep:#0A4A42;--accentbg:#E3F5F2;--accentbd:#A8DCD4;}  /* 直った */
+.sheet.k6{--accent:#0E4A82;--accent-deep:#0A3760;--accentbg:#E9F0F7;--accentbd:#BDD2E6;}  /* 宿題 */
+.sheet.i1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 導入 */
+.sheet.i2{--accent:#334155;--accent-deep:#1e293b;--accentbg:#f1f5f9;--accentbd:#cbd5e1;}
+.figure{margin-top:14px;padding:16px 18px 10px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow-x:auto;}
+.figure .cap{font-size:11.5px;color:var(--soft);margin:6px 0 0;text-align:left;line-height:1.7;}
+.figure svg{display:block;min-width:620px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.eyebrow .no{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:15px;}
+.badge{font-size:11px;letter-spacing:.08em;font-weight:800;color:#fff;background:var(--accent);padding:2px 9px;border-radius:20px;}
+.badge.alt{background:#334155;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;} code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.meta{margin-top:16px;display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;font-size:12.5px;color:var(--soft);}
+.meta b{color:var(--ink);font-weight:700;}
+.grid2{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;}
+.card{flex:1;min-width:240px;padding:14px 16px;border-radius:8px;border:1px solid var(--accentbd);background:var(--accentbg);}
+.card h3{margin:0 0 7px;font-size:13px;font-weight:800;color:var(--accent-deep);letter-spacing:.03em;}
+.card ul{margin:0;padding-left:18px;font-size:12.8px;color:#444;} .card li{margin:3px 0;}
+.card code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.verify{margin-top:14px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.7;}
+.verify b{font-weight:800;} .verify code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.warn{margin-top:12px;padding:11px 15px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:4px solid #BE3E1B;border-radius:8px;font-size:12.6px;color:#8C2D12;line-height:1.65;} .warn b{font-weight:800;}
+.warn code{background:#fff;border:1px solid #EDBCA9;border-radius:4px;padding:0 4px;}
+.timerule{margin-top:14px;padding:13px 16px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:5px solid #BE3E1B;border-radius:8px;font-size:13.3px;color:#8C2D12;line-height:1.7;} .timerule b{font-weight:800;} .timerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:5px solid #0F6B60;border-radius:8px;font-size:13.3px;color:#0A4A42;line-height:1.7;} .notimerule b{font-weight:800;} .notimerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.plabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin:26px 0 9px;}
+pre.code{margin:0;background:var(--codebg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px;padding:18px 20px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:13px;line-height:1.9;color:#27313b;white-space:pre;}
+.cmt{color:#8a97a3;} .kw{color:#0b6cb5;font-weight:600;} .str{color:#1f7a3d;}
+.idnote{margin:14px 0 0;padding:11px 15px;background:#FDF0D4;border:1px solid #EFD193;border-left:4px solid #E8A317;border-radius:8px;font-size:13px;color:#6B4D00;line-height:1.6;}
+.idnote b{font-weight:800;} .idnote code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.dayof{margin-top:14px;padding:13px 16px;background:#1C2027;border-radius:8px;color:#E6EAF0;font-size:12.8px;line-height:1.8;}
+.dayof b{color:#E8A317;font-weight:800;}
+.dayof code{background:#3a4049;border-radius:4px;padding:0 5px;color:#e6edf3;}
+.ainote{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:8px;font-size:12.8px;color:#0A4A42;line-height:1.75;}
+.ainote b{font-weight:800;} .ainote code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.design{margin-top:14px;padding:13px 16px;background:#f4f6f9;border:1px solid var(--line);border-left:4px solid var(--soft);border-radius:8px;font-size:12.6px;color:#3a4654;line-height:1.75;}
+.design b{color:var(--ink);}
+.topnotice{max-width:880px;margin:0 auto 26px;background:#FDF6E6;border:2px solid #E8A317;border-radius:8px;padding:22px 26px;box-shadow:0 8px 30px rgba(20,30,45,.10);}
+.topnotice h2{margin:0 0 10px;font-size:16px;font-weight:800;color:#8A6200;display:flex;align-items:center;gap:8px;}
+.topnotice h2::before{content:"";width:4px;height:18px;background:#E8A317;border-radius:2px;}
+.topnotice p{margin:0 0 8px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice ul{margin:6px 0 8px;padding-left:20px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice li{margin:4px 0;}
+.topnotice b{color:#5c4700;}
+.topnotice .axis{margin-top:10px;padding:11px 15px;background:#fff;border:1px solid #E8A317;border-radius:6px;font-size:13px;color:#4a3c00;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+table.levels{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:13px;}
+table.levels th,table.levels td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;}
+table.levels thead th{background:var(--accentbg);color:var(--accent-deep);font-weight:800;}
+table.levels tbody tr:nth-child(even){background:#fafbfc;}
+table.levels code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:11.6px;word-break:break-all;}
+table.levels b{font-weight:700;}
+.level{margin-bottom:12px;border:1px solid var(--accentbd);border-radius:8px;overflow:hidden;background:#fff;}
+.lvhead{display:flex;align-items:center;gap:10px;padding:8px 13px;background:var(--accentbg);border-bottom:1px solid var(--accentbd);}
+.chip{font-size:11px;font-weight:800;color:#fff;padding:2px 10px;border-radius:20px;}
+.c-beg{background:#E8A317;color:#1C2027;}.c-mid{background:#1668B5;}.c-adv{background:#BE3E1B;}.c-exp{background:#0F6B60;}
+.lvhead .t{font-size:13px;font-weight:700;} .level ul,.level ol{margin:9px 15px 13px;padding-left:20px;font-size:12.8px;line-height:1.7;color:#3a4654;} .level li{margin:4px 0;}
+.level code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;word-break:break-all;} .level b{font-weight:700;color:var(--ink);}
+.level p{margin:9px 15px 11px;font-size:12.8px;line-height:1.7;color:#3a4654;}
+.cmdlist{margin:10px 15px 15px;}
+.cmdlist .cmd{border:1px solid #e0e4ea;border-left:3px solid var(--accent);border-radius:6px;background:#fafbfc;padding:12px 15px;margin:10px 0;}
+.cmdlist .cmdhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmdlist .cmdname{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:2px 9px;}
+.cmdlist .cmdtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.cmdlist .cmdtag.red{background:#c0392b;}
+.cmdlist p{margin:9px 0 0;font-size:12.6px;line-height:1.8;color:#3a4654;}
+.cmdlist p .lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.cmdlist code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.cmdlist .ex{margin-top:9px;padding:9px 12px;background:#fff;border:1px dashed #b8c2ce;border-radius:5px;font-size:12px;line-height:1.8;color:#52606d;}
+.cmdlist .ex .q{display:block;font-family:"SFMono-Regular",Consolas,Menlo,"Hiragino Kaku Gothic ProN",monospace;color:#27313b;margin:3px 0;}
+.cmdlist .ex b{color:var(--accent-deep);}
+.lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.stat{flex:1;min-width:148px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;padding:14px 14px 12px;text-align:center;}
+.stat .n{font-size:31px;font-weight:800;color:var(--accent);line-height:1.05;letter-spacing:-.02em;}
+.stat .n small{font-size:16px;font-weight:800;}
+.stat .l{font-size:11.5px;color:#3a4654;margin-top:8px;line-height:1.6;}
+.stat.bad{border-color:#f3b9b9;background:#fffafa;}
+.stat.bad .n{color:#c0392b;}
+.statsrc{font-size:11px;color:var(--soft);margin-top:9px;line-height:1.6;}
+.statlead{font-size:12.5px;font-weight:800;color:var(--accent-deep);margin:18px 0 0;letter-spacing:.03em;}
+.statlead.bad{color:#c0392b;}
+.qrbox{flex:0 0 auto;width:158px;text-align:center;}
+.qrimg{width:158px;height:158px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;}
+.qrimg svg{width:100%;height:auto;display:block;flex:0 0 auto;}
+.qrimg .ph{font-size:11.5px;font-weight:800;color:var(--accent);line-height:1.7;}
+.qrcap{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.55;}
+.formurl{margin:11px 0 0;padding:11px 14px;background:#fff;border:1px solid var(--accentbd);border-radius:6px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#0b6cb5;word-break:break-all;font-weight:700;}
+.formfields{margin:11px 0 0;padding:0;list-style:none;}
+.formfields li{font-size:12.6px;line-height:1.75;color:#3a4654;padding:5px 0 5px 26px;position:relative;border-bottom:1px dotted var(--accentbd);}
+.formfields li:last-child{border-bottom:none;}
+.formfields li::before{content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:2px;background:var(--accent);}
+.formfields li b{color:var(--ink);}
+.record{margin-top:30px;display:flex;gap:22px;align-items:center;background:var(--accentbg);border:1px solid var(--accentbd);border-left:4px solid var(--accent);border-radius:8px;padding:20px 22px;}
+.record .txt{flex:1;min-width:0;} .record .rh{font-size:15px;font-weight:800;margin:0 0 7px;display:flex;align-items:center;gap:9px;color:var(--accent-deep);}
+.record .rh .ic{width:25px;height:25px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.record p{margin:0 0 8px;font-size:13px;line-height:1.65;color:#444;}
+.record .vals{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0 11px;}
+.record .vals span{background:#fff;border:1px solid var(--accentbd);border-radius:5px;padding:5px 12px;font-size:12.3px;font-weight:700;color:var(--accent-deep);}
+.record .lnk{font-size:12px;word-break:break-all;} .record .lnk a{color:#0b6cb5;font-weight:700;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+ol.steps{margin:12px 0 0;padding-left:22px;font-size:13.3px;line-height:1.85;}
+ol.steps li{margin:7px 0;} ol.steps code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 5px;font-size:12.3px;word-break:break-all;}
+ol.steps b{font-weight:700;}
+.checklist{margin-top:16px;padding:16px 18px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.checklist h4{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent-deep);text-transform:uppercase;}
+.checklist ul{margin:0;padding:0;list-style:none;font-size:13px;}
+.checklist li{margin:8px 0;padding-left:29px;position:relative;line-height:1.7;color:#3a4654;}
+.checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border:2px solid var(--accent);border-radius:3px;background:#fff;}
+.checklist li b{color:var(--ink);font-weight:700;}
+.checklist code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.checklist .fill{display:inline-block;min-width:80px;border-bottom:1.5px dashed var(--accent);}
+.flowbox{margin-top:12px;display:flex;flex-direction:column;gap:0;}
+.frow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E8A317;border-radius:6px;padding:10px 14px;}
+.frow .fno{flex:0 0 auto;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;color:#8A6200;background:#fff7e0;border:1px solid #EFD193;border-radius:20px;padding:2px 11px;}
+.frow .ftxt{flex:1;font-size:13px;color:#4a3c00;}
+.frow .ftime{flex:0 0 auto;font-size:11.5px;color:#8A6200;font-weight:700;}
+.farrow{text-align:center;color:#C08A12;font-size:14px;line-height:1;padding:3px 0;}
+.frow.home{background:#fffdf5;}
+.ftag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#fff;background:#C08A12;border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.roomnote{margin-top:12px;padding:13px 16px;background:#eafaf0;border:2px solid #2f9e44;border-radius:8px;font-size:13.2px;color:#1f6631;line-height:1.8;}
+.roomnote b{font-weight:800;}
+.roomnote .rt{display:block;font-size:14px;font-weight:800;margin-bottom:7px;}
+.roomnote code{background:#fff;border:1px solid #b9e4c8;border-radius:4px;padding:0 4px;}
+.roomtag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 14px;background:#eafaf0;border:1px solid #b9e4c8;border-left:4px solid #2f9e44;border-radius:8px;font-size:12.8px;color:#1f6631;line-height:1.7;}
+.fwait{background:#fdecec;border:1px dashed #c0392b;border-radius:6px;padding:8px 14px;font-size:12.6px;color:#7a1f1f;font-weight:700;text-align:center;}
+@media print{html{scroll-behavior:auto;}body{background:#fff;padding:0;}.topnav,.copybtn,.ckprog,.ckhint{display:none!important;}a.ulink{border-bottom:none;}.sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:24px 28px;margin:0;}.topnotice{box-shadow:none;max-width:none;margin:0 0 14px;}.sheet.i2,.sheet.k1,.sheet.k2,.sheet.k3,.sheet.k4,.sheet.k5,.sheet.k6{page-break-before:always;}.level,pre.code,.record,.card,.verify,.checklist,.ainote,.warn,.dayof,.idnote,.figure,table.levels{break-inside:avoid;}}
+@media (max-width:640px){.topnav .inner{height:50px;gap:9px;}.topnav .brand span{display:none;}.topnav .go{padding:6px 10px;font-size:11px;}.qrbox{width:100%;}.qrimg{margin:0 auto;}.sheet{padding:30px 22px 40px;}h1{font-size:23px;}pre.code{font-size:12px;padding:15px;}.record{flex-direction:column;align-items:flex-start;}.frow{flex-wrap:wrap;gap:7px;}}
+/* ---- 第5週目で追加：やさしくするための部品 ---- */
+.tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;border-radius:20px;padding:1px 9px;margin-right:6px;vertical-align:2px;}
+.tag.must{background:#1668B5;color:#fff;}
+.tag.plus{background:#fff;color:#8A6200;border:1.5px solid #E8A317;}
+.tag.new{background:#E8A317;color:#1C2027;}
+h2 .tag,h3 .tag{vertical-align:3px;}
+.plusbox{margin-top:14px;padding:12px 16px;background:#FFFBF0;border:1.5px dashed #E8A317;border-radius:8px;font-size:12.8px;color:#5c4400;line-height:1.75;}
+.plusbox b{font-weight:800;} .plusbox code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.outlabel{margin:12px 0 4px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#0F6B60;}
+pre.out{margin:0;background:#fff;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:5px;padding:12px 18px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:12.6px;line-height:1.75;color:#0A4A42;white-space:pre;}
+.predict{margin-top:14px;padding:12px 16px;background:#FDF6E6;border:1.5px dashed #E8A317;border-radius:8px;font-size:13px;color:#5c4400;line-height:1.8;}
+.predict .ph{display:block;font-size:12px;font-weight:800;color:#8A6200;letter-spacing:.06em;margin-bottom:4px;}
+.predict b{font-weight:800;} .predict code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.predict table{border-collapse:collapse;margin-top:6px;font-size:12.8px;}
+.predict td{border:1px solid #EFD193;padding:4px 12px;background:#fff;}
+.predict td.blank{min-width:70px;}
+.pair{margin-top:14px;padding:12px 16px;background:#E6F1FB;border:2px solid #1668B5;border-radius:8px;font-size:13px;color:#0E4A82;line-height:1.8;}
+.pair .ph{display:block;font-size:12.5px;font-weight:800;margin-bottom:3px;}
+.pair b{font-weight:800;} .pair code{background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.predict .slots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.predict .slots span{display:inline-flex;align-items:center;gap:6px;font-weight:800;}
+.predict .slots i{display:inline-block;width:56px;height:26px;background:#fff;border:1px solid #EFD193;border-radius:4px;}
+.topnav .links{min-width:0;}
+@media (max-width:640px){.topnav .brand{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;max-width:42vw;}}
+/* 番号札の図 */
+.fdfig{margin-top:14px;padding:16px 18px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;}
+.fdrow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;}
+.fdproc{flex:0 0 150px;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;font-size:12.5px;font-weight:800;color:#1e293b;display:flex;flex-direction:column;justify-content:center;}
+.fdproc small{display:block;font-weight:600;color:#52606d;font-size:11px;margin-top:4px;}
+.fdtags{flex:1;min-width:280px;display:flex;flex-direction:column;gap:6px;}
+.fdtag{display:flex;align-items:center;gap:10px;font-size:12.8px;}
+.fdtag .n{flex:0 0 auto;width:34px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;font-size:15px;color:#fff;background:#1668B5;}
+.fdtag .ar{color:#7b8794;}
+.fdtag .to{flex:1;background:#E6F1FB;border:1px solid #B6D6EF;border-radius:6px;padding:4px 10px;color:#0E4A82;}
+.fdtag.added .n{background:#E8A317;color:#1C2027;}
+.fdtag.added .to{background:#FDF0D4;border-color:#EFD193;color:#6B4D00;font-weight:700;}
+.fdtag.none .n{background:#BE3E1B;}
+.fdtag.none .to{background:#FAE5DD;border-color:#EDBCA9;color:#8C2D12;font-weight:700;}
+.fdfig .cap{font-size:11.5px;color:var(--soft);margin:10px 0 0;line-height:1.7;}
+/* 4つの関数 */
+.fourfn{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+.fn{border:1px solid #B6D6EF;border-top:5px solid #1668B5;border-radius:8px;background:#fff;padding:10px 11px;font-size:12.3px;line-height:1.65;color:#3a4654;}
+.fn .nm{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;font-size:14.5px;color:#0E4A82;display:block;}
+.fn .ja{display:block;font-weight:800;color:#1f2933;margin:2px 0 6px;}
+.fn .sig{display:block;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.2px;background:#f4f6f9;border-radius:4px;padding:3px 6px;margin-bottom:6px;word-break:break-all;}
+.fn.o{border-top-color:#E8A317;} .fn.o .nm{color:#8A6200;}
+@media (max-width:640px){.fourfn{grid-template-columns:repeat(2,1fr);}.fdproc{flex:1 1 100%;}}
+/* 用語集 */
+dl.gloss{margin:10px 0 0;display:grid;grid-template-columns:150px 1fr;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;font-size:12.8px;}
+dl.gloss dt,dl.gloss dd{margin:0;padding:8px 12px;border-bottom:1px solid #eef0f3;line-height:1.7;}
+dl.gloss dt{font-weight:800;color:#1f2933;background:#f7f9fb;}
+dl.gloss dd{color:#3a4654;}
+dl.gloss code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+@media (max-width:640px){dl.gloss{grid-template-columns:1fr;}dl.gloss dt{border-bottom:none;padding-bottom:2px;}}
+/* 変更点（教員向け） */
+.diffrow td:first-child{white-space:nowrap;}
+@media print{.predict,.pair,.plusbox,.fdfig,.fourfn,dl.gloss,pre.out{break-inside:avoid;}}
+
+/* ---- 第4週目で追加：地図・AI証言カード ---- */
+.mapfig{margin-top:14px;padding:16px 18px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;}
+.layer{display:grid;grid-template-columns:44px 1fr 1fr;gap:10px;align-items:stretch;}
+.layer + .layer{margin-top:6px;}
+.layer .no{display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;font-size:16px;color:#fff;background:#334155;}
+.layer .what,.layer .shop{border-radius:6px;padding:8px 12px;font-size:12.8px;line-height:1.6;}
+.layer .what b,.layer .shop b{display:block;font-size:13.6px;}
+.layer .what{background:#E6F1FB;border:1px solid #B6D6EF;color:#0E4A82;}
+.layer .shop{background:#FDF0D4;border:1px solid #EFD193;color:#6B4D00;}
+.layer.l3 .no{background:#1668B5;}
+.layer.l3 .what{background:#1668B5;border-color:#0E4A82;color:#fff;}
+.layer.l3 .shop{background:#E8A317;border-color:#C08A12;color:#1C2027;}
+.layer.head .no{background:transparent;}
+.layer.head .what,.layer.head .shop{background:transparent;border:none;padding:0 12px;font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--soft);}
+.gate{margin:6px 0 6px 54px;padding:6px 12px;border:2px dashed #BE3E1B;border-radius:6px;background:#FAE5DD;color:#8C2D12;font-size:12.4px;font-weight:700;line-height:1.6;}
+.gate code{background:#fff;border:1px solid #EDBCA9;border-radius:4px;padding:0 4px;}
+.mapfig .cap{font-size:11.5px;color:var(--soft);margin:10px 0 0;line-height:1.7;}
+@media (max-width:640px){.layer{grid-template-columns:34px 1fr;}.layer .shop{grid-column:2;}.layer.head{display:none;}.gate{margin-left:0;}}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.two .box{border-radius:8px;padding:12px 15px;font-size:12.8px;line-height:1.75;}
+.two .box h3{margin:0 0 6px;font-size:14px;font-weight:800;}
+.two .box.cat{background:#E6F1FB;border:1px solid #B6D6EF;color:#0E4A82;}
+.two .box.baz{background:#FDF0D4;border:1px solid #EFD193;color:#6B4D00;}
+@media (max-width:640px){.two{grid-template-columns:1fr;}}
+
+.quote{margin-top:12px;padding:12px 16px;background:#fff;border:1px solid var(--line);border-left:4px solid #E8A317;border-radius:6px;font-size:13px;line-height:1.8;color:#1f2933;}
+.quote .qh{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#8A6200;margin-bottom:3px;}
+.quote .tie{display:block;margin-top:6px;font-size:12.4px;color:#52606d;}
+.quote .tie b{color:#1f2933;}
+
+.timeline{margin-top:12px;border-left:3px solid #cbd5e1;padding-left:14px;font-size:12.8px;line-height:1.75;}
+.timeline div{margin:6px 0;position:relative;}
+.timeline div::before{content:"";position:absolute;left:-20px;top:7px;width:9px;height:9px;border-radius:50%;background:#1668B5;}
+.timeline div.hl::before{background:#E8A317;}
+.timeline .y{display:inline-block;min-width:52px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;color:#0E4A82;}
+
+/* 組の切り替え */
+.setswitch{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+.setswitch button{font-family:inherit;font-size:13px;font-weight:800;padding:8px 16px;border-radius:8px;cursor:pointer;border:2px solid #cbd5e1;background:#fff;color:#334155;}
+.setswitch button[data-set="A"].on{background:#1668B5;border-color:#1668B5;color:#fff;}
+.setswitch button[data-set="B"].on{background:#E8A317;border-color:#E8A317;color:#1C2027;}
+.cardset{display:none;}
+.cardset.on{display:block;}
+@media print{.cardset{display:block!important;}.setswitch{display:none;}}
+
+.aicard{margin-top:16px;border:1px solid #d3d9e0;border-radius:10px;background:#fff;overflow:hidden;}
+.aicard .ch{display:flex;align-items:center;gap:8px;padding:8px 14px;background:#f4f6f9;border-bottom:1px solid #e0e4ea;font-size:12px;font-weight:800;color:#334155;}
+.aicard .ch .id{font-family:"SFMono-Regular",Consolas,Menlo,monospace;color:#fff;border-radius:20px;padding:1px 10px;}
+.cardset.A .aicard .ch .id{background:#1668B5;}
+.cardset.B .aicard .ch .id{background:#C08A12;}
+.aicard .msg{padding:10px 14px 4px;font-size:13px;line-height:1.8;}
+.aicard .msg .who{display:inline-block;font-size:10.5px;font-weight:800;border-radius:4px;padding:0 7px;margin-right:6px;vertical-align:1px;}
+.aicard .msg.you .who{background:#e2e8f0;color:#334155;}
+.aicard .msg.ai{background:#fbfaf7;border-top:1px dashed #e0e4ea;padding-bottom:10px;}
+.aicard .msg.ai .who{background:#334155;color:#fff;}
+.aicard .msg code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.aicard .judge{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;border-top:1px solid #eef0f3;font-size:12.4px;color:#52606d;}
+.aicard .judge button{font-family:inherit;font-size:13px;font-weight:800;width:44px;height:32px;border-radius:6px;border:1.5px solid #cbd5e1;background:#fff;cursor:pointer;color:#334155;}
+.aicard .judge button.on[data-v="o"]{background:#0F6B60;border-color:#0F6B60;color:#fff;}
+.aicard .judge button.on[data-v="x"]{background:#BE3E1B;border-color:#BE3E1B;color:#fff;}
+.aicard .judge .jn{font-size:11px;color:#8a97a3;}
+details.hint{margin:0 14px 12px;border:1px solid #e0e4ea;border-radius:6px;background:#fafbfc;font-size:12.6px;line-height:1.75;color:#3a4654;}
+details.hint summary{cursor:pointer;padding:7px 12px;font-weight:800;color:#52606d;font-size:12px;}
+details.hint div{padding:0 12px 10px;}
+details.hint code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+details.ans{margin-top:8px;border:1px solid var(--accentbd);border-radius:6px;background:var(--accentbg);font-size:12.6px;line-height:1.75;}
+details.ans summary{cursor:pointer;padding:6px 12px;font-weight:800;color:var(--accent-deep);font-size:12px;}
+details.ans div{padding:0 12px 10px;color:#3a4654;}
+details.ans code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.mapsel{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;color:#334155;background:#fff;border:1.5px dashed #94a3b8;border-radius:4px;padding:0 8px;}
+.cmdlist .lay{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:1px 9px;margin-left:4px;}
+@media print{details.hint,details.ans{display:block;}details.hint>div,details.ans>div{display:block;}}
+.cmdlist .ex .q{white-space:pre;overflow-x:auto;}
+
+</style></head><body>
+<header class="topnav">
+  <div class="inner">
+    <div class="brand">第4週目 授業資料：地図を手に入れる<span>システムプログラミング</span></div>
+    <div class="links">
+      <a href="#intro">今日の90分</a>
+      <a href="#lecture">講義</a>
+      <a href="#ai">AIの使い方</a>
+      <a href="#t1">課題1</a>
+      <a href="#t2">課題2</a>
+      <a href="#t3">課題3</a>
+      <a href="#wrap">振り返り</a>
+      <a href="#hw">宿題</a>
+      <a href="#ref">用語集・困ったとき</a>
+    </div>
+    <a class="go" href="#hw">宿題を見る</a>
+  </div>
+</header>
+
+<section class="topnotice" id="top">
+  <h2>★ 今日の90分で、あなたがやること</h2>
+  <p><b>今日は、新しいプログラムを書きません。</b>これまでの3回で出てきたことを、<b>1枚の「地図」</b>に置き直す回です。</p>
+  <div class="axis" style="font-size:15px;"><b>コマンドの向こうには、カーネルがいる。AIの答えは、自分の手で確かめる。</b></div>
+  <ul style="margin-top:12px;">
+    <li>第3週目に「難しかった」と感じた人が多かったのは当然です。<b>どこを歩いているか分からないまま歩いていたからです。</b>今日は地図を渡します。</li>
+    <li>今日は <b>GitHub Copilot（AI）を「説明してもらう相手」として使います。</b>コードは書かせません。<b>AIの答えを、コマンドを打って自分で確かめる</b>のが今日の練習です。</li>
+    <li><b><span class="tag must">必須</span>の付いたところだけやれば、今日は合格です。</b><span class="tag plus">余裕があれば</span>は、時間が余った人のためのおまけです。</li>
+    <li>困ったら、まず<a href="#ref">いちばん下の「困ったとき」の表</a>を見てください。それでもだめなら手を挙げてください。</li>
+  </ul>
+  <div class="axis">
+    <b>始める前に、手元にあること</b>
+    <div class="flowbox" style="margin-top:8px;">
+      <div class="frow"><span class="fno">1</span><span class="ftxt"><b>Linux のターミナルが開けて、プロンプト（<code>$</code>）が出ている</b></span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">2</span><span class="ftxt"><b>Copilot Chat が開ける</b>（Windows の VSCode でも、ブラウザの github.com でもよい。<a href="#ai">開き方</a>）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">3</span><span class="ftxt"><b>自分の学籍番号の末尾の数字</b>（課題2で、奇数か偶数かを使います）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">4</span><span class="ftxt">共有シートのURL（最後の15分で使います。<b>先生が画面に出します</b>）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ INTRO ============================ -->
+<section class="sheet i1" id="intro">
+  <div class="eyebrow">INTRO<span class="badge">90分</span></div>
+  <h1>地図を手に入れる ― Linux・バザール・AI</h1>
+  <p class="lead">プログラミングで迷子になるのは、<b>いま自分が地図のどこにいるか分からないとき</b>です。今日は、この授業でこれから先ずっと使う地図を1枚だけ渡します。</p>
+  <div class="meta">
+    <span><b>時間</b> 90分</span>
+    <span><b>環境</b> Linux ／ ターミナル ／ Copilot Chat</span>
+    <span><b>権限</b> 一般ユーザーのみ</span>
+    <span><b>教材</b> Linux標準教科書 1章 ／ Molay 1章 ／『伽藍とバザール』1〜4節</span>
+  </div>
+
+  <h2>今日の3行</h2>
+  <table class="levels">
+    <thead><tr><th style="width:60px;">　</th><th>内容</th></tr></thead>
+    <tbody>
+      <tr><td><b>［1］</b></td><td>コンピューターは <b>4段の地図</b>で考えられる。<b>あなた → コマンド → カーネル → ハードウェア</b></td></tr>
+      <tr><td><b>［2］</b></td><td><b>Linux とは、3段目の「カーネル」のこと。</b>世界中の人が、インターネット越しに「バザール」のように作ってきた</td></tr>
+      <tr><td><b>［3］</b></td><td><b>AI も「もう1つの目玉」になる。</b>ただし、自信満々に間違えることがある。<b>最後に確かめるのは、あなたの目と手</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2>今日の到達目標</h2>
+  <div class="checklist">
+    <h4>Goal of the day</h4>
+    <ul>
+      <li><span class="tag must">必須</span>4段の地図を、何も見ずに描ける（たとえ話でもよい）</li>
+      <li><span class="tag must">必須</span><code>uname -r</code> で、<b>自分が使っているカーネルのバージョン</b>を表示した</li>
+      <li><span class="tag must">必須</span>AI証言カード3枚のうち、<b>間違っている1枚</b>を、コマンドを打って見つけた ← <b>本命</b></li>
+      <li><span class="tag must">必須</span>自分の「めんどうだ」を1つ、Copilot に聞き、<b>出てきたコマンドを1語ずつ説明してから</b>実行した</li>
+      <li><span class="tag plus">余裕があれば</span>もう一方の組（A／B）のカードもやった</li>
+    </ul>
+  </div>
+
+  <h2>今日の流れ</h2>
+  <table class="levels">
+    <thead><tr><th style="width:110px;">経過時間</th><th>内容</th><th style="width:60px;">分</th></tr></thead>
+    <tbody>
+      <tr><td>0:00〜0:05</td><td>今日の作業場所を作る</td><td>5</td></tr>
+      <tr><td>0:05〜0:30</td><td>講義：4段の地図 ／ Linux はどこから来たか ／ 伽藍とバザール ／ AI は目玉</td><td>25</td></tr>
+      <tr><td>0:30〜0:45</td><td><b>課題1</b>　カーネルに会う</td><td>15</td></tr>
+      <tr><td>0:45〜1:05</td><td><b>課題2</b>　AI証言カードを確かめる</td><td>20</td></tr>
+      <tr><td>1:05〜1:15</td><td><b>課題3</b>　自分の「めんどう」を、コマンドの組み合わせで片づける</td><td>10</td></tr>
+      <tr><td>1:15〜1:30</td><td>振り返り ／ 共有シート ／ 宿題の説明</td><td>15</td></tr>
+    </tbody>
+  </table>
+
+  <h2>0. 今日の作業場所を作る（最初の5分）</h2>
+  <p class="note">1行ずつ打って、Enter を押してください。<code>#</code> から右は説明なので、打たなくてかまいません（コピーボタンで貼っても動きます）。</p>
+  <pre class="code">mkdir -p ~/syspro/week05       <span class="cmt"># 今日の作業場所（ディレクトリ）を作る。-p は「もうあってもエラーにしない」</span>
+cd ~/syspro/week05             <span class="cmt"># そこへ移動する（cd ＝ change directory）</span>
+cp ../week04/numbers.txt .     <span class="cmt"># 先週の numbers.txt を、ここ（.）にコピーする。.. は「1つ上」</span>
+pwd                            <span class="cmt"># いまいる場所を表示する（print working directory）</span>
+ls                             <span class="cmt"># ここにあるファイルの一覧を表示する</span></pre>
+  <div class="outlabel">こう出れば正解（<code>/home/</code> の後ろは人によって違います）</div>
+  <pre class="out">/home/あなたのユーザー名/syspro/week05
+numbers.txt</pre>
+  <div class="verify"><b>ここで確認</b>　<code>cp: cannot stat '../week04/numbers.txt'</code> と出た人は、先週の作業場所が違います。慌てなくて大丈夫です。今日は <code>numbers.txt</code> が無くても、課題3の例1つが使えないだけです。休み時間に先生に聞いてください。</div>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ LECTURE ============================ -->
+<section class="sheet k2" id="lecture">
+  <div class="eyebrow">LECTURE<span class="badge">0:05〜0:30</span></div>
+  <h1>4段の地図</h1>
+  <p class="lead">このパートでは手を動かしません。メモも不要です。<b>この資料に全部入っています。</b></p>
+
+  <h2>1-1 レストランで考える</h2>
+  <p class="note">あなたがレストランでカレーを頼むとき、<b>厨房に入って自分で作ったりはしません。</b>ウェイターに注文し、ウェイターが<b>注文票</b>を厨房に通し、厨房が食材庫から材料を出して作ります。<b>コンピューターも、これと同じ4段でできています。</b></p>
+  <div class="mapfig">
+    <div class="layer head"><div class="no"></div><div class="what">コンピューターでは</div><div class="shop">レストランでは</div></div>
+    <div class="layer"><div class="no">1</div><div class="what"><b>あなた（ユーザー）</b>キーボードで打ち、画面を見る</div><div class="shop"><b>お客さん</b>メニューを見て注文する</div></div>
+    <div class="layer"><div class="no">2</div><div class="what"><b>コマンドとシェル</b><code>ls</code>・<code>wc</code>・<code>bash</code>・あなたが書いた C のプログラム</div><div class="shop"><b>ウェイター</b>注文を受けて、厨房に伝える</div></div>
+    <div class="gate">▼ ここに「窓口」がある。2段目は3段目に<b>注文票（システムコール）</b>を出して頼むしかない。<code>open</code>・<code>read</code>・<code>write</code> などが注文票の名前</div>
+    <div class="layer l3"><div class="no">3</div><div class="what"><b>カーネル（これが Linux）</b>ファイル・メモリ・画面・ネットワークを、全員分まとめて管理する</div><div class="shop"><b>厨房</b>注文票を受けて、実際に料理を作る</div></div>
+    <div class="layer"><div class="no">4</div><div class="what"><b>ハードウェア</b>CPU・メモリ・ディスク・画面・キーボード</div><div class="shop"><b>食材庫と調理器具</b>お客さんは直接さわれない</div></div>
+    <p class="cap">図1：この授業の地図。Molay『Unixシステムプログラミング』第1章の図（ユーザー・プログラム・カーネル・装置）を、レストランのたとえに置き直したもの。<b>システムプログラミングとは、2段目から3段目への「注文票」を、自分で書くこと</b>です。</p>
+  </div>
+  <div class="checklist">
+    <h4>この図で覚えるのは3つだけ</h4>
+    <ul>
+      <li><b>2段目（コマンド）は、4段目（ハードウェア）に直接さわれない。</b>必ず3段目（カーネル）に頼む</li>
+      <li><b>頼み方が「システムコール」。</b>レストランの注文票にあたる</li>
+      <li><b>Linux とは、3段目のカーネルのこと。</b>（Linux標準教科書 1.2「狭い意味でいえばカーネル」）</li>
+    </ul>
+  </div>
+
+  <h2>1-2 これまでの3回を、この地図に置く</h2>
+  <p class="note">これまで毎回、最後に1文を読みました。<b>どれも、2段目と3段目の境目（窓口）の話でした。</b></p>
+  <table class="levels">
+    <thead><tr><th style="width:90px;">回</th><th>そのときの1文</th><th style="width:30%;">地図で言うと</th></tr></thead>
+    <tbody>
+      <tr><td>第2週目</td><td>プログラムは、装置に直結していない。すべての出入りは、カーネルという1点を通っている。</td><td>2段目は4段目に直接さわれない。<b>窓口は1つ</b></td></tr>
+      <tr><td>第3週目</td><td>プログラムは、自分のつなぎ先を知らない。しかし、カーネルに聞けば教えてもらえる。</td><td>パイプ（<code>|</code>）も、<b>カーネルがつないだ管</b>。<code>isatty</code> は窓口への「質問」</td></tr>
+      <tr><td><b>第4週目（今日）</b></td><td>コマンドの向こうには、カーネルがいる。AIの答えは、自分の手で確かめる。</td><td>地図そのものを手に入れる</td></tr>
+      <tr><td>第5週目から</td><td>（予告）<code>open</code>・<code>read</code>・<code>write</code> を自分で呼ぶ</td><td><b>注文票を自分で書く</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2>1-3 Linux はどこから来たか</h2>
+  <p class="note">Linux標準教科書 第1章の内容です。<b>年号は覚えなくてかまいません。</b>流れだけつかんでください。</p>
+  <div class="timeline">
+    <div><span class="y">1969</span> アメリカの研究所で <b>Unix</b> が生まれる。数年後に、<b>C 言語で書き直される</b>（この授業が C を使う理由）</div>
+    <div><span class="y">1983</span> Unix のような仕組みを、誰でも自由に使えるソフトだけで作ろうという <b>GNU</b> の計画が始まる。道具（コンパイラ <code>gcc</code> など）は揃ったが、<b>3段目のカーネルがなかなか完成しない</b></div>
+    <div class="hl"><span class="y">1991</span> フィンランドの大学生 <b>リーナス・トーバルズ</b>（当時21歳。『伽藍とバザール』の訳では「リーヌス」）が、趣味で作ったカーネルをインターネットに公開する。これが <b>Linux</b></div>
+    <div><span class="y">いま</span> Linux カーネル ＋ GNU の道具 ＋ いろいろなソフトを<b>まとめてインストールできるようにしたもの</b>が「ディストリビューション」（Ubuntu・AlmaLinux など）</div>
+  </div>
+  <div class="verify"><b>Linux はどこで動いているか</b>（Linux標準教科書 1.3）　Web やメールの<b>サーバー</b>、<b>Android</b> のスマートフォン、家電、IoT の機器、そして <b>AI・機械学習</b>のソフトの多く。<b>AI のソフトの多くも Linux の上で動いています（1.3.5）。今日使う Copilot のような AI と Linux は、遠い話ではありません。</b></div>
+  <div class="ainote"><b>「Linux は地味？」</b>　Linux標準教科書 1.1.2 にこう書かれています（要約）。<b>1つ1つのコマンドは小さく地味で、何のために覚えるのか最初は分からない。でも、その小さな組み合わせがインターネットのような大きなシステムを形作っている。</b>——第3週目のパイプは、まさにその「組み合わせ」でした。</div>
+
+  <h2>1-4 伽藍とバザール</h2>
+  <p class="note">Eric S. Raymond『伽藍とバザール』（山形浩生 訳）は、<b>なぜ Linux がこんなやり方でうまくいったのか</b>を考えた文章です。2つの作り方を比べています。</p>
+  <div class="two">
+    <div class="box cat"><h3>伽藍（がらん）方式</h3>大聖堂を建てるように、<b>少人数の名人が、完成するまで外に見せずに</b>静かに作る。バグは深く隠れたものだと考え、何か月もかけて調べてから出す。</div>
+    <div class="box baz"><h3>バザール方式</h3>にぎやかな市場のように、<b>早めに・しょっちゅう公開して、大勢に使ってもらい、見つけてもらい、直してもらう。</b>Linux はこちらで作られた。</div>
+  </div>
+  <p class="note" style="margin-top:12px;">今日は、本文の19の「教訓」のうち3つを読みます（引用は山形浩生訳から）。</p>
+  <div class="quote"><span class="qh">引用 ── 教訓 1</span>よいソフトはすべて、開発者の個人的な悩み解決から始まる。<span class="tie">→ <b>課題3</b>で、あなた自身の「めんどうだ」から出発します。</span></div>
+  <div class="quote"><span class="qh">引用 ── 教訓 7</span>はやめのリリース、ひんぱんなリリース。そして顧客の話をきくこと<span class="tie">→ リーナスは、作りかけのカーネルを1日に何回も公開することさえあった。<b>完成してから見せるのではなく、見せながら直す。</b></span></div>
+  <div class="quote"><span class="qh">引用 ── 教訓 8（リーヌスの法則）</span>ベータテスタと共同開発者の基盤さえ十分大きければ、ほとんどすべての問題はすぐに見つけだされて、その直し方もだれかにはすぐわかるはず。<span class="tie">Raymond はこれを「目玉の数さえ十分あれば、どんなバグも深刻ではない」と言い直しています。→ <b>課題2</b>で、あなたが「目玉」になります。</span></div>
+
+  <h2>1-5 なぜ今、これを学ぶのか ― AI は「もう1つの目玉」</h2>
+  <ol class="steps">
+    <li>Copilot のような AI は、<b>インターネットに公開された大量のコードや文章</b>から学んでいます。その多くは、まさに「バザール」で公開されてきたものです。</li>
+    <li>だから AI は、<b>あなたの横にいる「もう1つの目玉」</b>として、とても役に立ちます。分からないコマンドの意味を、何度でも聞けます。</li>
+    <li>ただし AI は、<b>間違っていても、正しいときと同じ口調で答えます。</b>「自信がなさそう」という合図が出ません。</li>
+    <li>AI の答えが合っているかを決めるのは、<b>地図を持っていて、自分でコマンドを打って確かめられる人</b>です。この授業でシステムプログラミングを学ぶのは、そのためです。</li>
+  </ol>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ AI ============================ -->
+<section class="sheet i2" id="ai">
+  <div class="eyebrow">SETUP<span class="badge alt">Copilot Chat の開き方</span></div>
+  <h1>今日の AI の使い方</h1>
+  <p class="lead"><b>今日は、Copilot にコードを書かせません。</b>コマンドの意味を聞いて、<b>答えを自分で確かめる</b>ためだけに使います。</p>
+
+  <h2>Copilot Chat を開く（どちらか一方でよい）</h2>
+  <table class="levels">
+    <thead><tr><th style="width:28%;">場所</th><th>開き方</th></tr></thead>
+    <tbody>
+      <tr><td><b>A. Windows の VSCode</b></td><td>VSCode を起動し、画面上部の <b>Copilot のアイコン</b>（またはメニューの「表示」→「チャット」）からチャット欄を開く。<b>第1週目に設定した GitHub アカウントでサインインしていること。</b></td></tr>
+      <tr><td><b>B. ブラウザ</b></td><td>ブラウザで <code>https://github.com/copilot</code> を開き、GitHub にサインインする。<b>Linux 側のブラウザからでも使えます。</b></td></tr>
+    </tbody>
+  </table>
+  <div class="verify"><b>ここで確認</b>　チャット欄に「<code>ls コマンドは何をしますか。1文で答えてください。</code>」と打ち、日本語で答えが返ってくれば準備完了です。<b>どちらでも開けない人は、隣の人の画面を一緒に見てかまいません。</b>今日の課題は、Copilot が無くても進められるように作ってあります。</div>
+
+  <h2>今日のルール（3つ）</h2>
+  <div class="checklist">
+    <h4>Rules for today</h4>
+    <ul>
+      <li><b>聞くのは「意味」だけ。</b>「〜を作って」「コードを書いて」とは頼まない</li>
+      <li><b>聞く前に15秒、自分の予想を立てる。</b>（第2・3週目の「15秒ルール」と同じ）</li>
+      <li><b>AI の答えを信じる前に、コマンドを打って確かめる。</b>確かめられないものは「保留」のまま扱う</li>
+    </ul>
+  </div>
+  <div class="warn"><b>消す・書き換えるコマンドは、AI が出しても実行しない。</b><code>rm</code>（削除）・<code>mv</code>（移動・名前変更）・<code>&gt;</code>（上書き）が入っていたら、<b>その場で先生に見せてください。</b>今日の課題で、ファイルを消す必要は一度もありません。</div>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ TASK 1 ============================ -->
+<section class="sheet k1" id="t1">
+  <div class="eyebrow">TASK 1<span class="badge">0:30〜0:45</span></div>
+  <h1>課題1　カーネルに会う</h1>
+  <p class="lead"><span class="tag must">必須</span>コマンドを1つずつ打って、<b>「地図の何段目について教えてくれたか」</b>を考えます。1段目から4段目まで、全部の段に会えます。</p>
+
+  <h2>やり方</h2>
+  <ol class="steps">
+    <li>下のコマンドを<b>上から順に1つずつ</b>打つ。</li>
+    <li>出てきたものを見て、<b>地図の何段目のことか</b>を予想する（15秒）。</li>
+    <li>「答え」を開いて確かめる。<b>違っていてもかまいません。</b>違った理由を読めば十分です。</li>
+    <li><span class="tag plus">余裕があれば</span>分からないコマンドを1つ選び、Copilot に「<code>○○ コマンドは何をしますか。初心者向けに2文で。</code>」と聞いて、答えが「答え」と合っているか比べる。</li>
+  </ol>
+
+  <div class="cmdlist">
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">whoami</span><span class="cmdtag">わたしは誰？</span></div>
+      <p><span class="lbl">何をする</span>いまログインしている<b>自分のユーザー名</b>を表示する（who am I＝わたしは誰）。</p>
+      <div class="ex">例 <span class="q">s1234567</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>1段目（あなた）。</b>ただし、その名前を覚えているのは3段目のカーネルです。<code>whoami</code> はカーネルに「このプログラムは誰のものですか」と聞いて、表示しているだけです。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">echo $SHELL</span><span class="cmdtag">ウェイターの名前</span></div>
+      <p><span class="lbl">何をする</span><code>echo</code> は後ろに書いたものを表示するコマンド。<code>$SHELL</code> は「あなたが使っているシェル（コマンドを受け付けるプログラム）の場所」が入った変数。<b>合わせて、使っているシェルを表示します。</b></p>
+      <div class="ex">例 <span class="q">/bin/bash</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>2段目（コマンドとシェル）。</b>いま <code>$</code> を出してあなたの入力を待っているのが、この <code>bash</code> というプログラムです。レストランでいえば、注文を受けるウェイターです。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">ps</span><span class="cmdtag">いま動いているもの</span></div>
+      <p><span class="lbl">何をする</span>この端末で<b>いま動いているプログラム（プロセス）の一覧</b>を表示する（process status）。</p>
+      <div class="ex">例 <span class="q">  PID TTY          TIME CMD</span><span class="q"> 4321 pts/0    00:00:00 bash</span><span class="q"> 4400 pts/0    00:00:00 ps</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>2段目。</b><code>bash</code>（シェル）と、<code>ps</code> 自身が見えます。<b>コマンドを打つと、そのたびに2段目にプログラムが1つ生まれて、終わると消えます。</b>この一覧を持っているのも、3段目のカーネルです。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">uname -s</span><span class="cmdtag">厨房の名前</span></div>
+      <p><span class="lbl">何をする</span><code>uname</code> は「動いているシステムの名前（unix name）」を表示するコマンド。<code>-s</code> は「カーネルの名前（system）だけ」という指定（オプション）。</p>
+      <div class="ex">例 <span class="q">Linux</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>3段目（カーネル）。</b>ここで初めて、<b>「Linux」という名前が3段目の名前</b>だと分かります。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">uname -r</span><span class="cmdtag">厨房の名札</span></div>
+      <p><span class="lbl">何をする</span><code>-r</code> は「カーネルのバージョン（release）だけ」という指定。<b>今日いちばん会ってほしいコマンドです。</b></p>
+      <div class="ex">例 <span class="q">6.8.0-45-generic</span>（数字は教室のコンピューターによって違います）</div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>3段目（カーネル）。</b>この数字は、<b>あなたの命令を実際に処理しているカーネル</b>の版です。1991年にリーナスが公開したのは 0.01 版でした。そこから世界中の人の手で直され続けて、今この番号になっています。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">cat /etc/os-release</span><span class="cmdtag">お店の名前</span></div>
+      <p><span class="lbl">何をする</span><code>cat</code> はファイルの中身を表示するコマンド。<code>/etc/os-release</code> は「このコンピューターに入っている Linux の種類」が書かれたファイル。</p>
+      <div class="ex">例 <span class="q">PRETTY_NAME="Ubuntu 24.04.1 LTS"</span><span class="q">NAME="Ubuntu"</span><span class="q">（以下、数行続く）</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>2段目と3段目のセット全体。</b>これが「ディストリビューション」の名前です（Linux標準教科書 1.2.2）。<code>uname -s</code> の Linux（厨房）と、ここに出る Ubuntu などの名前（お店のブランド）は、<b>別のもの</b>です。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">which ls</span><span class="cmdtag">ウェイターはどこにいる</span></div>
+      <p><span class="lbl">何をする</span><code>which</code> は、コマンドの<b>実体のファイルがどこにあるか</b>を表示する（Linux標準教科書 5.10）。</p>
+      <div class="ex">例 <span class="q">/usr/bin/ls</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>2段目。</b><code>ls</code> は特別なものではなく、<b>ディスクに置かれた普通のファイル（プログラム）</b>です。第2・3週目にあなたが <code>gcc</code> で作ったプログラムと、同じ種類のものです。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">nproc</span><span class="cmdtag">コンロは何口</span></div>
+      <p><span class="lbl">何をする</span>このコンピューターで使える <b>CPU（計算する部品）の数</b>を表示する（number of processors）。</p>
+      <div class="ex">例 <span class="q">8</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>4段目（ハードウェア）。</b>でも <code>nproc</code> は CPU に直接さわったわけではありません。<b>カーネルに「CPU はいくつ？」と聞いて、答えを表示しただけ</b>です。</div></details>
+    </div>
+    <div class="cmd">
+      <div class="cmdhead"><span class="cmdname">free -h</span><span class="cmdtag">食材庫の広さ</span></div>
+      <p><span class="lbl">何をする</span><b>メモリ（作業台）の大きさと、空いている量</b>を表示する。<code>-h</code> は「人間が読みやすい単位（G や M）で」という指定（human-readable）。</p>
+      <div class="ex">例 <span class="q">               total        used        free  ...</span><span class="q">Mem:            15Gi       3.1Gi       9.8Gi ...</span></div>
+      <details class="ans"><summary>答え：何段目？</summary><div><b>4段目（ハードウェア）。</b>これも、カーネルに聞いて表示しています。</div></details>
+    </div>
+  </div>
+
+  <h2>課題1で気づいてほしいこと</h2>
+  <div class="ainote"><b>4段目（ハードウェア）のことを知りたいときも、コマンドはカーネルに聞いていた。</b>2段目から4段目に、<b>直通の道はありません。</b>第2週目の1文「すべての出入りは、カーネルという1点を通っている」は、こういう意味でした。</div>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ TASK 2 ============================ -->
+<section class="sheet k3" id="t2">
+  <div class="eyebrow">TASK 2<span class="badge">0:45〜1:05</span></div>
+  <h1>課題2　AI証言カードを確かめる</h1>
+  <p class="lead"><span class="tag must">必須</span>下の3枚は、<b>先生が Copilot の答え方をまねて作った「証言カード」</b>です。<b>3枚のうち1枚に、もっともらしい間違いが1か所だけ</b>入っています。コマンドを打って、どれが間違いかを見つけてください。</p>
+
+  <h2>自分の組を選ぶ</h2>
+  <p class="note"><b>学籍番号の末尾が奇数の人は A 組、偶数の人は B 組</b>です。隣の人と組が違っていても、そのまま自分の組をやってください（答えを写せないようにしてあります）。</p>
+  <div class="setswitch">
+    <button type="button" data-set="A" class="on">A 組（末尾が奇数：1・3・5・7・9）</button>
+    <button type="button" data-set="B">B 組（末尾が偶数：0・2・4・6・8）</button>
+  </div>
+
+  <h2>やり方（1枚あたり5分）</h2>
+  <ol class="steps">
+    <li>カードの「質問」と「AI の答え」を読む。</li>
+    <li><b>15秒で予想する。</b>○（正しい）か ×（間違い）か。</li>
+    <li><b>確かめるコマンドを自分で考えて打つ。</b>思いつかなければ「確かめ方のヒント」を開く。</li>
+    <li>結果を見て、カードの下の ○ ／ × を押す（この印は自分用です。保存はされません）。</li>
+  </ol>
+
+  <!-- ===== A 組 ===== -->
+  <div class="cardset A on" data-set="A">
+    <div class="aicard">
+      <div class="ch"><span class="id">A-1</span>カーネルの版</div>
+      <div class="msg you"><span class="who">質問</span><code>uname -r</code> を打つと、何が分かりますか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span>動いている <b>Linux カーネルのバージョン</b>が分かります。たとえば <code>6.8.0-45-generic</code> のような文字列が表示されます。ディストリビューションの名前（Ubuntu など）は表示されません。それを知りたいときは <code>cat /etc/os-release</code> を使います。</div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div><code>uname -r</code> と <code>cat /etc/os-release</code> を両方打って、出てきたものを見比べる。課題1でやったことです。</div></details>
+    </div>
+    <div class="aicard">
+      <div class="ch"><span class="id">A-2</span>パイプのしくみ</div>
+      <div class="msg you"><span class="who">質問</span>パイプ <code>|</code> は、どうやって前のコマンドの出力を後ろのコマンドに渡していますか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span>パイプは、前のコマンドの出力を<b>いったん今いるディレクトリに一時ファイルとして保存</b>し、後ろのコマンドがそのファイルを読むしくみです。そのため、<code>ls | wc -l</code> を実行するたびに、<b>今いるディレクトリのファイルが1つずつ増えていきます。</b></div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div>本当にファイルが増えるなら、<b>数えれば分かる</b>はずです。<code>ls | wc -l</code> を<b>3回続けて</b>打ち、出てくる数が増えていくか見てください。<code>ls -a</code>（隠しファイルも表示）で、見慣れないファイルが増えていないかも見てください。</div></details>
+    </div>
+    <div class="aicard">
+      <div class="ch"><span class="id">A-3</span>行を数える</div>
+      <div class="msg you"><span class="who">質問</span><code>wc -l numbers.txt</code> は何を表示しますか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span><code>wc</code> は word count の略で、<code>-l</code> を付けると<b>行の数</b>を数えます。<code>numbers.txt</code> が 200 行のファイルなら、<code>200 numbers.txt</code> のように、<b>行数とファイル名</b>が表示されます。</div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div>そのまま <code>wc -l numbers.txt</code> を打つ。本当に 200 行かどうかは、<code>tail -3 numbers.txt</code>（最後の3行を表示）で最後の数字を見るとよい。</div></details>
+    </div>
+  </div>
+
+  <!-- ===== B 組 ===== -->
+  <div class="cardset B" data-set="B">
+    <div class="aicard">
+      <div class="ch"><span class="id">B-1</span>コマンドの居場所</div>
+      <div class="msg you"><span class="who">質問</span><code>which ls</code> は何をするコマンドですか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span><code>ls</code> という名前で実行される<b>プログラムの実体が、ディスクのどこにあるか</b>を表示します。多くの Linux では <code>/usr/bin/ls</code> と表示されます。<code>ls</code> も、普通のファイルとしてディスクに置かれたプログラムだということです。</div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div><code>which ls</code> を打つ。出てきた場所に本当にファイルがあるかは、<code>ls -l /usr/bin/ls</code>（出てきた場所を <code>ls -l</code> する）で確かめられる。</div></details>
+    </div>
+    <div class="aicard">
+      <div class="ch"><span class="id">B-2</span>成功か失敗か</div>
+      <div class="msg you"><span class="who">質問</span><code>echo $?</code> を打つと、何が分かりますか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span><code>$?</code> には、<b>直前のコマンドがうまくいったかどうか</b>を表す数字が入っています。<b>成功したときは 1、失敗したときは 0</b> です。コンピューターでは 1 が「はい（真）」、0 が「いいえ（偽）」を表すことが多いので、それと同じ考え方です。</div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div><b>必ず成功するコマンド</b>と<b>必ず失敗するコマンド</b>を用意して、それぞれの直後に <code>echo $?</code> を打つ。たとえば <code>ls</code>（成功）と、<code>ls nofile</code>（存在しないファイル名を渡すので失敗）。</div></details>
+    </div>
+    <div class="aicard">
+      <div class="ch"><span class="id">B-3</span>隠れているファイル</div>
+      <div class="msg you"><span class="who">質問</span><code>ls -a</code> の <code>-a</code> は何をするオプションですか。</div>
+      <div class="msg ai"><span class="who">AI の答え</span><code>-a</code> は all の略で、名前が <b><code>.</code>（ドット）で始まる隠しファイルも含めて、すべて表示</b>します。ホームディレクトリで試すと、<code>.bashrc</code> などの設定ファイルが見えるはずです（Linux標準教科書 5.1.8）。</div>
+      <div class="judge"><button type="button" data-v="o">○</button><button type="button" data-v="x">×</button><span class="jn">押すと色が付きます（保存はされません）</span></div>
+      <details class="hint"><summary>確かめ方のヒント</summary><div><code>ls ~</code> と <code>ls -a ~</code> を両方打って、増えたものを見比べる（<code>~</code> はホームディレクトリ）。</div></details>
+    </div>
+  </div>
+
+  <h2>間違いを見つけたら（ここまでが必須）</h2>
+  <ol class="steps">
+    <li><b>同じ質問を、自分の Copilot にもしてみる。</b>カードの「質問」をそのまま貼ってください。<b>カードと同じ答えが返ってくるとは限りません。</b>正しい答えが返ってくることも、別の間違いが返ってくることもあります。</li>
+    <li>間違っていたカードを、<b>自分の言葉で正しく書き直す</b>（1〜2文）。これを最後に共有シートの D 列に書きます。</li>
+  </ol>
+  <pre class="code">AIの答えのどこが正しくて、どこが間違っているかを、初心者向けに説明してください。ただし最後に、自分で確かめるためのコマンドを1つ教えてください。</pre>
+  <p class="note" style="margin-top:6px;">↑ 書き直す前に、カードの「AI の答え」をこの文の後ろに貼って Copilot に聞いてもかまいません。<b>そのときも、教えてもらった確かめ方を自分で打ってから信じてください。</b></p>
+  <div class="plusbox"><span class="tag plus">余裕があれば</span>もう一方の組のカードもやってみてください。<b>A 組と B 組の間違いは、違う場所にあります。</b></div>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ TASK 3 ============================ -->
+<section class="sheet k5" id="t3">
+  <div class="eyebrow">TASK 3<span class="badge">1:05〜1:15</span></div>
+  <h1>課題3　自分の「めんどう」を片づける</h1>
+  <p class="lead"><span class="tag must">必須</span>教訓1「よいソフトはすべて、開発者の個人的な悩み解決から始まる」。<b>あなたの小さな「めんどうだ」を1つ、既にあるコマンドの組み合わせで片づけます。</b>時間がなければ、下の例から1つ選ぶだけでかまいません。</p>
+
+  <h2>やり方</h2>
+  <ol class="steps">
+    <li><b>「めんどうだ」を1つ決める。</b>思いつかなければ、下の例から選ぶ。</li>
+    <li><b>15秒、自分で考える。</b>第3週目の「書く前に15秒、既存のコマンドの組み合わせで済まないか考える」と同じです。</li>
+    <li>Copilot に聞く（下の文をコピーし、〔　〕を書き換えて貼る）。</li>
+    <li><b>出てきたコマンドを、実行する前に1語ずつ説明できるか確かめる。</b>説明できない語があれば、Copilot に「〔その語〕は何をしますか」と聞き直すか、<code>man 〔コマンド名〕</code> で調べる。</li>
+    <li>実行して、<b>結果が正しいかを、別の方法で確かめる。</b></li>
+  </ol>
+  <pre class="code">Linux のターミナルで〔ここにやりたいこと〕をしたいです。すでにあるコマンドを組み合わせる方法を1つだけ教えてください。新しいプログラムは書かないでください。使ったコマンドとオプションの意味を、1つずつ説明してください。</pre>
+  <div class="warn"><b>出てきたコマンドに <code>rm</code>・<code>mv</code>・<code>&gt;</code> が入っていたら、実行しないで先生に見せてください。</b></div>
+
+  <h2>思いつかない人のための例</h2>
+  <table class="levels">
+    <thead><tr><th>やりたいこと</th><th style="width:36%;">答えの一例（先に見ないこと）</th></tr></thead>
+    <tbody>
+      <tr><td>今いるディレクトリに、ファイルがいくつあるか数えたい</td><td><details><summary>見る</summary><code>ls | wc -l</code></details></td></tr>
+      <tr><td><code>numbers.txt</code> の中で、いちばん大きい数を知りたい</td><td><details><summary>見る</summary><code>sort -n numbers.txt | tail -1</code>　（200 と出る）</details></td></tr>
+      <tr><td><code>numbers.txt</code> の中で、<b>7 という文字を含む行</b>がいくつあるか知りたい</td><td><details><summary>見る</summary><code>grep 7 numbers.txt | wc -l</code>　（38 と出る）</details></td></tr>
+      <tr><td><code>/usr/bin</code> にコマンドがいくつ入っているか知りたい</td><td><details><summary>見る</summary><code>ls /usr/bin | wc -l</code>　（数は教室によって違う）</details></td></tr>
+    </tbody>
+  </table>
+  <div class="ainote"><b>なぜ「書かずに組み合わせる」のか。</b>『伽藍とバザール』の教訓2は「何を書けばいいかわかってるのがよいプログラマ。なにを書き直せば（そして使い回せば）いいかわかってるのが、すごいプログラマ」。AI に聞くときも、<b>まず「もうあるもので済まないか」</b>を聞くのが近道です。</div>
+  <div class="foot">システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<!-- ============================ WRAP ============================ -->
+<section class="sheet k6" id="wrap">
+  <div class="eyebrow">WRAP UP<span class="badge">1:15〜1:30</span></div>
+  <h1>振り返り</h1>
+
+  <h2>答え合わせ（5分・先生が画面で）</h2>
+  <p class="note">A 組・B 組それぞれ、<b>どのカードが間違いだったか</b>と、<b>どう確かめたか</b>を2〜3人に聞きます。指名されたら、打ったコマンドを1つ言ってください。</p>
+
+  <h2>共有シートに書く（7分）</h2>
+  <p class="note">URL は先生が画面に出します。<b>自分の学籍番号の行だけに書いてください。</b>「第4週目」のタブです。</p>
+  <table class="levels">
+    <thead><tr><th style="width:56px;">列</th><th>書くこと</th></tr></thead>
+    <tbody>
+      <tr><td><b>C</b></td><td><b>今日の難しさ（1〜5 の数字だけ）</b>　1＝とても簡単 ／ 3＝ちょうどよい ／ 5＝とても難しい。正直に書いてください。次の回の作り方を決めるのに使います</td></tr>
+      <tr><td><b>D</b></td><td><b>★ 間違っていたカードの番号（A-2 など）と、それを確かめたコマンドを1文で</b>　例：「B-◯ は間違い。〔コマンド〕を打ったら〔結果〕だったから」</td></tr>
+      <tr><td><b>E</b></td><td>まだ分かっていないことを1つ（空欄禁止）</td></tr>
+      <tr><td><b>F</b></td><td>自分の番号の前後5人の E列 を読んで、1つ以上に答える（末尾に自分の番号）。答えられなければ <code>同じく（No.07）</code> でも可</td></tr>
+    </tbody>
+  </table>
+
+  <h2>今日の1文（最後に全員で読みます）</h2>
+  <div class="dayof" style="font-size:15px;"><b>コマンドの向こうには、カーネルがいる。AIの答えは、自分の手で確かめる。</b></div>
+  <div class="foot">振り返り ／ 第4週目</div>
+</section>
+
+<!-- ============================ HOMEWORK ============================ -->
+<section class="sheet k6" id="hw">
+  <div class="eyebrow">HOMEWORK<span class="badge">次回の授業まで</span></div>
+  <h1>宿題</h1>
+  <p class="lead">課題A（必須・30分程度）と課題B（任意）です。課題Bは出さなくても減点しません。<b>2つまとめて1つの Word ファイルで提出します。</b></p>
+
+  <h2><span class="tag must">必須</span>課題A：地図と証言カードを、自分の言葉で</h2>
+  <ol class="steps">
+    <li><b>記録を取りながら、今日のコマンドをもう一度打つ。</b><code>script</code> は、打ったものと表示されたものを全部ファイルに記録するコマンドです。<code>exit</code> で記録を終えます。</li>
+  </ol>
+  <pre class="code">cd ~/syspro/week05
+script kadaiA.log        <span class="cmt"># ここから記録を始める</span>
+uname -s
+uname -r
+cat /etc/os-release
+<span class="cmt"># ↓ ここで、自分の組の「間違いのカード」を確かめたコマンドを、もう一度打つ</span>
+<span class="cmt"># ↓ 続けて、もう一方の組の3枚も確かめて、間違いのカードを見つける</span>
+exit                     <span class="cmt"># 記録を終える（kadaiA.log ができる）</span></pre>
+  <ol class="steps" start="2">
+    <li>次の3つの問いに、それぞれ1〜5文で答える。</li>
+  </ol>
+  <div class="checklist">
+    <h4>3つの問い</h4>
+    <ul>
+      <li><b>問1</b>　4段の地図を自分で描き（手書きの写真でも、文字だけでもよい）、課題1のコマンドを<b>3つ以上</b>その上に置いてください。それぞれ、なぜその段なのかを1文で。</li>
+      <li><b>問2</b>　A 組と B 組の<b>両方</b>について、間違っていたカードの番号と、<b>何を打って、何を見て、間違いだと判断したか</b>を書いてください。<code>kadaiA.log</code> の該当する行を指して説明すること。</li>
+      <li><b>問3</b>　『伽藍とバザール』の 1〜2節（PDF の 2〜5ページ）を読み、教訓1「よいソフトはすべて、開発者の個人的な悩み解決から始まる」と、課題3であなたが選んだ「めんどう」を結びつけて、3〜5行で書いてください。</li>
+    </ul>
+  </div>
+
+  <h2><span class="tag plus">任意</span>課題B：Copilot に間違えさせる</h2>
+  <p class="note">今日扱ったコマンドのどれかについて、<b>Copilot が間違った答えを返した例</b>を1つ探してください。質問した文、返ってきた答え、それが間違いだと確かめたコマンドと結果を貼ってください。<b>見つからなかった場合は、「何回、どんな聞き方をしたか」を書けば提出として認めます。</b></p>
+
+  <h2>提出</h2>
+  <table class="levels">
+    <tbody>
+      <tr><td style="width:120px;"><b>提出先</b></td><td>eclass の「第4週目 課題」</td></tr>
+      <tr><td><b>ファイル名</b></td><td><code>syspro_w04_学籍番号.docx</code>（例：<code>syspro_w04_1116249999.docx</code>）</td></tr>
+      <tr><td><b>締切</b></td><td>次回授業の開始まで</td></tr>
+      <tr><td><b>書くこと</b></td><td>0 学籍番号・氏名 ／ 1 <code>kadaiA.log</code> の中身（テキストで貼る・等幅フォント）／ 2 問1〜問3 ／ 3 課題B（任意）／ 4 共有シートの E列 に書いたことと、その後どうなったか（2〜3行）</td></tr>
+    </tbody>
+  </table>
+  <div class="foot">宿題 ／ 第4週目</div>
+</section>
+
+<!-- ============================ REFERENCE ============================ -->
+<section class="sheet i2" id="ref">
+  <div class="eyebrow">REFERENCE<span class="badge alt">用語集・困ったとき</span></div>
+  <h1>用語集・早見表・困ったとき</h1>
+
+  <h2>用語集</h2>
+  <dl class="gloss">
+    <dt>OS</dt><dd>コンピューターを動かすための基本的なソフトウェア。カーネルと、いろいろな基本的なプログラムの組み合わせ（Linux標準教科書 1.2.1）</dd>
+    <dt>カーネル</dt><dd>OS の中核。地図の3段目。ファイル・メモリ・CPU・画面などを全員分まとめて管理する。<b>狭い意味での Linux はこれ</b></dd>
+    <dt>シェル</dt><dd>あなたが打ったコマンドを受け取って、プログラムを起動するプログラム。<code>bash</code> など。地図の2段目</dd>
+    <dt>システムコール</dt><dd>プログラムがカーネルに仕事を頼む窓口。レストランの「注文票」。<code>open</code>・<code>read</code>・<code>write</code> など（第5週目から自分で使う）</dd>
+    <dt>プロセス</dt><dd>動いているプログラム1つ1つのこと。<code>ps</code> で一覧が見られる</dd>
+    <dt>ディストリビューション</dt><dd>Linux カーネルと、いろいろなソフトを、まとめてインストールできるようにしたもの。Ubuntu・AlmaLinux など（Linux標準教科書 1.2.2）</dd>
+    <dt>オプション</dt><dd>コマンドの後ろに付ける <code>-r</code> や <code>-a</code> などの指定。動きを変える</dd>
+    <dt>伽藍／バザール</dt><dd>ソフトの2つの作り方。少人数で完成まで隠して作る（伽藍）か、早めに公開して大勢で直す（バザール）か</dd>
+    <dt>リーヌスの法則</dt><dd>「目玉の数さえ十分あれば、どんなバグも深刻ではない」（『伽藍とバザール』教訓8）</dd>
+    <dt>Copilot Chat</dt><dd>GitHub Copilot の、質問して答えてもらう画面。今日は「説明を聞く」ためだけに使う</dd>
+  </dl>
+
+  <h2>今日のコマンド早見表</h2>
+  <table class="levels">
+    <thead><tr><th style="width:36%;">打つもの</th><th>何が分かるか</th><th style="width:70px;">地図</th></tr></thead>
+    <tbody>
+      <tr><td><code>whoami</code></td><td>自分のユーザー名</td><td>1段目</td></tr>
+      <tr><td><code>echo $SHELL</code></td><td>使っているシェル</td><td>2段目</td></tr>
+      <tr><td><code>ps</code></td><td>この端末で動いているプログラムの一覧</td><td>2段目</td></tr>
+      <tr><td><code>which ls</code></td><td><code>ls</code> の実体のファイルの場所</td><td>2段目</td></tr>
+      <tr><td><code>uname -s</code> ／ <code>uname -r</code></td><td>カーネルの名前 ／ バージョン</td><td>3段目</td></tr>
+      <tr><td><code>cat /etc/os-release</code></td><td>ディストリビューションの名前</td><td>2＋3段目</td></tr>
+      <tr><td><code>nproc</code> ／ <code>free -h</code></td><td>CPU の数 ／ メモリの量（カーネルに聞いている）</td><td>4段目</td></tr>
+      <tr><td><code>echo $?</code></td><td>直前のコマンドが成功したか（何が出るかは課題2で確かめる）</td><td>—</td></tr>
+      <tr><td><code>script ファイル名</code> … <code>exit</code></td><td>その間に打ったものと表示を、ファイルに記録する</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>困ったとき</h2>
+  <table class="levels">
+    <thead><tr><th style="width:42%;">起きたこと</th><th>まず、これを確かめる</th></tr></thead>
+    <tbody>
+      <tr><td><code>command not found</code>（<code>nproc</code> や <code>free</code> で）</td><td>綴りを確かめる。それでも出なければ、その教室の Linux に入っていないだけです。飛ばしてかまいません</td></tr>
+      <tr><td>Copilot Chat が開けない・サインインできない</td><td>ブラウザで <code>https://github.com/copilot</code> を試す。だめなら隣の人の画面を一緒に見る。<b>課題は Copilot なしでも進められます</b></td></tr>
+      <tr><td>Copilot の答えが、カードと違う</td><td><b>それが今日の学びです。</b>どちらが正しいかを、コマンドで確かめてください</td></tr>
+      <tr><td>Copilot が英語で答える</td><td>質問の最後に「日本語で答えてください」と付ける</td></tr>
+      <tr><td>Copilot が長いプログラムを書き始めた</td><td>止めて、「新しいプログラムは書かず、既存のコマンドの組み合わせで」と聞き直す</td></tr>
+      <tr><td><code>ls | wc -l</code> の数が人と違う</td><td>今いるディレクトリが違えば、数も違って当然です。<code>pwd</code> で場所を確かめる</td></tr>
+      <tr><td>どこにいるか分からなくなった</td><td><code>pwd</code> → <code>cd ~/syspro/week05</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>出典</h2>
+  <p class="note">Linux標準教科書（LPI-Japan）第1章・5.1.8・5.10 ／ B. Molay『Unixシステムプログラミング』第1章 ／ Eric S. Raymond『伽藍とバザール』山形浩生 訳（教訓1・2・7・8 を引用）。<br>『伽藍とバザール』訳文の版権表示：© 2000 YAMAGATA Hiroo. この版権表示を残す限りにおいてこの翻訳は商業利用を含む複製、再配布が自由に認められる。プロジェクト杉田玄白 正式参加作品。原文 <code>http://www.catb.org/~esr/writings/cathedral-bazaar/</code> ／ 翻訳 <code>http://cruel.org/freeware/cathedral.html</code></p>
+  <div class="foot">同志社大学　システムプログラミング ／ 第4週目 授業資料</div>
+</section>
+
+<script>
+(function(){
+  // --- コード欄にコピーボタン ---
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var w=document.createElement('div'); w.className='codewrap';
+    pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    var b=document.createElement('button'); b.type='button'; b.className='copybtn'; b.textContent='コピー';
+    b.addEventListener('click',function(){
+      var t=pre.innerText;
+      var done=function(){ b.textContent='コピーしました'; b.classList.add('done');
+        setTimeout(function(){ b.textContent='コピー'; b.classList.remove('done'); },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done,function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    });
+    w.appendChild(b);
+  });
+  function fallback(t,cb){
+    var ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // --- チェックリストをクリックで消し込み ---
+  document.querySelectorAll('.checklist').forEach(function(cl){
+    var items=cl.querySelectorAll('li'), h4=cl.querySelector('h4');
+    var prog=document.createElement('span'); prog.className='ckprog';
+    if(h4) h4.appendChild(prog);
+    var hint=document.createElement('p'); hint.className='ckhint';
+    hint.textContent='※ クリックすると消し込みできます（保存はされません）';
+    if(h4) h4.insertAdjacentElement('afterend',hint);
+    function upd(){ prog.textContent=cl.querySelectorAll('li.done').length+' / '+items.length; }
+    items.forEach(function(li){
+      li.addEventListener('click',function(e){
+        if(e.target.closest('a')) return;
+        li.classList.toggle('done'); upd();
+      });
+    });
+    upd();
+  });
+
+  // --- 現在位置をナビに反映 ---
+  var links=[].slice.call(document.querySelectorAll('.topnav .links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var idx=-1;
+    secs.forEach(function(s,i){ if(s && s.getBoundingClientRect().top<=96) idx=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===idx); });
+    var on=links[idx];
+    if(on && on.parentNode.scrollWidth>on.parentNode.clientWidth){
+      var p=on.parentNode, l=on.offsetLeft-p.offsetLeft;
+      if(l<p.scrollLeft || l+on.offsetWidth>p.scrollLeft+p.clientWidth){
+        p.scrollTo({left:l-16,behavior:'smooth'});
+      }
+    }
+  }
+  window.addEventListener('scroll',spy,{passive:true});
+  window.addEventListener('resize',spy); spy();
+})();
+
+
+(function(){
+  // --- 課題2：A組／B組の切り替え（URL の #A / #B でも開ける）---
+  var btns=[].slice.call(document.querySelectorAll('.setswitch button'));
+  var sets=[].slice.call(document.querySelectorAll('.cardset'));
+  function show(k){
+    btns.forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-set')===k); });
+    sets.forEach(function(s){ s.classList.toggle('on', s.getAttribute('data-set')===k); });
+  }
+  btns.forEach(function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-set')); }); });
+  // --- 証言カードの ○／× ---
+  document.querySelectorAll('.aicard .judge').forEach(function(j){
+    var bs=j.querySelectorAll('button');
+    bs.forEach(function(b){ b.addEventListener('click',function(){
+      var was=b.classList.contains('on');
+      bs.forEach(function(x){ x.classList.remove('on'); });
+      if(!was) b.classList.add('on');
+    }); });
+  });
+})();
+</script>
+</body>
+</html>
