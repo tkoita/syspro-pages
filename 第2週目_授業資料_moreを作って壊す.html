@@ -1,0 +1,1087 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第2週目 授業資料：more を作って壊す — システムプログラミング</title><style>
+
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 16px 80px;}
+.topnav{position:sticky;top:0;z-index:60;margin:0 -16px 24px;padding:0 16px;background:rgba(232,235,239,.93);backdrop-filter:saturate(150%) blur(10px);-webkit-backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid #d3d9e0;}
+.topnav .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;height:54px;}
+.topnav .brand{font-size:12.5px;font-weight:800;color:#1f2933;white-space:nowrap;letter-spacing:.02em;}
+.topnav .brand span{display:block;font-size:10.5px;font-weight:700;color:#7b8794;letter-spacing:.06em;}
+.topnav .links{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;}
+.topnav .links::-webkit-scrollbar{display:none;}
+.topnav .links a{font-size:12px;font-weight:700;color:#52606d;text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap;transition:background .12s,color .12s;}
+.topnav .links a:hover{background:#dde2e8;color:#1f2933;}
+.topnav .links a.on{background:#1f2933;color:#fff;}
+.topnav .go{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#fff;background:#4338ca;border-radius:6px;padding:7px 13px;text-decoration:none;white-space:nowrap;}
+.topnav .go:hover{background:#312e81;}
+.sheet,.topnotice{scroll-margin-top:70px;}
+a.ulink{text-decoration:none;border-bottom:1px solid rgba(11,108,181,.35);}
+a.ulink code{color:#0b6cb5;cursor:pointer;}
+.codewrap{position:relative;}
+.copybtn{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;color:#52606d;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 11px;cursor:pointer;font-family:inherit;line-height:1.6;}
+.copybtn:hover{background:#eef1f4;color:#1f2933;}
+.copybtn.done{background:#eafaf0;border-color:#b9e4c8;color:#1f6631;}
+.checklist li{cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:5px;transition:opacity .15s,background .12s;}
+.checklist li:hover{background:#f7f9fb;}
+.checklist li.done{opacity:.45;}
+.checklist li.done::before{background:var(--accent);border-color:var(--accent);}
+.checklist li.done::after{content:"\2713";position:absolute;left:3px;top:1px;color:#fff;font-size:12px;font-weight:900;line-height:1.45;}
+.ckprog{float:right;font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.04em;}
+.ckhint{font-size:11px;color:#8a97a3;font-weight:600;margin:0 0 9px;}
+.sheet{max-width:880px;margin:0 auto 26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;}
+.sheet.k1{--accent:#2f9e44;--accent-deep:#1f6631;--accentbg:#eafaf0;--accentbd:#b9e4c8;}
+.sheet.k2{--accent:#0b6cb5;--accent-deep:#08507f;--accentbg:#eef6fc;--accentbd:#bcdcf2;}
+.sheet.k3{--accent:#D97706;--accent-deep:#9a5407;--accentbg:#fff4e2;--accentbd:#f0cd9a;}
+.sheet.k4{--accent:#7c3aed;--accent-deep:#5b21b6;--accentbg:#f3eefe;--accentbd:#d6c6f5;}
+.sheet.k5{--accent:#4338ca;--accent-deep:#312e81;--accentbg:#eef0fd;--accentbd:#c7cbf5;}
+.sheet.k6{--accent:#be185d;--accent-deep:#831843;--accentbg:#fdeef5;--accentbd:#f3bdd7;}
+.sheet.i1{--accent:#0f766e;--accent-deep:#0b4a44;--accentbg:#f0fdf9;--accentbd:#a8ded7;}
+.sheet.i2{--accent:#334155;--accent-deep:#1e293b;--accentbg:#f1f5f9;--accentbd:#cbd5e1;}
+.figure{margin-top:14px;padding:16px 18px 10px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow-x:auto;}
+.figure .cap{font-size:11.5px;color:var(--soft);margin:6px 0 0;text-align:left;line-height:1.7;}
+.figure svg{display:block;min-width:620px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.eyebrow .no{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:15px;}
+.badge{font-size:11px;letter-spacing:.08em;font-weight:800;color:#fff;background:var(--accent);padding:2px 9px;border-radius:20px;}
+.badge.alt{background:#334155;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;} code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.meta{margin-top:16px;display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;font-size:12.5px;color:var(--soft);}
+.meta b{color:var(--ink);font-weight:700;}
+.grid2{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;}
+.card{flex:1;min-width:240px;padding:14px 16px;border-radius:8px;border:1px solid var(--accentbd);background:var(--accentbg);}
+.card h3{margin:0 0 7px;font-size:13px;font-weight:800;color:var(--accent-deep);letter-spacing:.03em;}
+.card ul{margin:0;padding-left:18px;font-size:12.8px;color:#444;} .card li{margin:3px 0;}
+.card code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.verify{margin-top:14px;padding:13px 16px;background:#eef6fc;border:1px solid #bcdcf2;border-left:4px solid #1971c2;border-radius:8px;font-size:12.8px;color:#1d4e74;line-height:1.7;}
+.verify b{font-weight:800;} .verify code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #bcdcf2;border-radius:4px;padding:0 4px;}
+.warn{margin-top:12px;padding:11px 15px;background:#fdecec;border:1px solid #f3b9b9;border-left:4px solid #c0392b;border-radius:8px;font-size:12.6px;color:#7a1f1f;line-height:1.65;} .warn b{font-weight:800;}
+.warn code{background:#fff;border:1px solid #f3b9b9;border-radius:4px;padding:0 4px;}
+.timerule{margin-top:14px;padding:13px 16px;background:#fff1f0;border:1px solid #f0b4ae;border-left:5px solid #c0392b;border-radius:8px;font-size:13.3px;color:#7a1f1f;line-height:1.7;} .timerule b{font-weight:800;} .timerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.timerule code{background:#fff;border:1px solid #f0b4ae;border-radius:4px;padding:0 4px;}
+.notimerule{margin-top:14px;padding:13px 16px;background:#eafaf0;border:1px solid #b9e4c8;border-left:5px solid #2f9e44;border-radius:8px;font-size:13.3px;color:#1f6631;line-height:1.7;} .notimerule b{font-weight:800;} .notimerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule code{background:#fff;border:1px solid #b9e4c8;border-radius:4px;padding:0 4px;}
+pre.code{margin:0;background:var(--codebg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px;padding:18px 20px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:13px;line-height:1.9;color:#27313b;white-space:pre;}
+.cmt{color:#8a97a3;} .kw{color:#0b6cb5;font-weight:600;} .str{color:#1f7a3d;}
+.idnote{margin:14px 0 0;padding:11px 15px;background:#fff7e0;border:1px solid #f0d68a;border-left:4px solid #e0a800;border-radius:8px;font-size:13px;color:#6e5200;line-height:1.6;}
+.idnote b{font-weight:800;} .idnote code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #f0d68a;border-radius:4px;padding:0 4px;}
+.dayof{margin-top:14px;padding:13px 16px;background:#2a2f38;border-radius:8px;color:#f4f6f9;font-size:12.8px;line-height:1.8;}
+.dayof b{color:#ffd479;font-weight:800;}
+.dayof code{background:#3a4049;border-radius:4px;padding:0 5px;color:#e6edf3;}
+.ainote{margin-top:14px;padding:13px 16px;background:#f0fdf9;border:1px solid #a8ded7;border-left:4px solid #0f766e;border-radius:8px;font-size:12.8px;color:#0b4a44;line-height:1.75;}
+.ainote b{font-weight:800;} .ainote code{background:#fff;border:1px solid #a8ded7;border-radius:4px;padding:0 4px;}
+.design{margin-top:14px;padding:13px 16px;background:#f4f6f9;border:1px solid var(--line);border-left:4px solid var(--soft);border-radius:8px;font-size:12.6px;color:#3a4654;line-height:1.75;}
+.design b{color:var(--ink);}
+.design code{background:#fff;border:1px solid var(--line);border-radius:4px;padding:0 4px;}
+.topnotice{max-width:880px;margin:0 auto 26px;background:#fffaf0;border:2px solid #e0a800;border-radius:8px;padding:22px 26px;box-shadow:0 8px 30px rgba(20,30,45,.10);}
+.topnotice h2{margin:0 0 10px;font-size:16px;font-weight:800;color:#8a6200;display:flex;align-items:center;gap:8px;}
+.topnotice h2::before{content:"";width:4px;height:18px;background:#e0a800;border-radius:2px;}
+.topnotice p{margin:0 0 8px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice ul{margin:6px 0 8px;padding-left:20px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice li{margin:4px 0;}
+.topnotice b{color:#5c4700;}
+.topnotice code{background:#fff;border:1px solid #e0a800;border-radius:4px;padding:0 4px;font-size:12.3px;}
+.topnotice .axis{margin-top:10px;padding:11px 15px;background:#fff;border:1px solid #e0a800;border-radius:6px;font-size:13px;color:#4a3c00;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+h3.sub{font-size:14px;font-weight:800;margin:22px 0 4px;color:var(--accent-deep);}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+p.body{font-size:13.4px;line-height:1.95;margin:10px 0;color:#2d3843;}
+p.body b{font-weight:700;color:var(--ink);}
+p.body code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12.3px;}
+table.levels{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:13px;}
+table.levels th,table.levels td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;}
+table.levels thead th{background:var(--accentbg);color:var(--accent-deep);font-weight:800;}
+table.levels tbody tr:nth-child(even){background:#fafbfc;}
+table.levels code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:11.6px;word-break:break-all;}
+table.levels b{font-weight:700;}
+.level{margin-bottom:12px;border:1px solid var(--accentbd);border-radius:8px;overflow:hidden;background:#fff;}
+.lvhead{display:flex;align-items:center;gap:10px;padding:8px 13px;background:var(--accentbg);border-bottom:1px solid var(--accentbd);}
+.chip{font-size:11px;font-weight:800;color:#fff;padding:2px 10px;border-radius:20px;}
+.c-beg{background:#2f9e44;}.c-mid{background:#1971c2;}.c-adv{background:#9a3412;}.c-exp{background:#6741d9;}
+.lvhead .t{font-size:13px;font-weight:700;} .level ul,.level ol{margin:9px 15px 13px;padding-left:20px;font-size:12.8px;line-height:1.7;color:#3a4654;} .level li{margin:4px 0;}
+.level code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;word-break:break-all;} .level b{font-weight:700;color:var(--ink);}
+.level p{margin:9px 15px 11px;font-size:12.8px;line-height:1.8;color:#3a4654;}
+.level .codewrap{margin:0 15px 13px;}
+.cmdlist{margin:10px 0 15px;}
+.cmdlist .cmd{border:1px solid #e0e4ea;border-left:3px solid var(--accent);border-radius:6px;background:#fafbfc;padding:12px 15px;margin:10px 0;}
+.cmdlist .cmdhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmdlist .cmdname{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:2px 9px;}
+.cmdlist .cmdtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.cmdlist .cmdtag.red{background:#c0392b;}
+.cmdlist p{margin:9px 0 0;font-size:12.6px;line-height:1.8;color:#3a4654;}
+.cmdlist code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+/* ---- 答え（折りたたみ） ---- */
+details.ans{margin-top:14px;border:1px solid var(--accentbd);border-radius:8px;background:#fff;overflow:hidden;}
+details.ans>summary{cursor:pointer;list-style:none;padding:11px 15px;font-size:12.8px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);-webkit-user-select:none;user-select:none;}
+details.ans>summary::-webkit-details-marker{display:none;}
+details.ans>summary::before{content:"\25B6";font-size:9px;margin-right:8px;vertical-align:1.5px;}
+details.ans[open]>summary::before{content:"\25BC";}
+details.ans>summary:hover{filter:brightness(.97);}
+details.ans .abody{padding:14px 17px;font-size:12.9px;line-height:1.9;color:#3a4654;}
+details.ans .abody b{color:var(--ink);font-weight:700;}
+details.ans .abody code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+details.ans .abody p{margin:0 0 9px;} details.ans .abody p:last-child{margin-bottom:0;}
+/* ---- 記入欄 ---- */
+.memo{margin-top:12px;padding:14px 16px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.memo .mh{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--accent-deep);margin:0 0 4px;}
+.memo .mq{font-size:12.9px;font-weight:700;color:var(--ink);margin:12px 0 6px;}
+.memo .ml{height:26px;border-bottom:1px dashed #b8c2ce;}
+.memo .ml:first-of-type{margin-top:2px;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+ol.steps{margin:12px 0 0;padding-left:22px;font-size:13.3px;line-height:1.85;}
+ol.steps li{margin:7px 0;} ol.steps code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 5px;font-size:12.3px;word-break:break-all;}
+ol.steps b{font-weight:700;}
+.checklist{margin-top:16px;padding:16px 18px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.checklist h4{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent-deep);text-transform:uppercase;}
+.checklist ul{margin:0;padding:0;list-style:none;font-size:13px;}
+.checklist li{margin:8px 0;padding-left:29px;position:relative;line-height:1.7;color:#3a4654;}
+.checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border:2px solid var(--accent);border-radius:3px;background:#fff;}
+.checklist li b{color:var(--ink);font-weight:700;}
+.checklist code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.checklist .fill{display:inline-block;min-width:80px;border-bottom:1.5px dashed var(--accent);}
+.flowbox{margin-top:12px;display:flex;flex-direction:column;gap:0;}
+.frow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e0a800;border-radius:6px;padding:10px 14px;}
+.frow .fno{flex:0 0 auto;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;color:#8a6200;background:#fff7e0;border:1px solid #f0d68a;border-radius:20px;padding:2px 11px;}
+.frow .ftxt{flex:1;font-size:13px;color:#4a3c00;}
+.farrow{text-align:center;color:#c39a00;font-size:14px;line-height:1;padding:3px 0;}
+dl.gloss{margin:8px 0 0;font-size:13px;}
+dl.gloss dt{font-weight:800;color:var(--accent-deep);margin-top:13px;font-family:"SFMono-Regular",Consolas,Menlo,"Hiragino Kaku Gothic ProN",sans-serif;}
+dl.gloss dd{margin:3px 0 0 0;padding-left:14px;border-left:2px solid var(--accentbd);color:#3a4654;line-height:1.8;font-size:12.8px;}
+dl.gloss dd code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.sheeturl{margin-top:14px;padding:14px 17px;background:#eef0fd;border:1px solid #c7cbf5;border-left:5px solid #4338ca;border-radius:8px;font-size:13px;color:#312e81;line-height:1.8;}
+.sheeturl b{font-weight:800;}
+.sheeturl .u{display:block;margin-top:8px;padding:10px 13px;background:#fff;border:1px dashed #8a93e8;border-radius:5px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#4338ca;word-break:break-all;}
+.sheeturl code{background:#fff;border:1px solid #c7cbf5;border-radius:4px;padding:0 4px;}
+.fillin{margin:12px 0 0;padding:14px 17px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;font-size:13.3px;line-height:2.05;color:#2d3843;}
+.fillin p{margin:0 0 13px;position:relative;padding-left:34px;}
+.fillin p:last-child{margin-bottom:0;}
+.fillin .col{position:absolute;left:0;top:2px;display:inline-block;width:24px;text-align:center;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:4px;line-height:1.7;}
+.fillin .bl{display:inline-block;min-width:120px;border-bottom:2px solid var(--accent);margin:0 5px;}
+.fillin .hd{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1.5px;}
+.fillin code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12.3px;}
+.fillin b{font-weight:700;color:var(--ink);}
+@media print{html{scroll-behavior:auto;}body{background:#fff;padding:0;}.topnav,.copybtn,.ckprog,.ckhint{display:none!important;}details.ans{border-color:#d9dee5;}details.ans>summary{background:#f4f6f9;}details.ans .abody{display:block!important;}a.ulink{border-bottom:none;}.sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:24px 28px;margin:0;}.topnotice{box-shadow:none;max-width:none;margin:0 0 14px;}.sheet.i2,.sheet.k1,.sheet.k2,.sheet.k3,.sheet.k4,.sheet.k5,.sheet.k6{page-break-before:always;}.level,pre.code,.card,.verify,.checklist,.ainote,.warn,.dayof,.idnote,.figure,table.levels,.memo{break-inside:avoid;}}
+@media (max-width:640px){.topnav .inner{height:50px;gap:9px;}.topnav .brand span{display:none;}.topnav .go{padding:6px 10px;font-size:11px;}.sheet{padding:30px 22px 40px;}h1{font-size:23px;}pre.code{font-size:12px;padding:15px;}.frow{flex-wrap:wrap;gap:7px;}}
+
+</style></head>
+<body>
+
+<header class="topnav">
+  <div class="inner">
+    <div class="brand">第2週目 授業資料：more を作って壊す<span>システムプログラミング</span></div>
+    <div class="links">
+      <a href="#intro">はじめに</a>
+      <a href="#lec">講義</a>
+      <a href="#prep">演習の準備</a>
+      <a href="#stageA">演習A</a>
+      <a href="#stageB">演習B</a>
+      <a href="#stageC">演習C</a>
+      <a href="#review">振り返り</a>
+      <a href="#hw">宿題</a>
+      <a href="#ref">用語集・早見表</a>
+    </div>
+    <a class="go" href="#hw">宿題を見る</a>
+  </div>
+</header>
+
+<section class="topnotice" id="top">
+  <h2>★ 今日の90分で、あなたがやること</h2>
+  <p><b>今日は「UNIXコマンドを覚える日」ではありません。「1つのコマンドを、自分の手で作り直す日」です。</b>題材は <code>more</code>（ファイルを1画面ずつ表示するコマンド）。帰るときには、あなたの手元に<b>自作 more が2つ</b>——<b>壊れている版と、直した版</b>——が残っているはずです。</p>
+  <ul>
+    <li><b>今日の合格ラインは「動いた」ことではありません。</b><b>「なぜ壊れたのかを、1文で説明できる」</b>ことです。これが今日の全部です。</li>
+    <li><b>管理者権限（<code>sudo</code>）は使いません。</b>今日打つコマンドは、すべて一般ユーザーの権限で動きます。</li>
+    <li><b>GitHub Copilot は使ってよい。ただし今日は使い方に条件があります。</b>→ <a class="ulink" href="#copilot"><code>1-4</code></a> を必ず読んでください。</li>
+  </ul>
+  <div class="axis">
+    <b>始める前に、手元にあること</b>
+    <div class="flowbox" style="margin-top:8px;">
+      <div class="frow"><span class="fno">1</span><span class="ftxt">VSCode が起動していて、<b>統合ターミナルが開ける</b>（<code>Ctrl</code>+<code>`</code>）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">2</span><span class="ftxt"><b>GitHub Copilot にサインイン済み</b>（右下のアイコンに×が出ていないこと）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">3</span><span class="ftxt">Linux標準教科書（PDF可）。<b>今日は5章・6章のあたりを開きます</b></span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">4</span><span class="ftxt">紙のメモ1枚（Stage B で仮説を書きます）と、<b>共有シートのURL</b>（振り返りで使います）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ はじめに ============================ -->
+<section class="sheet i1" id="intro">
+  <div class="eyebrow">はじめに <span class="badge">まず読む</span></div>
+  <h1>この授業は、何を学ぶ科目か</h1>
+  <p class="lead">あなたはこれまで、<b>「入力を受け取って、処理して、出力する」</b>プログラムを書いてきました。この授業で学ぶのは、その<b>「受け取る」と「出す」の部分で、実際には何が起きているのか</b>です。</p>
+
+  <div class="meta">
+    <div><b>時間</b> 90分</div>
+    <div><b>環境</b> VSCode ／ GitHub Copilot</div>
+    <div><b>言語</b> C</div>
+    <div><b>権限</b> 一般ユーザーのみ</div>
+    <div><b>教材</b> 教科書1章 ／ Linux標準教科書 5・6章</div>
+  </div>
+
+  <h2>この授業の学び方 ― 3ステップ</h2>
+  <p class="body">教科書1章は、この科目の学び方そのものを宣言しています。<b>次の3つを、毎回くり返します。</b></p>
+
+  <div class="level"><div class="lvhead"><span class="chip c-beg">STEP 1</span><span class="t">本物のプログラムを見る</span></div>
+    <p>標準の Unix コマンドを、<b>ユーザーとして使い倒します。</b>「これは何をするコマンドか」を、説明を読んで答えるのではなく、<b>動かして観察して</b>答えられるようにします。</p>
+  </div>
+  <div class="level"><div class="lvhead"><span class="chip c-mid">STEP 2</span><span class="t">どんな仕組みかを考える</span></div>
+    <p>「このコマンドは、<b>OS（カーネル）に何を依頼しているのか</b>」を考えます。ここがシステムプログラミングの入口です。</p>
+  </div>
+  <div class="level"><div class="lvhead"><span class="chip c-adv">STEP 3</span><span class="t">自分のバージョンを書く</span></div>
+    <p>書いてみると、<b>必ず本物と違う挙動が出ます。</b>その差分こそが、あなたがまだ知らない「カーネルのサービス」です。<b>差分を見つけるために書きます。</b>完成させるためではありません。</p>
+  </div>
+
+  <div class="idnote"><b>STEP 3 の意味を、取り違えないでください。</b>「本物と同じものを作れたら合格」ではありません。<b>「本物と違ったところに気づけたら合格」</b>です。今日はまさに、そのために壊れるコードを書きます。</div>
+
+  <h2>今日の到達目標</h2>
+  <p class="note">帰るときに、次の4つが「はい」になっていれば成功です。</p>
+  <div class="checklist">
+    <h4>Goal of the day</h4>
+    <ul>
+      <li><b>自分の作業ディレクトリを、コマンドで作り、中身を確認できた</b>（GUIのファイル操作は使わない）</li>
+      <li><b><code>gcc</code> でCソースをコンパイルし、自作コマンドを実行できた</b></li>
+      <li><b>自作 more がパイプで壊れる現象を、自分の画面で再現できた</b></li>
+      <li><b>なぜ壊れたのかを、1文で説明できる</b> ← <b>本命。他の3つは前提です</b></li>
+    </ul>
+  </div>
+
+  <h2>今日の流れ</h2>
+  <table class="levels">
+    <thead><tr><th style="width:110px;">経過時間</th><th>内容</th><th style="width:56px;">分</th></tr></thead>
+    <tbody>
+      <tr><td>0:00〜0:05</td><td>環境の確認（4点チェック）</td><td>5</td></tr>
+      <tr><td>0:05〜0:30</td><td><b>講義</b>：プログラムとカーネル ／ なぜ今この科目か ／ Copilotの使い方</td><td>25</td></tr>
+      <tr><td>0:30〜1:15</td><td><b>演習</b>：Stage A 観察 → <b>Stage B 壊す</b> → Stage C 直す</td><td>45</td></tr>
+      <tr><td>1:15〜1:30</td><td><b>振り返り</b>・結果共有・宿題説明</td><td>15</td></tr>
+    </tbody>
+  </table>
+
+  <h2>0. 環境の確認（最初の5分）</h2>
+  <p class="note">VSCode の統合ターミナル（<code>Ctrl</code>+<code>`</code>）で、上から順に実行してください。</p>
+<pre class="code">whoami          <span class="cmt"># 自分のユーザー名が出るか</span>
+pwd             <span class="cmt"># いま自分がどこにいるか</span>
+gcc --version   <span class="cmt"># Cコンパイラがあるか  ← 最重要</span>
+echo $SHELL     <span class="cmt"># どのシェルを使っているか</span></pre>
+  <div class="verify"><b>ここで確認</b> <code>gcc --version</code> でバージョン番号が数行出れば合格です。<b><code>command not found</code> が出た人は、いま手を挙げてください。</b>黙っていると演習で何もできません。<code>cc --version</code> / <code>clang --version</code> も試してみてください（別名で入っていることがあります）。</div>
+  <div class="warn"><b><code>gcc</code> が無い場合、自分では入れられません。</b>管理者権限がないので <code>apt install</code> は通りません。<b>その場で申告してください。</b>「あとで自分で調べます」は、今日は無しです。今日中に解決しないと、来週も同じ場所で止まります。</div>
+
+  <div class="foot">システムプログラミング ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ 講義 ============================ -->
+<section class="sheet k2" id="lec">
+  <div class="eyebrow">講義 <span class="badge">0:05〜0:30</span></div>
+  <h1>あなたのプログラムは、実は独りではない</h1>
+  <p class="lead">4つの話をします。<b>このパートで手を動かす必要はありません。</b>ただし <a class="ulink" href="#copilot"><code>1-4</code></a> は演習のルールそのものなので、聞き逃さないでください。</p>
+
+  <h2 id="l1">1-1 単純なモデルと、実際に起きていること</h2>
+  <p class="body">あなたがこれまで書いてきたプログラムは、だいたい<b>図1の①</b>のような姿をしていたはずです。キーボードから入力が来て、処理して、画面に出す。ディスクを読んだり、プリンタに送ったりもする。<b>プログラムが、装置に直接つながっている</b>という絵です。</p>
+  <p class="body">この絵にぴったり合うコードは、たとえば次のようなものです。標準入力を読んで、標準出力に書くだけ。</p>
+<pre class="code"><span class="cmt">/* 標準入力を標準出力にコピーする */</span>
+<span class="kw">int</span> main(<span class="kw">void</span>)
+{
+    <span class="kw">int</span> c;
+    <span class="kw">while</span> ((c = getchar()) != EOF)
+        putchar(c);
+    <span class="kw">return</span> 0;
+}</pre>
+  <p class="body"><b>ところが、実際のあなたのマシンは、この絵の通りにはなっていません。</b>同じマシンには他の人がログインしているかもしれず、いまこの瞬間も何十というプログラムが同時に動いています。ディスクは1つしかないのに、複数のプログラムが同時に読み書きしています。キーボードは1つなのに、それを欲しがるプログラムは複数あります。</p>
+  <p class="body"><b>それでも①のつもりで書いたコードは、正しく動きます。</b>なぜでしょうか。</p>
+
+  <div class="figure">
+    <svg viewBox="0 0 660 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="単純なプログラムモデルと実際のモデルの比較">
+      <defs>
+        <marker id="ah" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 z" fill="#52606d"/>
+        </marker>
+      </defs>
+      <text x="10" y="22" font-size="13" font-weight="700" fill="#1f2933" font-family="sans-serif">① あなたが思っているモデル</text>
+      <rect x="14" y="42" width="120" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="74" y="67" font-size="12" text-anchor="middle" fill="#27313b" font-family="sans-serif">キーボード</text>
+      <line x1="136" y1="62" x2="222" y2="62" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah)"/>
+      <rect x="228" y="42" width="150" height="40" rx="6" fill="#eef6fc" stroke="#0b6cb5"/>
+      <text x="303" y="67" font-size="12" font-weight="700" text-anchor="middle" fill="#08507f" font-family="sans-serif">あなたのプログラム</text>
+      <line x1="380" y1="62" x2="466" y2="62" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah)"/>
+      <rect x="472" y="42" width="120" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="532" y="67" font-size="12" text-anchor="middle" fill="#27313b" font-family="sans-serif">画面</text>
+      <text x="14" y="103" font-size="11.5" fill="#8a97a3" font-family="sans-serif">データが入って、処理されて、出ていく。プログラムは装置に直結している。</text>
+
+      <line x1="10" y1="124" x2="650" y2="124" stroke="#d9dee5" stroke-dasharray="4 4"/>
+
+      <text x="10" y="152" font-size="13" font-weight="700" fill="#1f2933" font-family="sans-serif">② 実際に起きていること</text>
+      <rect x="14" y="172" width="112" height="30" rx="5" fill="#fff" stroke="#b8c2ce"/>
+      <text x="70" y="192" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">ユーザーA の端末</text>
+      <rect x="14" y="210" width="112" height="30" rx="5" fill="#fff" stroke="#b8c2ce"/>
+      <text x="70" y="230" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">ディスク</text>
+      <rect x="14" y="248" width="112" height="30" rx="5" fill="#fff" stroke="#b8c2ce"/>
+      <text x="70" y="268" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">ネットワーク</text>
+
+      <line x1="128" y1="187" x2="246" y2="205" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+      <line x1="128" y1="225" x2="246" y2="225" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+      <line x1="128" y1="263" x2="246" y2="245" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+
+      <rect x="252" y="168" width="128" height="114" rx="7" fill="#2a2f38" stroke="#2a2f38"/>
+      <text x="316" y="218" font-size="14" font-weight="700" text-anchor="middle" fill="#ffd479" font-family="sans-serif">カーネル</text>
+      <text x="316" y="238" font-size="10.5" text-anchor="middle" fill="#e6edf3" font-family="sans-serif">すべての結線を管理</text>
+
+      <line x1="384" y1="205" x2="466" y2="187" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+      <line x1="384" y1="225" x2="466" y2="225" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+      <line x1="384" y1="245" x2="466" y2="263" stroke="#52606d" stroke-width="1.2" marker-end="url(#ah)"/>
+
+      <rect x="472" y="172" width="150" height="30" rx="5" fill="#eef6fc" stroke="#0b6cb5"/>
+      <text x="547" y="192" font-size="11.5" font-weight="700" text-anchor="middle" fill="#08507f" font-family="sans-serif">あなたのプログラム</text>
+      <rect x="472" y="210" width="150" height="30" rx="5" fill="#fff" stroke="#b8c2ce"/>
+      <text x="547" y="230" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">他人のプログラム</text>
+      <rect x="472" y="248" width="150" height="30" rx="5" fill="#fff" stroke="#b8c2ce"/>
+      <text x="547" y="268" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">バックグラウンドの処理</text>
+
+      <text x="14" y="300" font-size="11.5" fill="#8a97a3" font-family="sans-serif">プログラムは装置に直結していない。すべての出入りはカーネルを通る。</text>
+    </svg>
+    <p class="cap">図1：①は「単純なプログラムモデル」（教科書1.2.1）。②が実際の姿（同1.2.3〜1.2.4）。</p>
+  </div>
+
+  <p class="body">答えは<b>②の絵</b>にあります。プログラムは装置に直結していません。<b>あいだにカーネルという1つのプログラムが座っていて、すべての出入りを引き受けている</b>のです。カーネルが交通整理をしてくれているから、あなたは①のつもりで書ける。</p>
+  <p class="body"><b>①が間違っているわけではありません。</b>①のつもりで書いても動くように、カーネルが引き受けてくれているだけです。<b>そして、その「引き受け」が通用しなくなる瞬間があります。</b>——それは、<b>プログラムが複数の口を同時に使おうとしたとき</b>です。</p>
+  <div class="idnote"><b>この一文を覚えておいてください。</b>今日の演習で、まさにそれが起きます。<b>「複数の口を同時に使おうとして、破綻する」</b>。90分後、この文の意味が分かるようになります。</div>
+
+  <h2 id="l2">1-2 カーネルが管理している6つのリソース</h2>
+  <p class="body">カーネルが管理しているものは、教科書1.3.1で6つに整理されています。<b>暗記する必要はありません。</b>「システムプログラミングの守備範囲はこの6つ」という<b>地図</b>として見てください。</p>
+  <table class="levels">
+    <thead><tr><th style="width:120px;">リソース</th><th>カーネルがやっていること</th><th style="width:170px;">この授業で扱う回</th></tr></thead>
+    <tbody>
+      <tr><td><b>プロセッサ</b></td><td>どのプログラムに、いつCPUを渡すかを決める</td><td>プロセス管理の回</td></tr>
+      <tr><td><b>メモリ</b></td><td>プログラムとデータの置き場所を配る・守る</td><td>プロセス管理の回</td></tr>
+      <tr><td><b>デバイス</b></td><td>画面・ディスク・キーボード等への<b>唯一の窓口</b>になる</td><td><b>今日</b>／ファイルI/Oの回</td></tr>
+      <tr><td><b>プロセス管理</b></td><td>実行中のプログラムを作る・止める・並べる</td><td>プロセス管理の回</td></tr>
+      <tr><td><b>通信（IPC）</b></td><td>プロセス同士がデータをやり取りする道を用意する</td><td>パイプ・IPCの回</td></tr>
+      <tr><td><b>ネットワーク</b></td><td>他のマシンとの通信をプロセスに使わせる</td><td>ネットワークの回</td></tr>
+    </tbody>
+  </table>
+  <p class="body">ここで大事なのは、<b>プログラムがこれらに触りたいときは、カーネルに「依頼」しなければならない</b>ということです。勝手には触れません。この依頼のことを<b>システムコール</b>と呼びます（詳しくは第4回以降）。</p>
+  <div class="idnote"><b>今日触るのは、この6行のうち「デバイス」の1行だけです。</b>もっと正確に言えば、<b>「端末（ターミナル）というデバイスに、どうやって話しかけるか」</b>という1点だけ。<b>90分で1行分。それでいい</b>と思ってください。6行ぶん進むのに、この科目は1年かけます。</div>
+
+  <h2 id="l3">1-3 なぜ今、システムプログラミングなのか</h2>
+  <p class="body">正直に言えば、この科目は<b>いちばん「古い」ように見えます。</b>1970年代に設計された仕組みを、2026年に学ぶ。しかも、コードは生成AIが書いてくれる時代に。<b>ここに、はっきり答えを出しておきます。</b></p>
+
+  <div class="level"><div class="lvhead"><span class="chip c-beg">論点1</span><span class="t">AIが動いている場所は、例外なくLinuxである</span></div>
+    <p>大規模モデルの学習も推論も、実行環境はLinuxです。そして——ここが面白いところですが——<b>「コンテナ」という実体は、どこにも存在しません。</b>あるのは、<b>名前空間（namespace）と資源制限（cgroups）というカーネルの機能を使って、「他が見えないように制限されただけのプロセス」</b>です。</p>
+    <p>つまり<b>コンテナが分かるとは、プロセスが分かるということ</b>です。逆に言えば、プロセスを知らないままコンテナを使うと、<b>動いているうちは何とかなり、壊れた瞬間に何も分からなくなります。</b></p>
+  </div>
+
+  <div class="level"><div class="lvhead"><span class="chip c-mid">論点2</span><span class="t">あなたは、AIが書いたコードを検収する側になる</span></div>
+    <p>今日の演習で見るバグは、<b>文法的には完全に正しいコードが、システムの前提を勘違いしているために壊れる</b>という型のバグです。コンパイラは何も言いません。警告すら出ません。それでも壊れます。</p>
+    <p>このタイプは、<b>コードだけを眺めても絶対に見つかりません。</b>「標準入力とは何か」「パイプでつないだとき何が起きるか」というOS側の知識がないと、<b>バグが目の前にあっても、バグだと認識できない。</b></p>
+    <p>生成AIはコードを速く出します。<b>速く出るからこそ、正しいかどうかを判定するコストが相対的に跳ね上がっています。</b>判定できる人の価値が上がる、というのが今の状況です。</p>
+  </div>
+
+  <div class="level"><div class="lvhead"><span class="chip c-adv">論点3</span><span class="t">AIエージェントは、あなたが今日打つコマンドを打っている</span></div>
+    <p>自然言語で指示すると、コードを書き、<b>シェルコマンドを実行し、ファイルを読み書きし、プロセスを起動する</b>——そういう道具が普通になりました。</p>
+    <p>そのログには、<b>あなたが今日打つのと同じコマンド、同じパイプ、同じリダイレクトが並びます。</b>読めなければ、承認も却下もできません。<b>「読める人」であることの価値は、むしろ上がっています。</b></p>
+  </div>
+
+  <p class="body" style="margin-top:20px;"><b>教科書の6リソースは、そのまま現代のAIインフラの用語に対応づけられます。</b>概念の対応であって実装が同じという意味ではありませんが、<b>地図としては十分に使えます。</b></p>
+  <table class="levels">
+    <thead><tr><th style="width:130px;">教科書（1970s〜）</th><th>いまの現場での「顔」</th></tr></thead>
+    <tbody>
+      <tr><td><b>プロセッサ</b></td><td>アクセラレータの割り当て、cgroups によるCPU/メモリ制限、ジョブスケジューラ</td></tr>
+      <tr><td><b>メモリ</b></td><td>モデル重みの常駐と読み込み、ページキャッシュ、メモリ帯域がボトルネックになる話</td></tr>
+      <tr><td><b>デバイス</b></td><td><code>/dev/</code> 以下のデバイスファイル経由でアクセスする、という構図は<b>今もそのまま</b></td></tr>
+      <tr><td><b>プロセス管理</b></td><td><b>コンテナ ＝ namespace ＋ cgroups</b>。オーケストレータはその上の層</td></tr>
+      <tr><td><b>通信（IPC）</b></td><td>推論サーバとワーカ間の受け渡し、共有メモリ、ソケット、パイプ</td></tr>
+      <tr><td><b>ネットワーク</b></td><td>分散学習のノード間通信。<b>計算より通信が効く</b>局面が普通にある</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ainote"><b>まとめると、この科目の立場はこうです。</b><br>
+  AIに奪われるのは<b>「書く」作業</b>であって、<b>「どこが壊れているか判断する」作業</b>ではありません。そして<b>判断は、下の層を知らないとできません。</b><br><br>
+  ——今日壊れるコードは、その実演です。<b>90分後に、この主張が正しかったかどうか、自分で判定してください。</b></div>
+
+  <h2 id="copilot">1-4 この授業でのCopilotの使い方</h2>
+  <p class="body"><b>ここは演習のルールです。</b>禁止事項というより、<b>今日の学習が成立するための条件</b>だと思ってください。</p>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>◯ 使ってよい</h3>
+      <ul>
+        <li>コマンドやオプションの意味を聞く（<b>ただし <code>man</code> で裏取りする</b>）</li>
+        <li>コンパイルエラーの読み方を聞く</li>
+        <li>コードの<b>特定の1行</b>について「これは何をしている？」と聞く</li>
+        <li>Stage C の改造案を出させる（<b>採用前に、変更点を口で説明できること</b>）</li>
+      </ul>
+    </div>
+    <div class="card" style="background:#fdecec;border-color:#f3b9b9;">
+      <h3 style="color:#7a1f1f;">× 今日はやらない</h3>
+      <ul>
+        <li><b>「more コマンドを作って」と丸投げする</b></li>
+        <li>出力を貼って、動いたから終わりにする</li>
+        <li>Stage B で「なぜ止まらないのか」を、<b>自分の仮説を書く前に</b>聞く</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="timerule"><span class="big">★</span><b>丸投げが禁止な理由は、ズルだからではありません。</b><br>
+  Copilot は、正しい版の more を最初から出してくる可能性が高いです。<b>つまり丸投げすると、「壊れる版」を一度も見ないまま、正解だけが手に入ります。</b><br><br>
+  <b>今日の学習内容は「正しいコード」ではなく「壊れる体験」の側にあります。</b>正解を先に受け取ると、<b>あなたの90分が消えます。</b>——これは倫理の話ではなく、損得の話です。</div>
+
+  <div class="design"><b>15秒ルール。</b><br>
+  <b>Copilotに聞く前に、15秒だけ自分の仮説を立てる。</b><br>
+  理由は単純で、<b>仮説がないと、返ってきた答えが正しいかどうか判定できない</b>からです。判定できない答えを受け取るのは、情報を得たことになりません。<b>この習慣は、この科目を終えたあともずっと効きます。</b></div>
+
+  <div class="foot">講義 ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ 演習の準備 ============================ -->
+<section class="sheet k1" id="prep">
+  <div class="eyebrow">演習 <span class="no">準備</span><span class="badge">0:30〜</span></div>
+  <h1>演習の準備</h1>
+  <p class="lead">ここから45分、手を動かします。<b>ここから先、ファイル操作にマウスは使いません。</b>すべてコマンドで行います。</p>
+
+  <h2>作業ディレクトリを作る</h2>
+<pre class="code">mkdir -p ~/syspro/week03
+cd ~/syspro/week03
+pwd</pre>
+  <div class="verify"><b>ここで確認</b> <code>pwd</code> の出力の末尾が <code>/syspro/week03</code> になっていれば成功です。<b>以降の作業は、すべてこのディレクトリの中で行います。</b></div>
+  <div class="idnote"><b><code>~</code>（チルダ）はホームディレクトリの意味です。</b>Linux標準教科書 5.5「特別なディレクトリ」に出てきます。<code>.</code>（カレント）、<code>..</code>（親）、<code>/</code>（ルート）と合わせて、<b>今日中に4つとも説明できるようになってください。</b></div>
+
+  <h2>テスト用ファイルを作る</h2>
+  <p class="note">今日の演習には、<b>画面1枚に収まらない長さのファイル</b>が要ります。最後まで何度も使うので、ここで1つ作っておきます。</p>
+<pre class="code"><span class="cmt"># 1から200までの数字を、1行に1つずつ書き出してファイルに保存する</span>
+seq 1 200 &gt; numbers.txt
+
+<span class="cmt"># 本当に200行できたか確認する</span>
+wc -l numbers.txt
+
+<span class="cmt"># 中身を先頭5行だけ見る</span>
+head -5 numbers.txt</pre>
+  <div class="verify"><b>ここで確認</b> <code>wc -l</code> が <code>200 numbers.txt</code> と出て、<code>head -5</code> が <code>1</code> から <code>5</code> まで出れば成功です。<b>この <code>numbers.txt</code> は、今日の最後まで使います。消さないでください。</b></div>
+  <div class="idnote"><b>なぜ「連番の数字」のファイルなのか。</b>1行目に <code>1</code>、100行目に <code>100</code> と書いてあるので、<b>画面に何行目まで出たのかが、数えなくても一目で分かります。</b>ふつうの文章のファイルだと、同じことを確かめるのに毎回数える必要があります。<br>
+  なお <code>&gt;</code> は<b>リダイレクト</b>（Linux標準教科書6章）。<code>seq</code> の出力が、画面ではなくファイルに向かいます。</div>
+
+  <h2>演習の全体像</h2>
+  <table class="levels">
+    <thead><tr><th style="width:80px;">段階</th><th>やること</th><th style="width:56px;">分</th></tr></thead>
+    <tbody>
+      <tr><td><b>準備</b></td><td>作業ディレクトリと <code>numbers.txt</code> を作る（上で済ませた分）</td><td>2</td></tr>
+      <tr><td><b>Stage A</b></td><td>本物の <code>more</code> を観察する（STEP 1）</td><td>8</td></tr>
+      <tr><td><b>Stage B</b></td><td><b>自作 more を動かし、わざと壊す</b>（STEP 3 → STEP 2）</td><td>22</td></tr>
+      <tr><td><b>Stage C</b></td><td>直す（変更は4か所だけ）</td><td>13</td></tr>
+    </tbody>
+  </table>
+  <div class="design"><b>順番に注目してください。</b>STEP 3（書く）が STEP 2（仕組みを考える）より先に来ています。<b>これは間違いではありません。</b>書いてみて壊れないと、「何を考えればいいのか」が分からないからです。<b>壊れた場所が、考えるべき場所を教えてくれます。</b></div>
+
+  <div class="foot">演習の準備 ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ Stage A ============================ -->
+<section class="sheet k3" id="stageA">
+  <div class="eyebrow">Stage <span class="no">A</span><span class="badge">8分</span></div>
+  <h1>本物を観察する</h1>
+  <p class="lead">教科書1章の<b>問い1「more は何をするのか」</b>に、観察で答えます。<b>説明を読むのではなく、動かして答えてください。</b>さきほど作った <code>numbers.txt</code> を使います。</p>
+
+<pre class="code"><span class="cmt"># いまどこにいるか、ファイルがあるかを確認</span>
+pwd
+ls
+
+<span class="cmt"># さっき作った numbers.txt を、本物の more で見る</span>
+more numbers.txt
+
+<span class="cmt"># more コマンドの実体はどこにある？</span>
+which more
+
+<span class="cmt"># パイプ（|）で渡しても動く</span>
+ls /usr/bin | more</pre>
+
+  <div class="verify"><b>観察して答える（3つ、口で言えること）</b><br>
+  ① <code>more numbers.txt</code> は<b>何行で止まりましたか</b>？ 隣の人と数が違いますか？<br>
+  ② <b>スペース／Enter／<code>q</code></b> を押すと、それぞれ何が起きますか？<br>
+  ③ <code>more numbers.txt</code> と <code>ls /usr/bin | more</code> で、<b>more はデータをどこから受け取っていますか</b>？ 同じですか、違いますか？</div>
+
+  <details class="ans">
+    <summary>③のヒント（考えてから開く）</summary>
+    <div class="abody">
+      <p><b>違います。</b>前者は <code>numbers.txt</code> という<b>ファイル</b>から。後者は <code>ls</code> というプログラムの出力が<b>パイプ</b>を通って流れてきます。</p>
+      <p><b>つまり more には、データの入口が2通りあります。</b>この「2通りある」ことが、Stage B で起きる事故の原因になります。<b>いま覚えておいてください。</b></p>
+    </div>
+  </details>
+
+  <div class="idnote"><b>余裕がある人へ。</b><code>man more</code> を開いて、<b>SYNOPSIS の行だけ</b>読んでみてください。<code>man</code> の読み方は Linux標準教科書 5.12 にあります。マニュアルには<b>セクション番号</b>（<code>MORE(1)</code> の <code>1</code>）があり、これが何を意味するかは宿題で調べます。</div>
+
+  <div class="design"><b>いま使ったコマンドと、教科書の対応。</b><br>
+  <code>pwd</code> <code>wc</code> <code>head</code> <code>which</code> <code>man</code> → Linux標準教科書 <b>5章</b>／ <code>&gt;</code>（リダイレクト）と <code>|</code>（パイプ）→ <b>6章</b>。<br>
+  <b>今日は「使った」だけで十分です。</b>体系的な整理は次回、6章をやるときに行います。</div>
+
+  <div class="foot">Stage A ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ Stage B ============================ -->
+<section class="sheet k6" id="stageB">
+  <div class="eyebrow">Stage <span class="no">B</span><span class="badge">22分</span></div>
+  <h1>自作 more を動かし、わざと壊す</h1>
+  <p class="lead"><b>ここが今日の中心です。</b>22分を、①読む5分 ②動かす5分 ③壊す5分 ④考える7分 に使います。</p>
+
+  <h2>B-1 まず読む（5分）― コンパイルはまだしない</h2>
+  <p class="note">VSCode で <code>more01.c</code> を作り、下のコードを入れてください。<b>入れたら、コンパイルする前に、その下の3問に答えてください。</b>コードを読まずに実行すると、今日の学習が半分消えます。</p>
+
+<pre class="code"><span class="cmt">/* more01.c ---- 自作 more バージョン 0.1 */</span>
+<span class="kw">#include</span> &lt;stdio.h&gt;
+<span class="kw">#include</span> &lt;stdlib.h&gt;
+
+<span class="kw">#define</span> PAGELEN 24        <span class="cmt">/* 1画面の行数 */</span>
+<span class="kw">#define</span> LINELEN 512       <span class="cmt">/* 1行の最大文字数 */</span>
+
+<span class="kw">void</span> do_more(FILE *fp);
+<span class="kw">int</span>  ask_user(<span class="kw">void</span>);
+
+<span class="kw">int</span> main(<span class="kw">int</span> ac, <span class="kw">char</span> *av[])
+{
+    FILE *fp;
+
+    <span class="kw">if</span> (ac == 1) {                    <span class="cmt">/* 引数なし → 標準入力を読む */</span>
+        do_more(stdin);
+    } <span class="kw">else</span> {
+        <span class="kw">while</span> (--ac) {                <span class="cmt">/* 引数あり → ファイルを開いて読む */</span>
+            <span class="kw">if</span> ((fp = fopen(*++av, <span class="str">"r"</span>)) != NULL) {
+                do_more(fp);
+                fclose(fp);
+            } <span class="kw">else</span> {
+                perror(*av);
+                <span class="kw">return</span> 1;
+            }
+        }
+    }
+    <span class="kw">return</span> 0;
+}
+
+<span class="kw">void</span> do_more(FILE *fp)
+{
+    <span class="kw">char</span> line[LINELEN];
+    <span class="kw">int</span>  num_of_lines = 0;
+    <span class="kw">int</span>  reply;
+
+    <span class="kw">while</span> (fgets(line, LINELEN, fp) != NULL) {
+        <span class="kw">if</span> (num_of_lines == PAGELEN) {      <span class="cmt">/* 1画面ぶん出した */</span>
+            reply = ask_user();
+            <span class="kw">if</span> (reply == 0) <span class="kw">break</span>;            <span class="cmt">/* q → 終了 */</span>
+            num_of_lines -= reply;          <span class="cmt">/* 進む行数だけカウンタを戻す */</span>
+        }
+        <span class="kw">if</span> (fputs(line, stdout) == EOF)
+            exit(1);
+        num_of_lines++;
+    }
+}
+
+<span class="kw">int</span> ask_user(<span class="kw">void</span>)
+{
+    <span class="kw">int</span> c;
+
+    printf(<span class="str">"\033[7m--More--\033[m"</span>);   <span class="cmt">/* 反転表示でプロンプト */</span>
+    fflush(stdout);
+    c = getchar();                     <span class="cmt">/* ← 今日の主役。どこから読んでいる？ */</span>
+    <span class="kw">if</span> (c == <span class="str">'q'</span>) <span class="kw">return</span> 0;            <span class="cmt">/* 終了 */</span>
+    <span class="kw">if</span> (c == <span class="str">' '</span>) <span class="kw">return</span> PAGELEN;      <span class="cmt">/* スペース → 次の1画面 */</span>
+    <span class="kw">return</span> 1;                          <span class="cmt">/* それ以外 → 1行だけ */</span>
+}</pre>
+
+  <div class="verify"><b>コンパイル前に答える3問</b>（隣の人と口頭で、1分ずつ）<br>
+  ① <code>ac == 1</code> のとき、データはどこから来ますか？<br>
+  ② <code>ask_user()</code> の中の <code>getchar()</code> は、<b>どこから</b>1文字読みますか？<br>
+  ③ <code>fflush(stdout)</code> が無いと何が困りますか？（<b>難問。分からなくてよい</b>）</div>
+
+  <details class="ans">
+    <summary>3問の答え（自分の答えを言ってから開く）</summary>
+    <div class="abody">
+      <p><b>①</b> 標準入力から。<code>do_more(stdin)</code> と書いてあります。<code>stdin</code> は「標準入力」を表す <code>FILE *</code> です。</p>
+      <p><b>②</b> <b>標準入力から。</b><code>getchar()</code> は <code>fgetc(stdin)</code> と同じ意味です。<b>——これが今日の全部です。</b>いまは「ふーん」で構いません。</p>
+      <p><b>③</b> <code>printf</code> の出力は、すぐ画面に出るとは限りません。効率のため、いったん<b>バッファ</b>にためられます。改行が無いと、たまったまま出ないことがあります。すると <b><code>--More--</code> が表示されないまま、入力待ちで固まっているように見えます。</b><code>fflush(stdout)</code> は「たまっているぶんを、いま出せ」という指示です。</p>
+    </div>
+  </details>
+
+  <h2>B-2 コンパイルして、まず正常系を見る（5分）</h2>
+<pre class="code">gcc -Wall -o more01 more01.c
+ls -l more01
+
+<span class="cmt"># ファイルを引数に渡す ← これは正しく動く</span>
+./more01 numbers.txt</pre>
+
+  <div class="verify"><b>ここで確認</b> 24行表示されて <code>--More--</code> で止まりますか？ <b>スペースで次の画面、<code>q</code> で終了</b>できますか？ できていれば正常系はOKです。</div>
+  <div class="idnote"><b><code>-Wall</code> は必ず付けてください。</b>「警告を全部出す」という意味です。<b>このコードは <code>-Wall</code> で警告ゼロになります。</b>警告が出た人は、どこかを打ち間違えています。<b>最初の警告の行番号だけ</b>を見てください。下の警告は、たいてい最初の1つの連鎖です。</div>
+
+  <h2>B-3 壊す（5分）― 今日いちばん大事な5分</h2>
+  <p class="body">今度は、<b>まったく同じファイルを、パイプで渡します。</b>データの中身は同じです。<b>渡し方だけが違います。</b></p>
+
+<pre class="code">cat numbers.txt | ./more01</pre>
+
+  <div class="warn"><b>結果を、目で見てください。</b>おそらく次のようになります（先頭のほうを抜粋）。<br><br>
+  <code>22</code> ／ <code>23</code> ／ <code>24</code> ／ <code>--More--25</code> ／ <code>--More--6</code> ／ <code>--More--7</code> ／ <code>--More--8</code> ／ <code>--More--9</code> ／ <code>--More--0</code> …<br><br>
+  <b>止まりません。そして数字が壊れています。</b>「26」が「6」に、「27」が「7」になっている。<b>先頭の1文字が、どこかに消えています。</b></div>
+
+  <div class="memo">
+    <p class="mh">観察して、書く（Copilotに聞く前に）</p>
+    <p class="mq">Q1　止まらなかったのは、なぜだと思いますか（仮説でよい）</p>
+    <div class="ml"></div><div class="ml"></div>
+    <p class="mq">Q2　数字の先頭が1文字ずつ消えているのは、なぜですか</p>
+    <div class="ml"></div><div class="ml"></div>
+    <p class="mq">Q3　Q1 と Q2 は、同じ原因ですか、別の原因ですか</p>
+    <div class="ml"></div>
+  </div>
+
+  <div class="timerule"><span class="big">★</span><b>ここまで書いてから、初めてCopilotに聞いてよい。</b>（15秒ルール）<br>
+  仮説を書かずに聞くと、返ってきた答えが正しいかどうか、あなたには判定できません。</div>
+
+  <h2>B-4 答え合わせ（7分）</h2>
+  <p class="note"><b>自分の仮説を書き終えてから、下を開いてください。</b></p>
+
+  <details class="ans">
+    <summary>なぜ壊れたのか（仮説を書いてから開く）</summary>
+    <div class="abody">
+      <p><b>原因は1つです。Q1 も Q2 も、同じことから起きています。</b></p>
+      <p><code>cat numbers.txt | ./more01</code> と書いた瞬間、<b>more01 の標準入力は「パイプ」になります。</b>つまり<b>標準入力の中身は、表示すべきデータそのもの</b>です。</p>
+      <p>ところが <code>ask_user()</code> の中の <code>getchar()</code> は、<b>その標準入力から1文字読みます。</b>あなたの指ではなく、<b>データの1文字を「あなたの返事」として食べてしまう。</b></p>
+      <p>食べた文字は「26」の <code>2</code> でした。<code>2</code> は <code>q</code> でもスペースでもないので、<code>ask_user()</code> は「1行だけ進め」の <code>1</code> を返します。だから<b>止まらない</b>。そして <code>2</code> はもう消費されてしまったので、<b>画面には <code>6</code> だけが残る</b>。——Q1 と Q2 は、同じ1つの原因の、2つの見え方です。</p>
+      <p style="margin-top:12px;"><b>ひとことで言うと：</b></p>
+      <p style="font-size:14px;font-weight:800;color:#7a1f1f;background:#fdecec;border:1px solid #f3b9b9;border-radius:6px;padding:10px 13px;">more01 は、データの通り道と、あなたの指の通り道が、同じ1本になっている。</p>
+      <p style="margin-top:12px;"><b>では、なぜファイル引数のときは壊れなかったのか？</b> そのときは<b>通り道が2本あったから</b>です——データは <code>fopen</code> で開いたファイル、返事は標準入力（＝端末）。<b>つまり more01 は「たまたま動いていた」だけです。</b></p>
+      <p><b>「たまたま動いている」ことに気づけるかどうかが、システムを理解しているかどうかの分かれ目です。</b></p>
+    </div>
+  </details>
+
+  <div class="dayof"><b>講義 1-1 で言ったことを、思い出してください。</b><br>
+  「①の絵が通用しなくなるのは、<b>プログラムが複数の口を同時に使おうとしたとき</b>」——いま、まさにそれが起きました。<b>more は「データを読む口」と「返事を聞く口」の2つを、1本の標準入力に押し込もうとして破綻したのです。</b><br><br>
+  <b>そしてこのバグは、C言語のバグではありません。OSの構造についての勘違いです。</b>コンパイラは何も警告しません。</div>
+
+  <div class="foot">Stage B ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ Stage C ============================ -->
+<section class="sheet k1" id="stageC">
+  <div class="eyebrow">Stage <span class="no">C</span><span class="badge">13分</span></div>
+  <h1>直す ― 変更は4か所だけ</h1>
+  <p class="lead">直し方の方針は、もう分かっているはずです。<b>通り道を2本にすればいい。</b>ではどうやって？ ——<b>端末そのものを、名前を指定して開きます。</b></p>
+
+  <p class="body">Unix には <code>/dev/tty</code> という特別なファイルがあります。これは<b>「いま自分がつながっている端末」</b>を指します。ファイルのように <code>fopen</code> で開けて、<code>fgetc</code> で読めます。<b>標準入力がパイプに置き換わっていても、<code>/dev/tty</code> は端末のままです。</b></p>
+
+  <div class="figure">
+    <svg viewBox="0 0 660 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="more01ともore02のデータの流れの比較">
+      <defs>
+        <marker id="ah2" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 z" fill="#52606d"/>
+        </marker>
+        <marker id="ahr" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 z" fill="#c0392b"/>
+        </marker>
+        <marker id="ahg" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6 z" fill="#2f9e44"/>
+        </marker>
+      </defs>
+
+      <text x="10" y="22" font-size="13" font-weight="700" fill="#c0392b" font-family="sans-serif">more01：通り道が1本しかない</text>
+      <rect x="14" y="40" width="126" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="77" y="65" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">パイプ（データ）</text>
+      <line x1="142" y1="60" x2="258" y2="60" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah2)"/>
+      <text x="200" y="52" font-size="10.5" text-anchor="middle" fill="#52606d" font-family="sans-serif">標準入力</text>
+      <rect x="264" y="40" width="120" height="40" rx="6" fill="#fdecec" stroke="#c0392b"/>
+      <text x="324" y="65" font-size="12.5" font-weight="700" text-anchor="middle" fill="#7a1f1f" font-family="sans-serif">more01</text>
+      <line x1="386" y1="60" x2="496" y2="60" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah2)"/>
+      <text x="441" y="52" font-size="10.5" text-anchor="middle" fill="#52606d" font-family="sans-serif">標準出力</text>
+      <rect x="502" y="40" width="120" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="562" y="65" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">画面</text>
+
+      <rect x="14" y="112" width="126" height="36" rx="6" fill="#fff" stroke="#c0392b" stroke-dasharray="4 3"/>
+      <text x="77" y="135" font-size="11.5" text-anchor="middle" fill="#7a1f1f" font-family="sans-serif">あなたの指</text>
+      <path d="M77 112 L77 66" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#ahr)"/>
+      <text x="152" y="132" font-size="11.5" font-weight="700" fill="#c0392b" font-family="sans-serif">同じ1本に合流している</text>
+      <text x="152" y="149" font-size="11" fill="#7a1f1f" font-family="sans-serif">→ getchar() は、データの1文字を「あなたの返事」として食べてしまう</text>
+
+      <line x1="10" y1="172" x2="650" y2="172" stroke="#d9dee5" stroke-dasharray="4 4"/>
+
+      <text x="10" y="200" font-size="13" font-weight="700" fill="#1f6631" font-family="sans-serif">more02：通り道を2本にする</text>
+      <rect x="14" y="218" width="126" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="77" y="243" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">パイプ（データ）</text>
+      <line x1="142" y1="238" x2="258" y2="238" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah2)"/>
+      <text x="200" y="230" font-size="10.5" text-anchor="middle" fill="#52606d" font-family="sans-serif">標準入力</text>
+      <rect x="264" y="218" width="120" height="40" rx="6" fill="#eafaf0" stroke="#2f9e44"/>
+      <text x="324" y="243" font-size="12.5" font-weight="700" text-anchor="middle" fill="#1f6631" font-family="sans-serif">more02</text>
+      <line x1="386" y1="238" x2="496" y2="238" stroke="#52606d" stroke-width="1.4" marker-end="url(#ah2)"/>
+      <text x="441" y="230" font-size="10.5" text-anchor="middle" fill="#52606d" font-family="sans-serif">標準出力</text>
+      <rect x="502" y="218" width="120" height="40" rx="6" fill="#fff" stroke="#b8c2ce"/>
+      <text x="562" y="243" font-size="11.5" text-anchor="middle" fill="#27313b" font-family="sans-serif">画面</text>
+
+      <rect x="264" y="290" width="120" height="36" rx="6" fill="#fff" stroke="#2f9e44"/>
+      <text x="324" y="313" font-size="11.5" text-anchor="middle" fill="#1f6631" font-family="sans-serif">あなたの指</text>
+      <path d="M324 290 L324 262" fill="none" stroke="#2f9e44" stroke-width="1.8" marker-end="url(#ahg)"/>
+      <text x="396" y="308" font-size="11.5" font-weight="700" fill="#1f6631" font-family="sans-serif">/dev/tty ＝ 端末そのものを開く</text>
+      <text x="396" y="325" font-size="11" fill="#1f6631" font-family="sans-serif">→ データの流れと、指の流れが分離される</text>
+    </svg>
+    <p class="cap">図2：more01 と more02 のデータの流れ。<b>変わったのは「返事をどこから読むか」だけです。</b></p>
+  </div>
+
+  <h2>コピーして、4か所だけ書き換える</h2>
+<pre class="code">cp more01.c more02.c</pre>
+  <p class="note"><b>Copilot を使ってよいのはここからです。</b>ただし条件は「<b>採用する前に、4か所の変更それぞれを口で説明できること</b>」。</p>
+
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">① プロトタイプ宣言</span><span class="cmdtag">1行</span></div>
+<pre class="code" style="margin-top:9px;"><span class="kw">int</span>  ask_user(FILE *cmd);   <span class="cmt">/* void → FILE * を受け取る */</span></pre>
+    </div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">② do_more の先頭で端末を開く</span><span class="cmdtag">6行追加</span></div>
+<pre class="code" style="margin-top:9px;">    FILE *fp_tty;
+
+    fp_tty = fopen(<span class="str">"/dev/tty"</span>, <span class="str">"r"</span>);   <span class="cmt">/* 端末そのものを開く */</span>
+    <span class="kw">if</span> (fp_tty == NULL) {
+        fprintf(stderr, <span class="str">"/dev/tty を開けません\n"</span>);
+        exit(1);
+    }</pre>
+    </div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">③ 呼び出し側で渡す</span><span class="cmdtag">1行</span></div>
+<pre class="code" style="margin-top:9px;">            reply = ask_user(fp_tty);</pre>
+    </div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">④ ask_user は端末から読む</span><span class="cmdtag red">ここが本体</span></div>
+<pre class="code" style="margin-top:9px;"><span class="kw">int</span> ask_user(FILE *cmd)
+{
+    <span class="kw">int</span> c;
+
+    printf(<span class="str">"\033[7m--More--\033[m"</span>);
+    fflush(stdout);
+    c = fgetc(cmd);        <span class="cmt">/* getchar() ではない。渡された端末から読む */</span>
+    <span class="kw">if</span> (c == <span class="str">'q'</span>) <span class="kw">return</span> 0;
+    <span class="kw">if</span> (c == <span class="str">' '</span>) <span class="kw">return</span> PAGELEN;
+    <span class="kw">return</span> 1;
+}</pre>
+    </div>
+  </div>
+
+<pre class="code">gcc -Wall -o more02 more02.c
+
+<span class="cmt"># 正常系（ファイル引数）</span>
+./more02 numbers.txt
+
+<span class="cmt"># 壊れていた側（パイプ）</span>
+cat numbers.txt | ./more02
+
+<span class="cmt"># もっと実用的な使い方</span>
+ls /usr/bin | ./more02</pre>
+
+  <div class="verify"><b>ここで確認（両方できて合格）</b><br>
+  ① <code>cat numbers.txt | ./more02</code> が<b>24行ごとにきちんと止まる</b><br>
+  ② <b>数字が欠けていない</b>（26が26のまま表示される）<br><br>
+  <b>できた人は、隣で詰まっている人を1人手伝ってから、次に進んでください。</b></div>
+
+  <div class="warn"><b><code>/dev/tty を開けません</code> と出た人へ。</b>それは<b>バグではなく、正しい動作</b>です。<code>/dev/tty</code> は「自分がつながっている端末」を指すので、<b>端末につながっていない場所で実行すると開けません。</b>VSCode の「ターミナル」パネルで実行してください（デバッグコンソールや、一部の実行方法では開けないことがあります）。<br>
+  <b>このエラーを見た人は、むしろ今日いちばん深い場所を見ています。</b>振り返りで共有してください。</div>
+
+  <div class="idnote"><b>早く終わった人へ（答えは今日は出しません）。</b><br>
+  ・<b><code>PAGELEN</code> が 24 に固定されているのは正しいですか？</b> あなたの端末は本当に24行ですか？ 端末の高さを知る方法はあるでしょうか。（<code>echo $LINES</code> を試してみてください）<br>
+  ・<b>本物の more は、Enter を押さなくてもキーが効きます。</b>なぜ我々の版は Enter が必要なのでしょうか。<br>
+  <b>どちらも次回以降の題材です。「気になったまま帰る」のが正しい状態です。</b></div>
+
+  <div class="foot">Stage C ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ 振り返り ============================ -->
+<section class="sheet k4" id="review">
+  <div class="eyebrow">振り返り <span class="badge">1:15〜1:30</span></div>
+  <h1>今日、何が分かったか</h1>
+  <p class="lead">この15分が、今日いちばん大事な時間です。<b>手を動かした時間ではなく、ここで言葉にできた分だけ</b>が身につきます。<b>ただし、口頭で発表はしません。</b>全員が共有シートに書き込み、他の人の書き込みを読み、答えられるものに答えます。</p>
+
+  <div class="sheeturl"><b>この15分は、共有シートに書き込みながら進めます。</b>紙ではありません。<b>口頭での発表もしません。</b>
+    <span class="u">共有シート URL：＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿</span>
+    シートには<b>あらかじめ全員分の行が用意されています。</b>自分の番号の行に書き込んでください。<b>他の人の行を書き換えたり消したりしないこと</b>（編集履歴はすべて残ります）。
+  </div>
+
+  <table class="levels" style="margin-top:16px;">
+    <thead><tr><th style="width:70px;">配分</th><th>やること</th></tr></thead>
+    <tbody>
+      <tr><td><b>6分</b></td><td><b>① 自分の行を埋める</b>（B〜G の6セル）</td></tr>
+      <tr><td><b>5分</b></td><td><b>② 他の人の G列を読み、答えられるものに H列で答える</b></td></tr>
+      <tr><td><b>4分</b></td><td><b>③ シートを画面に映して、まとめ</b></td></tr>
+    </tbody>
+  </table>
+
+  <h2>① 自分の行を埋める（6分）</h2>
+  <p class="note"><b>思い出して書くのではありません。自分の画面を見ながら書いてください。</b>ターミナルをスクロールして戻れば、B と C はそのまま拾えます。</p>
+
+  <div class="fillin">
+    <p><span class="col">B</span><span class="hd">観察</span><code>cat numbers.txt | ./more01</code> を実行したとき、<b>24行目の次に画面に出た行</b>を、そのままコピーして貼る。</p>
+    <p><span class="col">C</span><span class="hd">観察</span>B の行から<b>消えてしまった文字</b>は <span class="bl"></span>（1文字だけ書く）</p>
+    <p><span class="col">D</span><span class="hd">穴埋め</span>more01 では、<span class="bl"></span> の通り道と、<span class="bl"></span> の通り道が、同じ1本になっていた。</p>
+    <p><span class="col">E</span><span class="hd">差分</span>more02 では、返事を読む先を <span class="bl"></span> に変えた。書き換えた関数の名前は <span class="bl"></span>。</p>
+    <p><span class="col">F</span><span class="hd">AI</span>今日 Copilot に投げた文を<b>1つ、そのままコピーして貼る。</b>そのうえで、<b>返ってきた答えが正しいと、どうやって確かめたか</b>を書く（例：<code>man</code> で調べた／実際に動かした／<code>-Wall</code> で警告が出ないのを見た）。<b>確かめていないなら「確かめていない」と書く。</b>それも正直な記録です。</p>
+    <p><span class="col">G</span><span class="hd">?</span><b>いま、まだ分かっていないこと・引っかかっていることを1つ。</b>「特にありません」は書かないでください。</p>
+  </div>
+
+  <div class="verify"><b>D と E で迷ったら、B と C を見返してください。</b>答えはそこにあります。<b>「理由を考えて書く」のではなく、「自分が見たものを言い直す」だけです。</b></div>
+
+  <div class="timerule"><span class="big">★</span><b>G列が、このシートでいちばん価値のある列です。</b><br>
+  分かったことを書くのは簡単ですが、<b>「まだ分かっていないこと」を言葉にできるのは、その手前まで理解できている人だけです。</b>「全部分からない」でも構いません。<b>ただし、どこから分からなくなったかは書いてください。</b></div>
+
+  <h2>② 他の人の G列に答える（5分）</h2>
+  <p class="note">ここが「共有」です。<b>聞くのではなく、読んで、書きます。</b></p>
+
+  <div class="level"><div class="lvhead"><span class="chip c-beg">やること</span><span class="t">3つだけ</span></div>
+    <ul>
+      <li><b>G列を上から読む。</b>全部読まなくてよい。3人ぶんでも構いません。</li>
+      <li><b>自分が答えられるものを1つ以上見つけて、その行の H列に書く。</b>末尾に自分の番号を付けること（例：<code>…だからだと思います（No.07）</code>）。</li>
+      <li>答えられなくても、<b>同じところで引っかかっている人</b>がいたら、H列に <code>同じく（No.07）</code> と書く。</li>
+    </ul>
+  </div>
+
+  <div class="verify"><b>ここでの合格は「1つ以上、他の人の行に書き込んだ」ことです。</b>正解でなくて構いません。<b>間違った答えが書かれていたら、それは次の人が直せます。</b></div>
+
+  <div class="ainote"><b>F列（Copilot）について、ひとこと。</b>「Copilotは間違えるから使うな」というのは、この授業の結論ではありません。<b>正しい結論は「Copilotの出力を判定できる人になれ」</b>です。<br><br>
+  F列に「確かめていない」と書いた人が多ければ、<b>それが今日いちばん重要な発見</b>です。<b>速く手に入る答えほど、正しさの確認が飛ばされます。</b>——判定手段を持っているかどうかが、この科目で身につけるものです。</div>
+
+  <h2>③ まとめ（4分）</h2>
+  <p class="note">シートを画面に映して、実際に集まった書き込みを見ます。</p>
+  <div class="level"><div class="lvhead"><span class="chip c-mid">見るところ</span><span class="t">2つ</span></div>
+    <ul>
+      <li><b>D列に、どれだけ違う言い方が並んだか。</b>同じ現象を、48通りの言葉で書いています。<b>どれが一番短く言えているかを見てください。</b></li>
+      <li><b>G列のうち、H列が空のまま残ったもの。</b>——<b>それが、来週の最初の話題になります。</b>誰も答えられなかった問いは、消さずに残します。</li>
+    </ul>
+  </div>
+
+  <div class="warn"><b>シートは授業後も残ります。消さないでください。</b>次回の冒頭で開きます。<b>あとから H列に答えを書き足すのは歓迎です</b>（帰ってから分かったことがあれば、書き足してください。番号を付けること）。</div>
+
+  <h2>今日の1文</h2>
+  <div class="dayof"><b>プログラムは、装置に直結していない。すべての出入りは、カーネルという1点を通っている。</b><br><br>
+  more01 が壊れたのは、この事実を無視したからです。<b>そして、この事実を無視したまま書けるコードは、これから先いくらでもあります。</b>——動いているうちは。</div>
+
+  <h2>次回以降の予告</h2>
+  <table class="levels">
+    <thead><tr><th style="width:110px;">回</th><th>やること</th><th style="width:210px;">今日つないだ伏線</th></tr></thead>
+    <tbody>
+      <tr><td><b>第3回</b></td><td>標準入出力・リダイレクト・パイプ（Linux標準教科書6章）＋ シェルスクリプト入門</td><td><code>|</code> と <code>&gt;</code> の正体。<b>今日壊れた原因を、正面から扱います</b></td></tr>
+      <tr><td><b>第4回以降</b></td><td>システムコール（<code>open</code> / <code>read</code> / <code>write</code>）、ファイル属性、プロセス</td><td>「端末の高さを知る方法」「Enter無しでキーを読む方法」「ファイルの大きさを知る方法」</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">振り返り ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ 宿題 ============================ -->
+<section class="sheet k5" id="hw">
+  <div class="eyebrow">宿題 <span class="badge">次回まで</span></div>
+  <h1>宿題</h1>
+  <p class="lead">2つあります。<b>どちらも取り組んでください。課題Aは30分程度。課題Bは、答えが出なくても構いません。</b>むしろ<b>「出ないこと」に気づくのが課題Bの目的</b>です。<b>提出は、2つまとめて1つのWordファイルで行います。</b></p>
+
+  <h2>課題A：コマンドを、自分の手で1周する（必須）</h2>
+  <p class="note">Linux標準教科書5章のコマンドを、<b>自分の環境で1回ずつ実行し、記録を残してください。</b></p>
+  <table class="levels">
+    <thead><tr><th style="width:160px;">コマンド</th><th>やること</th></tr></thead>
+    <tbody>
+      <tr><td><code>ls -l</code> / <code>ls -la</code></td><td>詳細表示と、ドットファイルの表示。<b>先頭の <code>drwxr-xr-x</code> が何を表しているか調べる</b></td></tr>
+      <tr><td><code>cp</code> / <code>mv</code> / <code>rm</code></td><td><code>~/syspro/week03</code> の中で、コピー・移動・名前変更・削除を1回ずつ</td></tr>
+      <tr><td><code>mkdir</code> / <code>rmdir</code></td><td>ディレクトリを作って消す。<b><code>rmdir</code> が失敗する条件を、実際に起こしてみる</b></td></tr>
+      <tr><td><code>find</code></td><td>ホームディレクトリ以下から <code>*.c</code> を探す</td></tr>
+      <tr><td><code>which</code> / <code>echo $PATH</code></td><td><code>gcc</code> の実体がどこにあるか。<b>なぜパスを打たずに実行できるのか</b></td></tr>
+      <tr><td><code>man</code></td><td><code>man 1 more</code> と <code>man 5 passwd</code> を開き、<b>セクション番号が何かを説明できるようにする</b></td></tr>
+    </tbody>
+  </table>
+  <div class="idnote"><b>記録の残し方。</b><code>script</code> コマンドを使うと、端末での操作をそのままファイルに残せます（一般ユーザーで使えます）。<br>
+  <code>script ~/syspro/week03/kadaiA.log</code> → 作業する → <code>exit</code> で終了。<b>スクリーンショットを撮るより、はるかに速く済みます。</b></div>
+
+  <h2>課題B：more02 を1段だけ賢くする（発展）</h2>
+  <p class="note"><b><code>q</code> で終了したときに、「全体◯行のうち、◯行まで表示した」と標準エラー出力に出す</b>ように改造してください。</p>
+  <div class="warn"><b>やってみると、片方しか書けないことに気づくはずです。</b><br>
+  <b>「何行まで表示したか」は数えられます。</b>では、<b>「全体が何行か」は？</b><br><br>
+  ・ファイルを引数で渡した場合は、なんとかなるかもしれません。<br>
+  ・<b>パイプで渡された場合は？</b> データはまだ流れてきていません。<b>先を読まずに全体の量を知ることは、原理的にできるでしょうか。</b><br><br>
+  <b>できなかった場合、「なぜできないのか」を3行で書いてきてください。それが正解です。</b></div>
+
+  <h2>提出</h2>
+  <p class="note"><b>課題AとBを、1つのWordファイルにまとめて提出します。</b>ファイルを分けたり、ログを別添にしたりしないでください。</p>
+
+  <div class="idnote"><b>提出先：eclass の「第2週目 課題」</b><br>
+  <b>ファイル名：</b><code>syspro_w02_学籍番号.docx</code>（例：<code>syspro_w02_b1234567.docx</code>）<br>
+  <b>締切：</b><span class="fill">　　　　　　　　　　　　</span><br><b>雛形：</b>eclass に <code>課題レポート雛形_第2週目.docx</code> を置いてあります。<b>ダウンロードして、見出しはそのまま使ってください。</b>灰色の手引き文（▶ の行）は提出前に削除します。</div>
+
+  <h3 class="sub">Wordファイルの中身（この順に、見出しを付けて書く）</h3>
+  <table class="levels">
+    <thead><tr><th style="width:52px;">節</th><th>書くこと</th><th style="width:120px;">分量の目安</th></tr></thead>
+    <tbody>
+      <tr><td><b>0</b></td><td><b>学籍番号・氏名</b>（1行でよい）</td><td>1行</td></tr>
+      <tr><td><b>1</b></td><td><b>課題A：操作ログ</b><br><code>kadaiA.log</code> の中身を<b>テキストで貼り付ける</b>（長ければ、実行したコマンドと出力の要点だけでよい）</td><td>1ページ程度</td></tr>
+      <tr><td><b>2</b></td><td><b>課題A：4つの問いへの答え</b>（下の表のとおり。各2〜3行）</td><td>半ページ</td></tr>
+      <tr><td><b>3</b></td><td><b>課題B：<code>more02.c</code> のコード全文</b>＋ <b>more01 から変えた箇所</b>がどこか（行を指すか、太字にする）</td><td>—</td></tr>
+      <tr><td><b>4</b></td><td><b>課題B：実行結果</b>（<code>cat numbers.txt | ./more02</code> の出力）と、<b>できなかった場合はその理由3行</b></td><td>半ページ</td></tr>
+      <tr><td><b>5</b></td><td><b>振り返り</b>：授業中に共有シートの G列に書いた「まだ分かっていないこと」を書き写し、<b>その後どうなったか</b>（解決した／していない。解決したなら何が分かったか）</td><td>2〜4行</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="sub">第2節に書く、4つの問い</h3>
+  <div class="fillin">
+    <p><span class="col">1</span><code>ls -l</code> の先頭に出る <code>drwxr-xr-x</code> は、何を表していますか。<b>10文字それぞれの意味</b>が分かる形で書いてください。</p>
+    <p><span class="col">2</span><code>rmdir</code> が失敗するのは、どんなときですか。<b>実際に失敗させて、出たエラーメッセージも貼ってください。</b></p>
+    <p><span class="col">3</span>なぜ、フルパスを打たずに <code>gcc</code> が実行できるのですか。<b><code>echo $PATH</code> の出力を貼って</b>説明してください。</p>
+    <p><span class="col">4</span><code>man 1 more</code> と <code>man 5 passwd</code> の <b>数字は何ですか。</b>この2つで、何が違いましたか。</p>
+  </div>
+
+  <div class="warn"><b>ログとコードは、スクリーンショットではなくテキストで貼ってください。</b><br>
+  画像だと検索できず、行を指して指摘することもできません。<b>ターミナルの文字は、ドラッグしてコピーできます。</b><br>
+  ただし<b>「画面の見え方そのもの」が問題になる場合（反転表示が戻らない等）は、画像で構いません。</b><br><br>
+  貼り付けたログとコードは、<b>等幅フォント</b>（<code>Consolas</code>、<code>MS ゴシック</code> など）にしてください。等幅でないと、列がずれて読めなくなります。</div>
+
+  <div class="checklist">
+    <h4>提出前チェック</h4>
+    <ul>
+      <li><b>1ファイルにまとまっている</b>（<code>.docx</code> が1つだけ。zip や複数ファイルにしない）</li>
+      <li><b>ファイル名が <code>syspro_w02_学籍番号.docx</code> になっている</b></li>
+      <li><b>0〜5 の節が、見出し付きで全部ある</b>（書けなかった節も、見出しだけは残して「できませんでした＋理由」と書く）</li>
+      <li><b>ログとコードがテキストで、等幅フォントになっている</b></li>
+      <li><b>eclass にアップロードして、提出済みの表示を自分の目で確認した</b></li>
+    </ul>
+  </div>
+
+  <div class="notimerule"><span class="big">★</span><b>共有シートは、提出物には含めません。</b>授業中に書き込みが済んでいれば、それで完了です。<b>ただし第5節では、自分がG列に書いた内容を参照します</b>ので、シートは消さないでください。</div>
+
+  <div class="foot">宿題 ／ 第2週目 授業資料</div>
+</section>
+
+<!-- ============================ 付録 ============================ -->
+<section class="sheet i2" id="ref">
+  <div class="eyebrow">付録</div>
+  <h1>用語集・コマンド早見表</h1>
+  <p class="lead">今日出てきた言葉と、詰まったときの対処です。<b>次回以降も同じページを使います。</b></p>
+
+  <h2>用語集</h2>
+  <dl class="gloss">
+    <dt>カーネル</dt>
+    <dd>OSの中核。すべてのリソース（CPU・メモリ・デバイス・ネットワーク）を管理し、プログラムからのアクセスを仲介する。<b>プログラムは装置に直接触れず、必ずカーネルを通す。</b></dd>
+
+    <dt>ユーザー空間 / システム空間</dt>
+    <dd>メモリのうち、あなたのプログラムが置かれる領域が<b>ユーザー空間</b>、カーネルが置かれる領域が<b>システム空間</b>。デバイスにつながっている配線は、システム空間の側にある。</dd>
+
+    <dt>システムコール</dt>
+    <dd>プログラムがカーネルに出す「依頼」。<b>ファイルを開く、読む、書く、プロセスを作る</b>などがこれにあたる。第4回以降で本格的に扱う。</dd>
+
+    <dt>プロセス</dt>
+    <dd>実行中のプログラム。メモリ・開いているファイル・その他のリソースを含む。<b>同じプログラムから複数のプロセスが作られることもある。</b></dd>
+
+    <dt>シェル</dt>
+    <dd>あなたが打ったコマンドを受け取り、プログラムを実行してくれるプログラム。<code>bash</code> など。<b>プロンプト（<code>$</code>）を出しているのがシェル。</b></dd>
+
+    <dt>標準入力 / 標準出力 / 標準エラー出力</dt>
+    <dd>プログラムが最初から持っている3本の口。C言語では <code>stdin</code> / <code>stdout</code> / <code>stderr</code>。<b>プログラムは「どこにつながっているか」を知らずに読み書きできる</b>——ここが今日の事故の原因でもある。</dd>
+
+    <dt>リダイレクト（<code>&gt;</code> <code>&lt;</code>）</dt>
+    <dd>標準入出力のつなぎ先を、ファイルに差し替えること。<code>seq 1 200 &gt; numbers.txt</code> は「標準出力をファイルに向ける」。</dd>
+
+    <dt>パイプ（<code>|</code>）</dt>
+    <dd>あるプログラムの標準出力を、別のプログラムの標準入力に直結すること。<code>cat a.txt | more</code>。<b>プロセス間通信（IPC）のいちばん基本的な形。</b></dd>
+
+    <dt>端末（ターミナル / tty）</dt>
+    <dd>キーボードと画面のセットを、1つのデバイスとして扱ったもの。<b>ファイルのように読み書きできる。</b></dd>
+
+    <dt><code>/dev/tty</code></dt>
+    <dd>「いま自分がつながっている端末」を指す特別なファイル。<b>標準入力がパイプに差し替えられていても、これは端末のまま。</b>今日の修正の要。</dd>
+
+    <dt>絶対パス / 相対パス</dt>
+    <dd><code>/</code> から始まる書き方が絶対パス、カレントディレクトリから見た書き方が相対パス。<code>.</code>（カレント）<code>..</code>（親）<code>~</code>（ホーム）<code>/</code>（ルート）。</dd>
+
+    <dt>マニュアルのセクション</dt>
+    <dd><code>man</code> の見出しにある <code>LS(1)</code> の数字。1＝ユーザコマンド、2＝システムコール、3＝ライブラリ関数、5＝ファイル形式、8＝システム管理コマンド。<b>同じ名前で複数のセクションに載っているものがある</b>（例：<code>passwd</code>）。</dd>
+  </dl>
+
+  <h2>今日使ったコマンド早見表</h2>
+  <table class="levels">
+    <thead><tr><th style="width:170px;">コマンド</th><th>意味</th><th style="width:110px;">教科書</th></tr></thead>
+    <tbody>
+      <tr><td><code>pwd</code></td><td>いまいるディレクトリを表示</td><td>5.4.1</td></tr>
+      <tr><td><code>cd</code> / <code>mkdir -p</code></td><td>移動する／ディレクトリを作る（<code>-p</code> は途中も作る）</td><td>5.4.2 / 5.4.3</td></tr>
+      <tr><td><code>ls</code> / <code>ls -l</code> / <code>ls -la</code></td><td>一覧／詳細表示／隠しファイルも表示</td><td>5.1</td></tr>
+      <tr><td><code>cat</code></td><td>ファイルの内容をまとめて表示</td><td>5.2.1</td></tr>
+      <tr><td><code>head -5</code> / <code>wc -l</code></td><td>先頭5行だけ／行数を数える</td><td>6.5 / 6.8</td></tr>
+      <tr><td><code>which</code> / <code>echo $PATH</code></td><td>コマンドの実体の場所／探しに行く場所の一覧</td><td>5.10</td></tr>
+      <tr><td><code>man</code></td><td>マニュアルを読む</td><td>5.12</td></tr>
+      <tr><td><code>seq 1 200</code></td><td>1から200までの数を1行ずつ出力</td><td>—</td></tr>
+      <tr><td><code>&gt;</code> / <code>|</code></td><td>リダイレクト／パイプ</td><td>6.2 / 6.4</td></tr>
+      <tr><td><code>gcc -Wall -o 名前 ソース.c</code></td><td>コンパイル（<code>-Wall</code> は警告を全部出す）</td><td>—</td></tr>
+      <tr><td><code>./名前</code></td><td>カレントディレクトリの実行ファイルを動かす</td><td>5.5.1</td></tr>
+      <tr><td><code>Ctrl</code>+<code>C</code></td><td>実行中のプログラムを止める</td><td>—</td></tr>
+    </tbody>
+  </table>
+
+  <h2>詰まったときのチェック</h2>
+  <table class="levels">
+    <thead><tr><th style="width:230px;">症状</th><th>まず試すこと</th></tr></thead>
+    <tbody>
+      <tr><td><code>gcc: command not found</code></td><td><b>コンパイラ本体がない。</b>VSCode の C/C++ 拡張はコンパイラではありません。<code>cc</code> / <code>clang</code> を試し、それでもダメなら<b>申告してください</b>（自分では入れられません）。</td></tr>
+      <tr><td>警告が大量に出る</td><td><b>打ち間違い。</b>このコードは <code>-Wall</code> で警告ゼロです。<b>最初の警告の行番号だけ</b>を見てください。</td></tr>
+      <tr><td>画面が反転表示のまま戻らない</td><td><code>\033[m</code> の打ち間違い。<b><code>reset</code> と打てば戻ります。</b>その後コードを見直し。</td></tr>
+      <tr><td><code>--More--</code> が一度も出ない</td><td><b>データが24行未満。</b><code>wc -l numbers.txt</code> で行数を確認。</td></tr>
+      <tr><td><code>q</code> を押しても止まらない（more01）</td><td><b>正しい挙動です。</b>パイプ実行時は、あなたのキー入力はプログラムに届いていません。<code>Ctrl</code>+<code>C</code> で止めてください。</td></tr>
+      <tr><td><code>/dev/tty を開けません</code></td><td><b>端末で実行していない。</b>VSCode の「ターミナル」パネルで実行してください。<b>これはバグではなく、正しいエラーです。</b></td></tr>
+      <tr><td>作業ディレクトリを見失った</td><td><code>pwd</code> で現在地を確認 → <code>cd ~/syspro/week03</code>。<b>迷ったら <code>pwd</code>。</b></td></tr>
+      <tr><td>Copilot が完成品を出してしまった</td><td><b>more01 に戻して、壊れるところを見てください。</b>体験を取り戻せば問題ありません。</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">同志社大学　システムプログラミング ／ 第2週目 授業資料</div>
+</section>
+
+<script>
+(function(){
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var w=document.createElement('div'); w.className='codewrap';
+    pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    var b=document.createElement('button'); b.type='button'; b.className='copybtn'; b.textContent='コピー';
+    b.addEventListener('click',function(){
+      var t=pre.innerText;
+      var done=function(){ b.textContent='コピーしました'; b.classList.add('done');
+        setTimeout(function(){ b.textContent='コピー'; b.classList.remove('done'); },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done,function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    });
+    w.appendChild(b);
+  });
+  function fallback(t,cb){
+    var ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  document.querySelectorAll('.checklist').forEach(function(cl){
+    var items=cl.querySelectorAll('li'), h4=cl.querySelector('h4');
+    var prog=document.createElement('span'); prog.className='ckprog';
+    if(h4) h4.appendChild(prog);
+    var hint=document.createElement('p'); hint.className='ckhint';
+    hint.textContent='※ クリックすると消し込みできます（保存はされません）';
+    if(h4) h4.insertAdjacentElement('afterend',hint);
+    function upd(){ prog.textContent=cl.querySelectorAll('li.done').length+' / '+items.length; }
+    items.forEach(function(li){
+      li.addEventListener('click',function(e){
+        if(e.target.closest('a')) return;
+        li.classList.toggle('done'); upd();
+      });
+    });
+    upd();
+  });
+
+  var links=[].slice.call(document.querySelectorAll('.topnav .links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var idx=-1;
+    secs.forEach(function(s,i){ if(s && s.getBoundingClientRect().top<=96) idx=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===idx); });
+    var on=links[idx];
+    if(on && on.parentNode.scrollWidth>on.parentNode.clientWidth){
+      var p=on.parentNode, l=on.offsetLeft-p.offsetLeft;
+      if(l<p.scrollLeft || l+on.offsetWidth>p.scrollLeft+p.clientWidth){
+        p.scrollTo({left:l-16,behavior:'smooth'});
+      }
+    }
+  }
+  window.addEventListener('scroll',spy,{passive:true});
+  window.addEventListener('resize',spy); spy();
+})();
+</script>
+</body>
+</html>
