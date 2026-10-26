@@ -21,6 +21,17 @@ h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radi
 .doc.now .tag{color:#1C2027;}
 .doc.ref{--accent:#334155;--accentbd:#cbd5e1;}
 .doc .url{display:block;font-size:11px;word-break:break-all;color:#52606d;margin-top:4px;}
+.doc.dl{--accent:#0F6B60;--accentbd:#A8DCD4;background:#F6FCFB;}
+.doc.dl .t::before{content:"⬇";margin-right:8px;color:var(--accent);font-weight:700;}
+.doc .meta{display:block;margin-top:7px;font-size:11.5px;font-weight:700;letter-spacing:.04em;color:#0F6B60;}
+.note.sub{margin:18px 0 0;font-size:12.4px;}
+.files{list-style:none;margin:8px 0 0;padding:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;}
+.files li{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;padding:10px 15px;font-size:12.8px;border-top:1px solid #edf0f3;}
+.files li:first-child{border-top:none;}
+.files a{color:#0E4A82;font-weight:700;text-decoration:none;border-bottom:1px solid #B6D6EF;}
+.files a:hover{background:#E6F1FB;}
+.files .w{color:var(--soft);flex:1 1 260px;}
+.files .s{color:#8a93a0;font-size:11.5px;white-space:nowrap;}
 .ainote{margin-top:20px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.75;}
 .ainote b{font-weight:800;}
 .ainote.amber{background:#FDF6E6;border-color:#EFD193;border-left-color:#E8A317;color:#6B4D00;}
@@ -56,6 +67,30 @@ h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radi
       <p class="d">自作の <code>more01</code> がパイプで止まらなくなる → <code>/dev/tty</code> を開いて直す。<b>データの通り道と、キー入力の通り道</b>。第3週目の出発点です。</p>
     </a>
   </div>
+
+  <h2>配布ファイルのダウンロード</h2>
+  <p class="note"><b>まず zip を1つ落とせば、中に全部入っています。</b>Windows のエクスプローラーでそのまま開けます。<br>第4週目は C のプログラムを書かないので、落とすファイルはありません。<b>資料だけ開いてください。</b></p>
+  <div class="docs">
+    <a class="doc dl" href="dist/第3週目_学生配布セット.zip">
+      <span class="tag">第3週目　一式</span>
+      <div class="t">標準入出力とパイプ ― 配布ファイル一式</div>
+      <p class="d">授業資料・スライド・課題レポート雛形・<code>numbers.txt</code>・<code>whereami.c</code> と、置き場所の手順書が入っています。展開すると <code>syspro_week03_haifu</code> というフォルダができます。<b>最初に「はじめに.txt」を読んでください。</b><span class="meta">ZIP 形式</span></p>
+    </a>
+  </div>
+
+  <p class="note sub">1つずつ落とす場合は、こちらから。</p>
+  <ul class="files">
+    <li><a href="第3週目_授業資料_標準入出力とパイプ.html">授業資料</a>
+        <span class="w">HTML。ブラウザで開く。印刷すると配布資料になります</span></li>
+    <li><a href="dist/第3週目_スライド_標準入出力とパイプ.pptx">スライド（25枚）</a>
+        <span class="w">PowerPoint。Stage A-3 のページに自分の仮説を書き込みます</span></li>
+    <li><a href="dist/課題レポート雛形_第3週目.docx">課題レポート雛形</a>
+        <span class="w">Word。提出時は <code>syspro_w03_学籍番号.docx</code> に改名</span></li>
+    <li><a href="dist/numbers.txt">numbers.txt</a>
+        <span class="w">200行のテストデータ。作業ディレクトリに置きます</span></li>
+    <li><a href="dist/whereami.c">whereami.c</a>
+        <span class="w">Stage B-4 の道具。これは打たずに使います</span></li>
+  </ul>
 
   <h2>参考資料</h2>
   <p class="note"><b>どちらも無料で読めます。</b>授業中に章や教訓の番号で指すことがあります。</p>
