@@ -1,0 +1,803 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>中間レポート 課題資料：測る・読み解く — システムプログラミング</title><style>
+
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 16px 80px;}
+/* ---- Web閲覧向け：固定ナビゲーション ---- */
+.topnav{position:sticky;top:0;z-index:60;margin:0 -16px 24px;padding:0 16px;background:rgba(232,235,239,.93);backdrop-filter:saturate(150%) blur(10px);-webkit-backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid #d3d9e0;}
+.topnav .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;height:54px;}
+.topnav .brand{font-size:12.5px;font-weight:800;color:#1f2933;white-space:nowrap;letter-spacing:.02em;}
+.topnav .brand span{display:block;font-size:10.5px;font-weight:700;color:#7b8794;letter-spacing:.06em;}
+.topnav .links{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;}
+.topnav .links::-webkit-scrollbar{display:none;}
+.topnav .links a{font-size:12px;font-weight:700;color:#52606d;text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap;transition:background .12s,color .12s;}
+.topnav .links a:hover{background:#dde2e8;color:#1f2933;}
+.topnav .links a.on{background:#1f2933;color:#fff;}
+.topnav .go{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#fff;background:#4338ca;border-radius:6px;padding:7px 13px;text-decoration:none;white-space:nowrap;}
+.topnav .go:hover{background:#312e81;}
+.sheet,.topnotice{scroll-margin-top:70px;}
+/* ---- リンク ---- */
+a.ulink{text-decoration:none;border-bottom:1px solid rgba(11,108,181,.35);}
+a.ulink code{color:#0b6cb5;cursor:pointer;}
+a.ulink:hover code{background:#eef6fc;border-color:#bcdcf2;}
+/* ---- コードのコピーボタン ---- */
+.codewrap{position:relative;}
+.copybtn{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;color:#52606d;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 11px;cursor:pointer;font-family:inherit;line-height:1.6;}
+.copybtn:hover{background:#eef1f4;color:#1f2933;}
+.copybtn.done{background:#eafaf0;border-color:#b9e4c8;color:#1f6631;}
+/* ---- チェックリストを操作可能に ---- */
+.checklist li{cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:5px;transition:opacity .15s,background .12s;}
+.checklist li:hover{background:#f7f9fb;}
+.checklist li.done{opacity:.45;}
+.checklist li.done::before{background:var(--accent);border-color:var(--accent);}
+.checklist li.done::after{content:"\2713";position:absolute;left:3px;top:1px;color:#fff;font-size:12px;font-weight:900;line-height:1.45;}
+.ckprog{float:right;font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.04em;}
+.ckhint{font-size:11px;color:#8a97a3;font-weight:600;margin:0 0 9px;}
+.sheet{max-width:880px;margin:0 auto 26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;}
+.sheet.k1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 観察＝人間が見る */
+.sheet.k2{--accent:#1668B5;--accent-deep:#0E4A82;--accentbg:#E6F1FB;--accentbd:#B6D6EF;}  /* 機械・構造 */
+.sheet.k3{--accent:#BE3E1B;--accent-deep:#8C2D12;--accentbg:#FAE5DD;--accentbd:#EDBCA9;}  /* 壊れている */
+.sheet.k4{--accent:#4FA8A0;--accent-deep:#0F6B60;--accentbg:#EAF6F4;--accentbd:#B6DED8;}  /* 予備 */
+.sheet.k5{--accent:#0F6B60;--accent-deep:#0A4A42;--accentbg:#E3F5F2;--accentbd:#A8DCD4;}  /* 直った */
+.sheet.k6{--accent:#0E4A82;--accent-deep:#0A3760;--accentbg:#E9F0F7;--accentbd:#BDD2E6;}  /* 宿題 */
+.sheet.i1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 導入 */
+.sheet.i2{--accent:#334155;--accent-deep:#1e293b;--accentbg:#f1f5f9;--accentbd:#cbd5e1;}
+.figure{margin-top:14px;padding:16px 18px 10px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow-x:auto;}
+.figure .cap{font-size:11.5px;color:var(--soft);margin:6px 0 0;text-align:left;line-height:1.7;}
+.figure svg{display:block;min-width:620px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.eyebrow .no{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:15px;}
+.badge{font-size:11px;letter-spacing:.08em;font-weight:800;color:#fff;background:var(--accent);padding:2px 9px;border-radius:20px;}
+.badge.alt{background:#334155;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;} code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.meta{margin-top:16px;display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;font-size:12.5px;color:var(--soft);}
+.meta b{color:var(--ink);font-weight:700;}
+.grid2{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;}
+.card{flex:1;min-width:240px;padding:14px 16px;border-radius:8px;border:1px solid var(--accentbd);background:var(--accentbg);}
+.card h3{margin:0 0 7px;font-size:13px;font-weight:800;color:var(--accent-deep);letter-spacing:.03em;}
+.card ul{margin:0;padding-left:18px;font-size:12.8px;color:#444;} .card li{margin:3px 0;}
+.card code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.verify{margin-top:14px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.7;}
+.verify b{font-weight:800;} .verify code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.warn{margin-top:12px;padding:11px 15px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:4px solid #BE3E1B;border-radius:8px;font-size:12.6px;color:#8C2D12;line-height:1.65;} .warn b{font-weight:800;}
+.warn code{background:#fff;border:1px solid #EDBCA9;border-radius:4px;padding:0 4px;}
+.timerule{margin-top:14px;padding:13px 16px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:5px solid #BE3E1B;border-radius:8px;font-size:13.3px;color:#8C2D12;line-height:1.7;} .timerule b{font-weight:800;} .timerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:5px solid #0F6B60;border-radius:8px;font-size:13.3px;color:#0A4A42;line-height:1.7;} .notimerule b{font-weight:800;} .notimerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.plabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin:26px 0 9px;}
+pre.code{margin:0;background:var(--codebg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px;padding:18px 20px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:13px;line-height:1.9;color:#27313b;white-space:pre;}
+.cmt{color:#8a97a3;} .kw{color:#0b6cb5;font-weight:600;} .str{color:#1f7a3d;}
+.idnote{margin:14px 0 0;padding:11px 15px;background:#FDF0D4;border:1px solid #EFD193;border-left:4px solid #E8A317;border-radius:8px;font-size:13px;color:#6B4D00;line-height:1.6;}
+.idnote b{font-weight:800;} .idnote code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.dayof{margin-top:14px;padding:13px 16px;background:#1C2027;border-radius:8px;color:#E6EAF0;font-size:12.8px;line-height:1.8;}
+.dayof b{color:#E8A317;font-weight:800;}
+.dayof code{background:#3a4049;border-radius:4px;padding:0 5px;color:#e6edf3;}
+.ainote{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:8px;font-size:12.8px;color:#0A4A42;line-height:1.75;}
+.ainote b{font-weight:800;} .ainote code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.design{margin-top:14px;padding:13px 16px;background:#f4f6f9;border:1px solid var(--line);border-left:4px solid var(--soft);border-radius:8px;font-size:12.6px;color:#3a4654;line-height:1.75;}
+.design b{color:var(--ink);}
+.topnotice{max-width:880px;margin:0 auto 26px;background:#FDF6E6;border:2px solid #E8A317;border-radius:8px;padding:22px 26px;box-shadow:0 8px 30px rgba(20,30,45,.10);}
+.topnotice h2{margin:0 0 10px;font-size:16px;font-weight:800;color:#8A6200;display:flex;align-items:center;gap:8px;}
+.topnotice h2::before{content:"";width:4px;height:18px;background:#E8A317;border-radius:2px;}
+.topnotice p{margin:0 0 8px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice ul{margin:6px 0 8px;padding-left:20px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice li{margin:4px 0;}
+.topnotice b{color:#5c4700;}
+.topnotice .axis{margin-top:10px;padding:11px 15px;background:#fff;border:1px solid #E8A317;border-radius:6px;font-size:13px;color:#4a3c00;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+table.levels{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:13px;}
+table.levels th,table.levels td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;}
+table.levels thead th{background:var(--accentbg);color:var(--accent-deep);font-weight:800;}
+table.levels tbody tr:nth-child(even){background:#fafbfc;}
+table.levels code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:11.6px;word-break:break-all;}
+table.levels b{font-weight:700;}
+.level{margin-bottom:12px;border:1px solid var(--accentbd);border-radius:8px;overflow:hidden;background:#fff;}
+.lvhead{display:flex;align-items:center;gap:10px;padding:8px 13px;background:var(--accentbg);border-bottom:1px solid var(--accentbd);}
+.chip{font-size:11px;font-weight:800;color:#fff;padding:2px 10px;border-radius:20px;}
+.c-beg{background:#E8A317;color:#1C2027;}.c-mid{background:#1668B5;}.c-adv{background:#BE3E1B;}.c-exp{background:#0F6B60;}
+.lvhead .t{font-size:13px;font-weight:700;} .level ul,.level ol{margin:9px 15px 13px;padding-left:20px;font-size:12.8px;line-height:1.7;color:#3a4654;} .level li{margin:4px 0;}
+.level code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;word-break:break-all;} .level b{font-weight:700;color:var(--ink);}
+.level p{margin:9px 15px 11px;font-size:12.8px;line-height:1.7;color:#3a4654;}
+.cmdlist{margin:10px 15px 15px;}
+.cmdlist .cmd{border:1px solid #e0e4ea;border-left:3px solid var(--accent);border-radius:6px;background:#fafbfc;padding:12px 15px;margin:10px 0;}
+.cmdlist .cmdhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmdlist .cmdname{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:2px 9px;}
+.cmdlist .cmdtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.cmdlist .cmdtag.red{background:#c0392b;}
+.cmdlist p{margin:9px 0 0;font-size:12.6px;line-height:1.8;color:#3a4654;}
+.cmdlist p .lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.cmdlist code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.cmdlist .ex{margin-top:9px;padding:9px 12px;background:#fff;border:1px dashed #b8c2ce;border-radius:5px;font-size:12px;line-height:1.8;color:#52606d;}
+.cmdlist .ex .q{display:block;font-family:"SFMono-Regular",Consolas,Menlo,"Hiragino Kaku Gothic ProN",monospace;color:#27313b;margin:3px 0;}
+.cmdlist .ex b{color:var(--accent-deep);}
+.lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.stat{flex:1;min-width:148px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;padding:14px 14px 12px;text-align:center;}
+.stat .n{font-size:31px;font-weight:800;color:var(--accent);line-height:1.05;letter-spacing:-.02em;}
+.stat .n small{font-size:16px;font-weight:800;}
+.stat .l{font-size:11.5px;color:#3a4654;margin-top:8px;line-height:1.6;}
+.stat.bad{border-color:#f3b9b9;background:#fffafa;}
+.stat.bad .n{color:#c0392b;}
+.statsrc{font-size:11px;color:var(--soft);margin-top:9px;line-height:1.6;}
+.statlead{font-size:12.5px;font-weight:800;color:var(--accent-deep);margin:18px 0 0;letter-spacing:.03em;}
+.statlead.bad{color:#c0392b;}
+.qrbox{flex:0 0 auto;width:158px;text-align:center;}
+.qrimg{width:158px;height:158px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;}
+.qrimg svg{width:100%;height:auto;display:block;flex:0 0 auto;}
+.qrimg .ph{font-size:11.5px;font-weight:800;color:var(--accent);line-height:1.7;}
+.qrcap{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.55;}
+.formurl{margin:11px 0 0;padding:11px 14px;background:#fff;border:1px solid var(--accentbd);border-radius:6px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#0b6cb5;word-break:break-all;font-weight:700;}
+.formfields{margin:11px 0 0;padding:0;list-style:none;}
+.formfields li{font-size:12.6px;line-height:1.75;color:#3a4654;padding:5px 0 5px 26px;position:relative;border-bottom:1px dotted var(--accentbd);}
+.formfields li:last-child{border-bottom:none;}
+.formfields li::before{content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:2px;background:var(--accent);}
+.formfields li b{color:var(--ink);}
+.record{margin-top:30px;display:flex;gap:22px;align-items:center;background:var(--accentbg);border:1px solid var(--accentbd);border-left:4px solid var(--accent);border-radius:8px;padding:20px 22px;}
+.record .txt{flex:1;min-width:0;} .record .rh{font-size:15px;font-weight:800;margin:0 0 7px;display:flex;align-items:center;gap:9px;color:var(--accent-deep);}
+.record .rh .ic{width:25px;height:25px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.record p{margin:0 0 8px;font-size:13px;line-height:1.65;color:#444;}
+.record .vals{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0 11px;}
+.record .vals span{background:#fff;border:1px solid var(--accentbd);border-radius:5px;padding:5px 12px;font-size:12.3px;font-weight:700;color:var(--accent-deep);}
+.record .lnk{font-size:12px;word-break:break-all;} .record .lnk a{color:#0b6cb5;font-weight:700;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+ol.steps{margin:12px 0 0;padding-left:22px;font-size:13.3px;line-height:1.85;}
+ol.steps li{margin:7px 0;} ol.steps code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 5px;font-size:12.3px;word-break:break-all;}
+ol.steps b{font-weight:700;}
+.checklist{margin-top:16px;padding:16px 18px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.checklist h4{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent-deep);text-transform:uppercase;}
+.checklist ul{margin:0;padding:0;list-style:none;font-size:13px;}
+.checklist li{margin:8px 0;padding-left:29px;position:relative;line-height:1.7;color:#3a4654;}
+.checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border:2px solid var(--accent);border-radius:3px;background:#fff;}
+.checklist li b{color:var(--ink);font-weight:700;}
+.checklist code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.checklist .fill{display:inline-block;min-width:80px;border-bottom:1.5px dashed var(--accent);}
+.flowbox{margin-top:12px;display:flex;flex-direction:column;gap:0;}
+.frow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E8A317;border-radius:6px;padding:10px 14px;}
+.frow .fno{flex:0 0 auto;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;color:#8A6200;background:#fff7e0;border:1px solid #EFD193;border-radius:20px;padding:2px 11px;}
+.frow .ftxt{flex:1;font-size:13px;color:#4a3c00;}
+.frow .ftime{flex:0 0 auto;font-size:11.5px;color:#8A6200;font-weight:700;}
+.farrow{text-align:center;color:#C08A12;font-size:14px;line-height:1;padding:3px 0;}
+.frow.home{background:#fffdf5;}
+.ftag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#fff;background:#C08A12;border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.roomnote{margin-top:12px;padding:13px 16px;background:#eafaf0;border:2px solid #2f9e44;border-radius:8px;font-size:13.2px;color:#1f6631;line-height:1.8;}
+.roomnote b{font-weight:800;}
+.roomnote .rt{display:block;font-size:14px;font-weight:800;margin-bottom:7px;}
+.roomnote code{background:#fff;border:1px solid #b9e4c8;border-radius:4px;padding:0 4px;}
+.roomtag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 14px;background:#eafaf0;border:1px solid #b9e4c8;border-left:4px solid #2f9e44;border-radius:8px;font-size:12.8px;color:#1f6631;line-height:1.7;}
+.fwait{background:#fdecec;border:1px dashed #c0392b;border-radius:6px;padding:8px 14px;font-size:12.6px;color:#7a1f1f;font-weight:700;text-align:center;}
+@media print{html{scroll-behavior:auto;}body{background:#fff;padding:0;}.topnav,.copybtn,.ckprog,.ckhint{display:none!important;}a.ulink{border-bottom:none;}.sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:24px 28px;margin:0;}.topnotice{box-shadow:none;max-width:none;margin:0 0 14px;}.sheet.i2,.sheet.k1,.sheet.k2,.sheet.k3,.sheet.k4,.sheet.k5,.sheet.k6{page-break-before:always;}.level,pre.code,.record,.card,.verify,.checklist,.ainote,.warn,.dayof,.idnote,.figure,table.levels{break-inside:avoid;}}
+@media (max-width:640px){.topnav .inner{height:50px;gap:9px;}.topnav .brand span{display:none;}.topnav .go{padding:6px 10px;font-size:11px;}.qrbox{width:100%;}.qrimg{margin:0 auto;}.sheet{padding:30px 22px 40px;}h1{font-size:23px;}pre.code{font-size:12px;padding:15px;}.record{flex-direction:column;align-items:flex-start;}.frow{flex-wrap:wrap;gap:7px;}}
+/* ---- 第5週目で追加：やさしくするための部品 ---- */
+.tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;border-radius:20px;padding:1px 9px;margin-right:6px;vertical-align:2px;}
+.tag.must{background:#1668B5;color:#fff;}
+.tag.plus{background:#fff;color:#8A6200;border:1.5px solid #E8A317;}
+.tag.new{background:#E8A317;color:#1C2027;}
+h2 .tag,h3 .tag{vertical-align:3px;}
+.plusbox{margin-top:14px;padding:12px 16px;background:#FFFBF0;border:1.5px dashed #E8A317;border-radius:8px;font-size:12.8px;color:#5c4400;line-height:1.75;}
+.plusbox b{font-weight:800;} .plusbox code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.outlabel{margin:12px 0 4px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#0F6B60;}
+pre.out{margin:0;background:#fff;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:5px;padding:12px 18px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:12.6px;line-height:1.75;color:#0A4A42;white-space:pre;}
+.predict{margin-top:14px;padding:12px 16px;background:#FDF6E6;border:1.5px dashed #E8A317;border-radius:8px;font-size:13px;color:#5c4400;line-height:1.8;}
+.predict .ph{display:block;font-size:12px;font-weight:800;color:#8A6200;letter-spacing:.06em;margin-bottom:4px;}
+.predict b{font-weight:800;} .predict code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.predict table{border-collapse:collapse;margin-top:6px;font-size:12.8px;}
+.predict td{border:1px solid #EFD193;padding:4px 12px;background:#fff;}
+.predict td.blank{min-width:70px;}
+.pair{margin-top:14px;padding:12px 16px;background:#E6F1FB;border:2px solid #1668B5;border-radius:8px;font-size:13px;color:#0E4A82;line-height:1.8;}
+.pair .ph{display:block;font-size:12.5px;font-weight:800;margin-bottom:3px;}
+.pair b{font-weight:800;} .pair code{background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.predict .slots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.predict .slots span{display:inline-flex;align-items:center;gap:6px;font-weight:800;}
+.predict .slots i{display:inline-block;width:56px;height:26px;background:#fff;border:1px solid #EFD193;border-radius:4px;}
+.topnav .links{min-width:0;}
+@media (max-width:640px){.topnav .brand{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;max-width:42vw;}}
+details.hint{margin:0 14px 12px;border:1px solid #e0e4ea;border-radius:6px;background:#fafbfc;font-size:12.6px;line-height:1.75;color:#3a4654;}
+details.hint summary{cursor:pointer;padding:7px 12px;font-weight:800;color:#52606d;font-size:12px;}
+details.hint div{padding:0 12px 10px;}
+details.hint code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+details.ans{margin-top:8px;border:1px solid var(--accentbd);border-radius:6px;background:var(--accentbg);font-size:12.6px;line-height:1.75;}
+details.ans summary{cursor:pointer;padding:6px 12px;font-weight:800;color:var(--accent-deep);font-size:12px;}
+details.ans div{padding:0 12px 10px;color:#3a4654;}
+details.ans code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.mapsel{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;color:#334155;background:#fff;border:1.5px dashed #94a3b8;border-radius:4px;padding:0 8px;}
+.cmdlist .lay{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:1px 9px;margin-left:4px;}
+@media print{details.hint,details.ans{display:block;}details.hint>div,details.ans>div{display:block;}}
+.cmdlist .ex .q{white-space:pre;overflow-x:auto;}
+
+
+</style></head><body>
+<header class="topnav">
+  <div class="inner">
+    <div class="brand">中間レポート：測る・読み解く<span>システムプログラミング</span></div>
+    <div class="links">
+      <a href="#intro">はじめに</a>
+      <a href="#ai">AIの使い方</a>
+      <a href="#t1">課題1 測る</a>
+      <a href="#t2">課題2 読み解く</a>
+      <a href="#submit">提出</a>
+      <a href="#ref">用語集・困ったとき</a>
+    </div>
+    <a class="go" href="#submit">提出のしかた</a>
+  </div>
+</header>
+
+<section class="topnotice" id="top">
+  <h2>★ 中間レポートで、あなたがやること</h2>
+  <p>課題は<b>2つ</b>です。どちらも<b>「自分の手元で動かしてみないと、答えが出ない」</b>ように作ってあります。</p>
+  <div class="axis" style="font-size:15px;"><b>速さは、測るまで分からない。バイトの意味は、読む側が決める。</b></div>
+  <ul style="margin-top:12px;">
+    <li><b>課題1「測る」</b>：コピーするときの「1回に読む量（バッファの大きさ）」を変えると、速さがどう変わるかを測ります。<b>数字はあなたのコンピュータでしか出せません。</b></li>
+    <li><b>課題2「読み解く」</b>：<b>あなた専用の</b>、中身の説明がないファイルを渡します。<code>od</code> コマンドで中をのぞいて、どんな形のデータが並んでいるかを突き止めます。<b>ファイルは一人ひとり違うので、答えも一人ひとり違います。</b></li>
+    <li><b>AI（GitHub Copilot など）は使ってかまいません。</b>ただし使い方にルールがあります（<a href="#ai">AIの使い方</a>）。</li>
+    <li><b><span class="tag must">必須</span>の問いに全部答えれば合格点です。</b><span class="tag plus">余裕があれば</span>は加点です。</li>
+    <li>どちらの課題も<b>2〜3時間</b>を見込んでください。<b>1日でまとめてやるより、2〜3日に分けた方が楽です。</b></li>
+  </ul>
+  <div class="axis">
+    <b>始める前に、手元にあること</b>
+    <div class="flowbox" style="margin-top:8px;">
+      <div class="frow"><span class="fno">1</span><span class="ftxt"><b>Linux のターミナルが開けて、プロンプト（<code>$</code>）が出ている</b></span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">2</span><span class="ftxt"><b>中間レポートの配布セット</b>（<code>midterm_set.zip</code>。<a href="#prep">取り出し方</a>）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">3</span><span class="ftxt"><b>自分の学籍番号</b>（課題2で、自分専用のファイルを見つけるのに使います）</span></div>
+      <div class="farrow">＋</div>
+      <div class="frow"><span class="fno">4</span><span class="ftxt"><b>レポートの雛形</b>（Word。eclass にあります）</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ INTRO ============================ -->
+<section class="sheet i1" id="intro">
+  <div class="eyebrow"><span class="no">00</span>INTRODUCTION<span class="badge">まず読む</span></div>
+  <h1>はじめに：進め方と準備</h1>
+  <p class="lead">この中間レポートは、これまでの授業で出てきた<b>「システムコール」「バッファ」「ファイルはバイトの列」</b>を、<b>自分の手で確かめ直す</b>ためのものです。</p>
+  <div class="meta">
+    <span><b>課題</b>　2つ（課題1・課題2）</span>
+    <span><b>配点</b>　各50点（＋加点）</span>
+    <span><b>作業場所</b>　<code>~/syspro/midterm</code></span>
+    <span><b>締切</b>　eclass で告知</span>
+  </div>
+
+  <h2>どちらの課題も、同じ6つの手順で進めます</h2>
+  <div class="flowbox">
+    <div class="frow"><span class="fno">1</span><span class="ftxt"><b>予測する</b>　動かす前に、どうなると思うかを書く（<b>外れても減点しません</b>）</span></div>
+    <div class="farrow">↓</div>
+    <div class="frow"><span class="fno">2</span><span class="ftxt"><b>記録しながら動かす</b>　<code>script</code> コマンドで、打ったものと出たものを全部残す</span></div>
+    <div class="farrow">↓</div>
+    <div class="frow"><span class="fno">3</span><span class="ftxt"><b>結果をまとめる</b>　表やグラフにする</span></div>
+    <div class="farrow">↓</div>
+    <div class="frow"><span class="fno">4</span><span class="ftxt"><b>説明する</b>　なぜそうなったかを、自分の言葉で書く</span></div>
+    <div class="farrow">↓</div>
+    <div class="frow"><span class="fno">5</span><span class="ftxt"><b>AIの答えと比べる</b>　AIが言ったことと、自分の結果は合っていたか</span></div>
+    <div class="farrow">↓</div>
+    <div class="frow"><span class="fno">6</span><span class="ftxt"><b>『伽藍とバザール』とつなげる</b>　指定の教訓と、自分の体験を結びつける</span></div>
+  </div>
+  <div class="idnote"><b>「予測」は、動かす前に書いてください。</b>予測が外れたところこそ、レポートでいちばん大事なところです。<b>外れた予測を後から書き直すと、書くことがなくなります。</b></div>
+
+  <h2 id="prep">準備：作業場所を作って、配布セットを取り出す</h2>
+  <p class="note">次のコマンドを、上から順に1行ずつ打ってください。<code>#</code> から右は説明なので、打たなくてかまいません。</p>
+  <pre class="code">mkdir -p ~/syspro/midterm       <span class="cmt"># 作業用のディレクトリを作る（-p：途中のディレクトリもまとめて作る。もうあっても怒られない）</span>
+cd ~/syspro/midterm             <span class="cmt"># そこへ移動する</span>
+<span class="cmt"># ↓ 配布セット midterm_set.zip を、このディレクトリに置いてから</span>
+unzip midterm_set.zip           <span class="cmt"># zip を展開する</span>
+ls -l                           <span class="cmt"># 中身を確認する</span></pre>
+  <div class="outlabel">こう表示されればOK（日付などは違ってかまいません）</div>
+  <pre class="out">-rw-r--r-- 1 you you 1210 ... bufcp.c
+-rwxr-xr-x 1 you you  291 ... measure.sh
+-rw-r--r-- 1 you you   72 ... practice.dat
+-rw-r--r-- 1 you you  924 ... practice_reader.c
+-rw-r--r-- 1 you you 1135 ... reader.c
+-rw-r--r-- 1 you you  682 ... stdcp.c</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">unzip</span><span class="cmdtag">展開</span></div>
+      <p><span class="lbl">何をする</span>zip ファイルの中身を、今いるディレクトリに取り出します。</p>
+      <p><span class="lbl">困ったら</span><code>unzip: command not found</code> と出たら、<code>python3 -m zipfile -e midterm_set.zip .</code> でも同じことができます（最後の <code>.</code> は「今いる場所へ」の意味）。</p></div>
+  </div>
+
+  <h2>記録の取り方：<code>script</code> コマンド</h2>
+  <p class="note">これまでの宿題と同じです。<code>script ファイル名</code> と打つと、<b>そこから <code>exit</code> と打つまでに画面に出たものが全部</b>そのファイルに記録されます。課題1は <code>kadai1.log</code>、課題2は <code>kadai2.log</code> に記録します。</p>
+  <div class="warn"><b>注意</b>　<code>script</code> の記録中に <code>vi</code> や <code>nano</code> などの画面いっぱいに広がるエディタを使うと、ログが読みにくくなります。<b>プログラムの編集は VSCode で、記録は「実行するところ」だけ</b>にするときれいに残ります。</div>
+  <div class="foot">はじめに ／ 中間レポート</div>
+</section>
+
+<!-- ============================ AI ============================ -->
+<section class="sheet i2" id="ai">
+  <div class="eyebrow"><span class="no">AI</span>RULES<span class="badge alt">必ず読む</span></div>
+  <h1>AIの使い方</h1>
+  <p class="lead">GitHub Copilot や ChatGPT などの AI は<b>使ってかまいません</b>。ただし、この中間レポートでは、<b>AIは「相談相手」で、「答えを出す人」ではありません。</b></p>
+  <div class="grid2">
+    <div class="card"><h3>してよいこと</h3><ul>
+      <li>コマンドやエラーの意味を聞く</li>
+      <li><code>od</code> の出力を見せて、「どう読めばよいか」を聞く</li>
+      <li>自分の書いたコードの間違いを探してもらう</li>
+      <li>自分の説明の文章が分かりにくくないか見てもらう</li>
+    </ul></div>
+    <div class="card" style="--accentbg:#FAE5DD;--accentbd:#EDBCA9;--accent-deep:#8C2D12;"><h3>しないこと</h3><ul>
+      <li>「この課題を全部やって」と頼む</li>
+      <li>AIが作った数字（測っていない時間など）をそのまま書く</li>
+      <li>説明できない行を、そのままレポートに貼る</li>
+    </ul></div>
+  </div>
+  <div class="ainote"><b>AIを使ったら、レポートの「AIとのやり取り」欄に必ず書いてください。</b>書くのは3つ：<b>①何を聞いたか</b>（聞いた文そのまま）　<b>②何が返ってきたか</b>（要点でよい）　<b>③それを自分でどう確かめたか</b>（打ったコマンドと結果）。<br><b>AIを使わなかった人は「使わなかった」と1行書けばOKです。</b>減点も加点もしません。</div>
+  <div class="verify"><b>この課題で AI が「間違えやすい」ところ</b>　AIは、あなたのコンピュータで測った時間も、あなた専用のファイルの中身も知りません。<b>一般論としてはもっともらしい答えを返しますが、あなたの結果と合うとは限りません。</b>合わなかったときに「どちらが正しいか」を確かめるのが、この課題の中心です。</div>
+  <div class="foot">AIの使い方 ／ 中間レポート</div>
+</section>
+
+<!-- ============================ TASK 1 ============================ -->
+<section class="sheet k2" id="t1">
+  <div class="eyebrow"><span class="no">01</span>MEASURE<span class="badge">50点</span></div>
+  <h1>課題1：1回に読む量を変えると、何が起きるか</h1>
+  <p class="lead">ファイルをコピーするプログラム <code>bufcp</code> は、<b>「何バイトずつ読んで書くか」</b>を自分で決められます。この大きさを <b>1バイトから1MBまで</b>変えて、かかる時間を測ります。</p>
+  <div class="meta">
+    <span><b>使うファイル</b>　<code>bufcp.c</code>　<code>measure.sh</code>　<code>stdcp.c</code></span>
+    <span><b>記録</b>　<code>kadai1.log</code></span>
+    <span><b>目安</b>　2〜3時間</span>
+  </div>
+
+  <h2>しくみの復習：read と write は「カーネルへのお願い」</h2>
+  <p class="note"><code>read</code> も <code>write</code> も<b>システムコール</b>です。1回呼ぶたびに、プログラムは<b>「カーネル（OSの中心部分）にお願いして、仕事をしてもらう」</b>という手続きをします。この手続きには、毎回いくらかの時間がかかります。</p>
+  <div class="figure">
+    <svg viewBox="0 0 720 200" xmlns="http://www.w3.org/2000/svg" font-family="Hiragino Kaku Gothic ProN,Yu Gothic,Meiryo,sans-serif" font-size="13">
+      <rect x="10" y="20" width="700" height="70" rx="8" fill="#E6F1FB" stroke="#B6D6EF"/>
+      <text x="24" y="44" font-weight="800" fill="#0E4A82">あなたのプログラム（bufcp）</text>
+      <text x="24" y="68" fill="#3a4654">バッファ（箱）を用意して、read → write をくり返す</text>
+      <rect x="10" y="120" width="700" height="70" rx="8" fill="#FDF0D4" stroke="#EFD193"/>
+      <text x="24" y="144" font-weight="800" fill="#8A6200">カーネル</text>
+      <text x="24" y="168" fill="#6B4D00">ディスクのファイルからデータを取ってくる／書き込む</text>
+      <g stroke="#1668B5" stroke-width="2" fill="none">
+        <path d="M430 90 V120" marker-end="url(#a)"/><path d="M470 120 V90" marker-end="url(#a)"/>
+      </g>
+      <text x="490" y="110" fill="#0E4A82" font-size="12">1回ごとに「お願い」の手続き</text>
+      <defs><marker id="a" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1668B5"/></marker></defs>
+    </svg>
+    <p class="cap">バッファが小さいと、お願いの回数がとても多くなります。大きいと回数は少なくなります。<b>では、大きければ大きいほど速いのでしょうか？</b> それを測るのがこの課題です。</p>
+  </div>
+
+  <h2><span class="tag must">必須</span>問1-1　まず予測する（動かす前に）</h2>
+  <div class="predict"><span class="ph">✎ 予測ファイルを作る</span>
+    VSCode で <code>~/syspro/midterm/predict1.txt</code> を作り、次の3つに<b>自分の予測</b>を書いて保存してください。<b>AIに聞く前に書くこと。</b>
+    <ol style="margin:6px 0 0;padding-left:20px;">
+      <li>10MB（10,485,760バイト）のファイルを <b>1バイトずつ</b>コピーすると、<code>read</code> は何回呼ばれるか。</li>
+      <li>そのコピーに、だいたい何秒かかるか。</li>
+      <li>1, 4, 16, …, 1MB のうち、<b>いちばん速い</b>のはどの大きさか。理由も1行で。</li>
+    </ol>
+  </div>
+
+  <h2><span class="tag must">必須</span>問1-2　bufcp に「回数を数える」機能を足す</h2>
+  <p class="note"><code>bufcp.c</code> には <code>TODO</code> と書かれたところが2か所あります。<b><code>read</code> を呼んだ回数と <code>write</code> を呼んだ回数を数えて、最後に表示する</b>ように書き足してください。</p>
+  <ol class="steps">
+    <li>VSCode で <code>bufcp.c</code> を開き、<code>TODO</code> を探す（<code>Ctrl+F</code> で検索できます）。</li>
+    <li>回数を数える変数を2つ用意し、ループの中で増やす。</li>
+    <li>最後に、<b>標準エラー出力</b>に表示する。<code>fprintf(stderr, ...)</code> を使います（第3週目の「標準出力と標準エラー出力」を思い出してください）。</li>
+    <li>コンパイルして動かす。</li>
+  </ol>
+  <pre class="code">gcc -Wall -o bufcp bufcp.c          <span class="cmt"># コンパイル（-Wall：注意すべき点を全部教えてもらう）</span>
+head -c 10M /dev/urandom &gt; big.dat  <span class="cmt"># でたらめなバイトを10MB分作って big.dat に保存</span>
+./bufcp big.dat copy.dat 4096       <span class="cmt"># 4096バイトずつコピーしてみる</span>
+cmp big.dat copy.dat                <span class="cmt"># 2つのファイルが同じか比べる（何も出なければ同じ）</span></pre>
+  <div class="outlabel">こんな表示になればOK（read の回数は、数え方によって 2560 になる人もいます）</div>
+  <pre class="out">read: 2561 回, write: 2560 回</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">head -c 10M /dev/urandom</span><span class="cmdtag">テスト用のファイルを作る</span></div>
+      <p><span class="lbl">何をする</span><code>head -c 数</code> は「先頭から、その<b>バイト数</b>だけ取り出す」。<code>/dev/urandom</code> は<b>読むたびにでたらめなバイトが出てくる特別なファイル</b>です。<code>10M</code> は 10×1024×1024 = 10,485,760 バイト。</p>
+      <p><span class="lbl">注意</span><code>&gt;</code> を忘れると、でたらめなバイトが画面に10MB分流れます。止まらなくなったら <code>Ctrl+C</code>。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">cmp ファイル1 ファイル2</span><span class="cmdtag">比べる</span></div>
+      <p><span class="lbl">何をする</span>2つのファイルを1バイトずつ比べます。<b>同じなら何も表示しません</b>（Unix では「何も言わない＝うまくいった」が普通です）。違うと、最初に違ったバイトの位置を教えてくれます。</p></div>
+  </div>
+  <details class="hint"><summary>ヒント：どこに何を書けばよいか（詰まったら開く）</summary><div>
+    変数は <code>long nr = 0, nw = 0;</code> のように、ループの<b>前</b>に用意します。<code>read</code> が成功したらループの中で <code>nr++;</code>、<code>write</code> が成功したら <code>nw++;</code>。表示は <code>fprintf(stderr, "read: %ld 回, write: %ld 回\n", nr, nw);</code>。<br>
+    <b>考えてほしいこと</b>：ループの条件 <code>(n = read(...)) &gt; 0</code> が「偽」になったときの <code>read</code> は、何回目に数えるべきでしょうか？　表示が <code>read: 2560 回</code> になった人と <code>2561 回</code> になった人がいるはずです。<b>どちらが本当の呼び出し回数か</b>を、問1-2の答えで説明してください。
+  </div></details>
+  <div class="checklist"><h4>問1-2 で書くこと</h4><ul>
+    <li><b>書き足した行</b>をすべて貼り、<b>1行ずつ</b>何をしているか説明する。</li>
+    <li>4096バイトのとき <code>read</code> が <b>2561回</b>になる理由を、<b>計算式で</b>示す（10,485,760 ÷ 4096 = ？　では、残りの1回は何？）。</li>
+    <li><span class="tag plus">余裕があれば</span>表示を<b>標準出力ではなく標準エラー出力</b>にした理由を書く（ヒント：<code>./bufcp big.dat copy.dat 4096 &gt; /dev/null</code> としても回数は見えるか？）。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問1-3　大きさを変えて、時間を測る</h2>
+  <p class="note">配布セットの <code>measure.sh</code> は、バッファの大きさを <b>1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576</b> と4倍ずつ変えながら、<b>それぞれ3回ずつ</b> <code>bufcp</code> を動かして時間を測るシェルスクリプトです。</p>
+  <pre class="code"><span class="cmt">#!/bin/bash</span>
+<span class="cmt"># measure.sh : バッファの大きさを変えながら bufcp の時間を測る</span>
+<span class="kw">for</span> size <span class="kw">in</span> 1 4 16 64 256 1024 4096 16384 65536 262144 1048576
+<span class="kw">do</span>
+    <span class="kw">for</span> i <span class="kw">in</span> 1 2 3
+    <span class="kw">do</span>
+        echo <span class="str">"=== size=$size  ${i}回目 ==="</span>
+        time ./bufcp big.dat copy.dat $size
+    <span class="kw">done</span>
+<span class="kw">done</span></pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">for 変数 in 値の並び; do … done</span><span class="cmdtag">くり返し</span></div>
+      <p><span class="lbl">何をする</span>『Linux標準教科書』のシェルスクリプトの章に出てくる「くり返し」です。<code>in</code> の後ろに並べた値を1つずつ <code>size</code> に入れて、<code>do</code> と <code>done</code> の間を実行します。<code>$size</code> と書くと、その時の値に置き換わります。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">time コマンド</span><span class="cmdtag">時間を測る</span></div>
+      <p><span class="lbl">何をする</span>後ろのコマンドを実行し、終わったら3つの時間を表示します。</p>
+      <p><span class="lbl">real</span>時計で測った時間（実際に待った時間）</p>
+      <p><span class="lbl">user</span>あなたのプログラム自身が計算していた時間</p>
+      <p><span class="lbl">sys</span><b>カーネルが、あなたのお願い（システムコール）を処理していた時間</b></p></div>
+  </div>
+  <p class="note">では、<b>記録を取りながら</b>実行します。<b>1バイトのときは1回に数秒かかるので、全部で1分ほど</b>待ちます。</p>
+  <pre class="code">cd ~/syspro/midterm
+script kadai1.log        <span class="cmt"># ここから記録を始める</span>
+cat predict1.txt         <span class="cmt"># 最初に、自分の予測を記録に残す</span>
+uname -a                 <span class="cmt"># どんなコンピュータで測ったかを残す</span>
+nproc                    <span class="cmt"># CPUの数</span>
+./bufcp big.dat copy.dat 4096
+./measure.sh             <span class="cmt"># 測る（1分ほどかかる）</span>
+exit                     <span class="cmt"># 記録を終える（kadai1.log ができる）</span></pre>
+  <div class="outlabel">こんな表示がたくさん出ます（数字は人によって違います）</div>
+  <pre class="out">=== size=1  1回目 ===
+read: 10485761 回, write: 10485760 回
+
+real	0m5.505s
+user	0m0.959s
+sys	0m4.473s</pre>
+  <div class="checklist"><h4>問1-3 で書くこと</h4><ul>
+    <li>結果を<b>表</b>にする。列は「バッファの大きさ・read の回数・real・user・sys」。<b>3回のうち真ん中の値</b>を使う（3回の値がどれくらいばらついたかも1行で書く）。</li>
+    <li><b>グラフ</b>にする（Google スプレッドシートや Excel でよい）。横軸はバッファの大きさ、縦軸は時間。<b>横軸は「対数目盛」</b>にすること（1, 4, 16, … が等間隔に並ぶ目盛り。スプレッドシートのグラフ設定で選べます）。</li>
+  </ul></div>
+  <details class="hint"><summary>ヒント：たくさんの結果から、数字だけを取り出したい</summary><div>
+    パイプでつなげば、ログから必要な行だけ取り出せます（第3週目のパイプ）。<br>
+    <code>grep real kadai1.log</code>　← real の行だけを表示<br>
+    <code>grep -E '^(=== size|real|user|sys)' kadai1.log</code>　← 見出しと3つの時間の行だけを表示<br>
+    手で写してもかまいません。
+  </div></details>
+
+  <h2><span class="tag must">必須</span>問1-4　結果を説明する</h2>
+  <div class="checklist"><h4>問1-4 で書くこと（それぞれ3〜6行）</h4><ul>
+    <li><b>(a)</b>　バッファが小さいとき、<b>real のほとんどは user と sys のどちらが占めていたか。</b>それは何を意味するか。上の図の言葉（「お願いの手続き」）を使って説明する。</li>
+    <li><b>(b)</b>　バッファを4倍にすると、時間はだいたい何分の1になったか。<b>read の回数の変わり方</b>と比べて、何が言えるか。</li>
+    <li><b>(c)</b>　<b>どこから先は、大きくしても速くならなくなったか。</b>その大きさを、次のコマンドで分かる数字と比べる。
+      <pre class="code" style="margin-top:6px;">getconf PAGESIZE     <span class="cmt"># メモリを管理する「ページ」1枚の大きさ</span>
+stat -f -c %S .      <span class="cmt"># 今いる場所のファイルシステムの「ブロック」1つの大きさ</span></pre></li>
+    <li><b>(d)</b>　<b>予測（問1-1）と結果が違ったところ</b>を1つ以上挙げ、なぜ違ったと思うかを書く。全部当たった人は、<b>いちばん意外だった数字</b>について書く。</li>
+  </ul></div>
+  <div class="verify"><b>見てほしいところ</b>　大きなバッファのところでは、<b>3回の結果がばらついたり、大きくしたのに遅くなったり</b>することがあります。それは「失敗」ではなく<b>観察結果</b>です。「なぜだろう」と考えて書いてください（正解は1つではありません）。</div>
+
+  <h2><span class="tag plus">余裕があれば</span>問1-5　1文字ずつなのに、なぜ速い？</h2>
+  <p class="note"><code>stdcp.c</code> は <b>1文字ずつ</b>コピーするプログラムです。ただし <code>read</code>/<code>write</code> ではなく、<b>標準入出力ライブラリ</b>の <code>getc</code>/<code>putc</code> を使っています。</p>
+  <pre class="code">gcc -Wall -o stdcp stdcp.c
+time ./stdcp big.dat copy2.dat                <span class="cmt"># 1文字ずつコピー（getc/putc）</span>
+time ./bufcp big.dat copy.dat 1               <span class="cmt"># 1バイトずつコピー（read/write）</span>
+strace -c -e trace=read,write ./stdcp big.dat copy2.dat   <span class="cmt"># システムコールの回数を数える</span></pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">strace -c</span><span class="cmdtag">のぞき見</span></div>
+      <p><span class="lbl">何をする</span>プログラムが呼んだシステムコールを数えて、最後に表にしてくれます。<code>-e trace=read,write</code> で「read と write だけ数えて」と指定しています。</p>
+      <p><span class="lbl">注意</span><b><code>strace</code> がない環境もあります</b>（<code>command not found</code>）。その場合は時間の比較だけでかまいません。また、<b><code>./bufcp big.dat copy.dat 1</code> を <code>strace</code> で動かすと、何分も終わりません</b>（1000万回以上を1回ずつ記録するため）。試すなら <code>head -c 100K big.dat &gt; small.dat</code> で小さいファイルを作ってから。</p></div>
+  </div>
+  <div class="checklist"><h4>問1-5 で書くこと</h4><ul>
+    <li><code>stdcp</code> と <code>bufcp 1</code> の時間を比べ、<b>なぜこんなに違うのか</b>を説明する。<code>strace</code> が使えた人は、<b><code>read</code> が何回呼ばれたか</b>と、そこから分かる<b>ライブラリの中のバッファの大きさ</b>を書く。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問1-6　AIの答えと比べる</h2>
+  <p class="note">Copilot（またはほかのAI）に、<b>次の文をそのまま</b>聞いてください。</p>
+  <pre class="code">Linux で read/write を使ってファイルをコピーするとき、バッファの大きさは何バイトにするのがいちばん速いですか？ 理由も教えてください。</pre>
+  <div class="checklist"><h4>問1-6 で書くこと</h4><ul>
+    <li>AIの答えの要点（何バイトと言ったか、理由は何と言ったか）。</li>
+    <li><b>あなたの測定結果と合っていたか。</b>合っていたところ・合っていなかったところを、<b>表の数字を指して</b>書く。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問1-7　『伽藍とバザール』とつなげる</h2>
+  <p class="note">『伽藍とバザール』（PDF）の<b>教訓8</b>（PDF 10ページ）を読んでください。リーナスの法則と呼ばれる、「見る目の数」についての教訓です。</p>
+  <div class="checklist"><h4>問1-7 で書くこと（3〜5行）</h4><ul>
+    <li>授業の共有シートに、<b>自分の「速くならなくなった大きさ」と使った環境（<code>uname -r</code> の結果）</b>を1行書く。ほかの人の行と比べて、<b>あなた1人の測定では分からなかったこと</b>は何か。それを教訓8と結びつけて書く。</li>
+  </ul></div>
+  <div class="foot">課題1 ／ 中間レポート</div>
+</section>
+
+<!-- ============================ TASK 2 ============================ -->
+<section class="sheet k1" id="t2">
+  <div class="eyebrow"><span class="no">02</span>DECODE<span class="badge">50点</span></div>
+  <h1>課題2：中身の分からないファイルを読み解く</h1>
+  <p class="lead">あなた専用のファイル <code>mystery_○○○○○○○○○○.dat</code> を渡します。<b>中身の形は教えません。</b><code>od</code> コマンドでバイトを1つずつ見て、<b>どんな形のデータが並んでいるか</b>を突き止め、それを読むCのプログラムを書きます。</p>
+  <div class="meta">
+    <span><b>使うファイル</b>　<code>practice.dat</code>　<code>practice_reader.c</code>　<code>reader.c</code>　自分の <code>mystery_….dat</code></span>
+    <span><b>記録</b>　<code>kadai2.log</code></span>
+    <span><b>目安</b>　2〜3時間</span>
+  </div>
+
+  <h2>ファイルについて分かっていること（全員共通）</h2>
+  <div class="level"><div class="lvhead"><span class="chip c-beg">仕様メモ</span><span class="t">ある気温の記録ファイル（ここに書いてあることだけが手がかり）</span></div>
+    <ul>
+      <li>ファイルは、<b>同じ形・同じ大きさの「記録（レコード）」</b>が何件か、すき間なく並んだものです。</li>
+      <li>1件の記録には、<b>4つの項目</b>が入っています：<b>番号</b>（整数）・<b>場所の名前</b>（英小文字の文字列）・<b>記録した時刻</b>（1970年1月1日からの秒数）・<b>気温</b>（小数）。</li>
+      <li><b>4つの項目の順番と、それぞれ何バイトかは、人によって違います。</b></li>
+      <li>このファイルは、<b>Cの構造体の配列を <code>write</code> でそのまま書き出したもの</b>です（いつもの x86-64 の Linux で）。</li>
+      <li>番号は1件ごとに1ずつ増えますが、<b>1か所だけ番号が抜けています。</b></li>
+    </ul></div>
+  <div class="idnote"><b>第5週目の <code>od</code> を思い出してください。</b><code>practice.dat</code> では、kyoto と nara のあいだに「ここで1件が終わり」という印はありませんでした。<b>ファイルには区切りの印がありません。</b>区切りを決めているのは、読む側です。</div>
+
+  <h2><span class="tag must">必須</span>問2-1　練習：見本のファイルを読んでみる</h2>
+  <p class="note">いきなり自分のファイルは難しいので、まず<b>形が分かっている</b> <code>practice.dat</code> で、<code>od</code> の読み方を練習します。<code>practice.dat</code> の1件は次の形です。</p>
+  <pre class="code"><span class="kw">struct</span> record {
+    int32_t number;     <span class="cmt">/* 番号（4バイトの整数） */</span>
+    <span class="kw">char</span>    name[8];    <span class="cmt">/* 場所の名前（8バイト。後ろは \0 で埋まっている） */</span>
+    <span class="kw">double</span>  value;      <span class="cmt">/* 気温（8バイトの小数） */</span>
+};</pre>
+  <pre class="code">cd ~/syspro/midterm
+ls -l practice.dat              <span class="cmt"># ファイルの大きさを見る（72バイトのはず）</span>
+od -A d -t x1 practice.dat      <span class="cmt"># 1バイトずつ、16進数で表示する</span></pre>
+  <div class="outlabel">こう表示されます</div>
+  <pre class="out">0000000 01 00 00 00 6b 79 6f 74 6f 00 00 00 00 00 00 00
+0000016 00 00 00 00 00 00 29 40 02 00 00 00 6e 61 72 61
+0000032 00 00 00 00 00 00 00 00 00 00 00 00 00 80 23 40
+0000048 03 00 00 00 6f 73 61 6b 61 00 00 00 00 00 00 00
+0000064 00 00 00 00 00 00 2e 40
+0000072</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">od</span><span class="cmdtag">バイトをのぞく</span></div>
+      <p><span class="lbl">何をする</span>ファイルの中身を、<b>1バイトずつ数字で</b>表示します（octal dump の略）。<code>cat</code> では文字として読めないファイルも、<code>od</code> なら何が入っているか見えます。</p>
+      <p><span class="lbl">-A d</span>左端の数字（何バイト目か）を10進数で表示する。<code>0000016</code> は「この行は16バイト目から」という意味。</p>
+      <p><span class="lbl">-t x1</span>1バイトずつ（<code>1</code>）、16進数（<code>x</code>）で表示する。</p>
+      <div class="ex"><b>よく使う表示のしかた</b>
+        <span class="q">od -A d -c ファイル      … 文字として読めるものは文字で（名前を探すとき）</span>
+        <span class="q">od -A d -t d4 ファイル   … 4バイトずつ整数として（int32_t）</span>
+        <span class="q">od -A d -t d2 ファイル   … 2バイトずつ整数として（int16_t）</span>
+        <span class="q">od -A d -t d8 ファイル   … 8バイトずつ整数として（int64_t）</span>
+        <span class="q">od -A d -t f4 ファイル   … 4バイトずつ小数として（float）</span>
+        <span class="q">od -A d -t f8 ファイル   … 8バイトずつ小数として（double）</span>
+        <span class="q">od -A d -j 16 -N 8 -t f8 ファイル … 16バイト目から8バイトだけ、double として</span></div></div>
+  </div>
+  <div class="checklist"><h4>問2-1 で確かめること・書くこと</h4><ul>
+    <li><code>practice.dat</code> の大きさ 72 バイトを、1件の大きさで割ると何件か。</li>
+    <li>上の表示で、<b>1件目の番号・名前・気温がどこにあるか</b>を指で追い、<code>od -A d -t f8 -j 16 -N 8 practice.dat</code> で <b>気温が 12.5</b> と出ることを確かめる。</li>
+    <li><b>不思議なところ</b>：番号（4バイト）＋名前（8バイト）＝12バイトなのに、気温は <b>16バイト目</b>から始まっています。<b>12〜15バイト目の4バイト</b>は何でしょう？ <code>practice_reader.c</code> をコンパイルして動かし、表示される <code>sizeof(struct record)</code> の値と合わせて考えてください。</li>
+  </ul></div>
+  <pre class="code">gcc -Wall -o practice_reader practice_reader.c
+./practice_reader</pre>
+  <div class="outlabel">こう表示されればOK</div>
+  <pre class="out">1件の大きさ sizeof(struct record) = 24 バイト
+1  kyoto     12.50
+2  nara      9.75
+3  osaka     15.00</pre>
+  <details class="ans"><summary>答え合わせ（問2-1の不思議なところ。自分で考えてから開く）</summary><div>
+    12〜15バイト目は<b>パディング（詰め物）</b>です。<code>double</code> は8バイトの数なので、Cのコンパイラは<b>8の倍数の位置から始まるように</b>置きます。12は8の倍数ではないので、4バイト空けて16から置きました。だから <code>sizeof</code> は 4+8+8=20 ではなく <b>24</b> です。<br>
+    <b>ファイルの中にもこの4バイトがそのまま入っている</b>のは、構造体を <code>write</code> でそのまま書き出したからです。あなたのファイルにも、パディングがある<b>かもしれません</b>。
+  </div></details>
+
+  <h2><span class="tag must">必須</span>問2-2　自分のファイルを手に入れる</h2>
+  <p class="note">あなたのファイルの名前は、<b>学籍番号から計算して求めます</b>。次の1行の <code>1116249999</code> を自分の学籍番号に変えて打ってください。</p>
+  <pre class="code">printf '%s' 'syspro-mystery:1116249999' | sha256sum | cut -c1-10</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">printf '%s' … | sha256sum | cut -c1-10</span><span class="cmdtag">パイプ3段</span></div>
+      <p><span class="lbl">printf '%s' 文字列</span>文字列をそのまま出力する（<code>echo</code> と違って最後に改行を付けない。改行が付くと結果が変わってしまう）。</p>
+      <p><span class="lbl">sha256sum</span>受け取ったデータから、<b>64文字の「指紋」</b>（ハッシュ値）を計算する。1文字でも違えば、まったく違う指紋になります。</p>
+      <p><span class="lbl">cut -c1-10</span>各行の1文字目から10文字目までを取り出す。</p></div>
+  </div>
+  <p class="note">表示された10文字が <code>○○○○○○○○○○</code> です。次のURLからダウンロードし、<code>~/syspro/midterm</code> に置いてください。</p>
+  <pre class="code">curl -O https://tkoita.github.io/syspro-pages/dist/midterm/mystery_○○○○○○○○○○.dat</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">curl -O URL</span><span class="cmdtag">ダウンロード</span></div>
+      <p><span class="lbl">何をする</span>URL のファイルを取ってきて、同じ名前で今いるディレクトリに保存します（<code>-O</code> は大文字のオー）。</p>
+      <p><span class="lbl">困ったら</span><code>404</code> や <code>Not Found</code> が返ってきたら、学籍番号の打ち間違いか、<code>printf</code> の代わりに <code>echo</code> を使った可能性があります。<code>curl</code> が使えない環境では、ブラウザでURLを開いて保存し、作業ディレクトリに移してください。</p></div>
+  </div>
+  <div class="warn"><b>他の人のファイルを使わないでください。</b>ファイルは一人ひとり形が違い、採点は<b>あなたの学籍番号のファイルの答え</b>と照らし合わせます。友だちと「やり方」を相談するのは大歓迎ですが、答えの数字は自分のファイルからしか出ません。</div>
+
+  <h2><span class="tag must">必須</span>問2-3　1件は何バイトか、項目はどこにあるかを突き止める</h2>
+  <p class="note">ここからは<b>記録を取りながら</b>進めます。打ったコマンドがそのまま「根拠」になります。</p>
+  <pre class="code">cd ~/syspro/midterm
+script kadai2.log                      <span class="cmt"># 記録を始める</span>
+ls -l mystery_*.dat                    <span class="cmt"># ファイルの大きさ（バイト数）を見る</span>
+od -A d -c mystery_*.dat | head -20    <span class="cmt"># まず文字として見て、場所の名前を探す</span>
+<span class="cmt"># ↓ ここから先は、自分で考えて od を打つ（下の「進め方」を参考に）</span>
+exit                                   <span class="cmt"># 記録を終える（続きは script -a kadai2.log で追記できる）</span></pre>
+  <div class="level"><div class="lvhead"><span class="chip c-mid">進め方</span><span class="t">この順番で考えると迷いにくい</span></div>
+    <ol>
+      <li><b>名前を探す</b>：<code>od -A d -c</code> で、<code>k y o t o</code> のような英字が見えるところを探す。<b>名前が何バイトおきに現れるか</b>を数える。それが1件の大きさの候補。</li>
+      <li><b>割り算で確かめる</b>：ファイルの大きさが、その候補で<b>割り切れるか</b>。割り切れたら、件数も分かる。</li>
+      <li><b>時刻を探す</b>：2026年10月ごろの時刻は、秒で数えると <b>1790000000 前後</b>の数です。<code>od -A d -t d4</code> や <code>-t d8</code> で、その大きさの数が出る位置を探す。見つけたら <code>date -d @その数</code> で日時に直して確かめる。</li>
+      <li><b>番号を探す</b>：1件ごとに <b>1ずつ増える</b>数を探す。<code>-t d4</code> でも <code>-t d2</code> でも見てみる。</li>
+      <li><b>気温を探す</b>：5〜33くらいの小数になる位置を、<code>-t f4</code> と <code>-t f8</code> の両方で探す。<b>でたらめな値</b>（<code>1.2e-300</code> のような値）が出たら、その読み方は違う。</li>
+      <li><b>残りを確かめる</b>：どの項目にも入らないバイトが残ったら、それはたぶん<b>パディング</b>。<b>全部 <code>00</code></b> になっているはず。</li>
+    </ol></div>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">date -d @秒数</span><span class="cmdtag">時刻に直す</span></div>
+      <p><span class="lbl">何をする</span>「1970年1月1日から何秒」という数を、ふつうの日時に直して表示します。<code>TZ=Asia/Tokyo date -d @1790780400</code> とすると日本時間で表示されます（<code>2026年10月1日 0:00</code> になるはず）。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">od -w数</span><span class="cmdtag">1行の幅を変える</span></div>
+      <p><span class="lbl">何をする</span><code>od</code> は普通1行に16バイト表示します。<b>1件の大きさが分かったら</b>、<code>od -A d -t x1 -w24 ファイル</code> のように1行をその大きさにすると、<b>1行＝1件</b>になって縦に同じ項目が並び、とても見やすくなります。</p></div>
+  </div>
+  <details class="hint"><summary>ヒント：数字がバラバラで、整数なのか小数なのか分からない</summary><div>
+    同じ4バイトでも、「整数として読む」か「小数として読む」かで、まったく違う数に見えます。<b>バイトそのものには「型」は書いてありません</b>（これがこの課題の核心です）。<br>
+    だから、<b>「意味の通る数になる読み方」</b>を探します。時刻なら1790000000前後、気温なら5〜33くらい、番号なら1ずつ増える。<b>全部の件で意味が通れば</b>、その読み方で正しいと考えてよいでしょう。
+  </div></details>
+  <div class="checklist"><h4>問2-3 で書くこと</h4><ul>
+    <li><b>ファイルの大きさ・1件の大きさ・件数</b>と、それぞれの根拠（<code>kadai2.log</code> のどの行か）。</li>
+    <li>次の形の<b>表</b>。項目ごとに1行。
+      <table class="levels" style="margin-top:6px;"><thead><tr><th>何バイト目から</th><th>何バイト</th><th>Cの型</th><th>項目</th><th>根拠にしたコマンドと、見えたもの</th></tr></thead>
+      <tbody><tr><td>例）0</td><td>4</td><td><code>int32_t</code></td><td>番号</td><td><code>od -A d -t d4 -w24</code> で、1列目が 1, 2, 3 と増えた</td></tr><tr><td>…</td><td>…</td><td>…</td><td>…</td><td>…</td></tr></tbody></table></li>
+    <li>パディングがあったなら、<b>何バイト目から何バイト</b>か。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問2-4　読むプログラムを書く</h2>
+  <p class="note">配布セットの <code>reader.c</code> は雛形です。<code>TODO</code> のところを、問2-3で突き止めた形に合わせて書きます。<code>practice_reader.c</code> が見本になります。</p>
+  <pre class="code">gcc -Wall -o reader reader.c
+./reader mystery_○○○○○○○○○○.dat</pre>
+  <div class="checklist"><h4>問2-4 で書くこと</h4><ul>
+    <li>完成した <code>struct record</code> の定義と、<code>TODO</code> に書き足した部分を貼り、<b>1行ずつ説明</b>する。</li>
+    <li>実行結果（<code>kadai2.log</code> に記録すること）。<b>次の3つを必ず表示する</b>：<b>①件数　②抜けている番号　③気温がいちばん高かった場所の名前とその気温</b>。</li>
+    <li><b>表示された <code>sizeof(struct record)</code> が、問2-3で求めた1件の大きさと同じになったか。</b></li>
+  </ul></div>
+  <div class="verify"><b>これが正解の目印です</b>　構造体の形が合っていれば、<b>全部の件で</b>、番号が1ずつ増え（1か所を除く）、名前が英字で、時刻が2026年10〜11月で、気温が5〜33くらいになります。<b>どこか1件でもおかしければ、どこかがずれています。</b></div>
+
+  <h2><span class="tag must">必須</span>問2-5　構造体の大きさは、項目の合計とは限らない</h2>
+  <div class="checklist"><h4>問2-5 で書くこと</h4><ul>
+    <li>あなたの構造体の、<b>4つの項目の大きさの合計</b>と <b><code>sizeof(struct record)</code></b> を比べる。違ったら、<b>どこに何バイトのパディングがあるか</b>と、<b>なぜそこに入ったか</b>を説明する。</li>
+    <li><b>項目の順番を入れ替えると <code>sizeof</code> がどう変わるか</b>を、2通り以上試して表にする（<code>reader.c</code> をコピーして試すとよい：<code>cp reader.c order_test.c</code>）。<b>いちばん小さくなる並べ方</b>はどれか。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問2-6　わざと1バイトずらして読む</h2>
+  <p class="note">読む側が区切りを<b>1バイトだけ</b>間違えると何が起きるかを、自分のファイルで確かめます。</p>
+  <pre class="code">tail -c +2 mystery_○○○○○○○○○○.dat &gt; shifted.dat   <span class="cmt"># 先頭の1バイトを捨てて保存</span>
+ls -l mystery_*.dat shifted.dat                       <span class="cmt"># 大きさを比べる</span>
+./reader shifted.dat                                  <span class="cmt"># ずれたファイルを、同じプログラムで読む</span>
+echo $?                                               <span class="cmt"># 直前のプログラムの終了コード（0 は「うまくいった」）</span></pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">tail -c +数</span><span class="cmdtag">後ろを取り出す</span></div>
+      <p><span class="lbl">何をする</span><code>tail -c +2</code> は「<b>2バイト目から</b>最後まで」を出力します（<code>+</code> を付けると「ここから」の意味。付けないと「最後の○バイト」の意味になる）。</p></div>
+  </div>
+  <div class="predict"><span class="ph">✎ 動かす前に予測して、predict2.txt に書く</span>件数は何件になるか／名前はどう見えるか／エラーは出るか、を書いてから動かしてください。</div>
+  <div class="checklist"><h4>問2-6 で書くこと</h4><ul>
+    <li>予測と結果。<b>件数が元より少なくなったなら、なぜか</b>（ファイルの大きさと <code>sizeof</code> から計算で説明）。</li>
+    <li><b>エラーは出たか、終了コードは何だったか。</b>それが「プログラムを使う人」にとって、なぜ怖いのかを2〜3行で。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問2-7　AIに推理させて、答え合わせをする</h2>
+  <p class="note">自分のファイルの <code>od -A d -t x1 | head -6</code> の出力と、上の「仕様メモ」をAIに見せて、<b>「1件の形を推理して、Cの構造体で書いてください」</b>と頼んでください。</p>
+  <div class="checklist"><h4>問2-7 で書くこと</h4><ul>
+    <li>AIが答えた構造体と、あなたが突き止めた構造体を<b>並べて</b>比べる。どこが合っていて、どこが違ったか。</li>
+    <li>違っていたなら、<b>AIの構造体のまま読むと何が起きたか</b>（実際に試す）。合っていたなら、<b>AIはどこを手がかりに当てたと思うか</b>。</li>
+  </ul></div>
+
+  <h2><span class="tag must">必須</span>問2-8　『伽藍とバザール』とつなげる</h2>
+  <p class="note">『伽藍とバザール』（PDF）の第5節にある<b>教訓9</b>（PDF 12ページ）を読んでください。データ構造とコードの関係についての教訓です。</p>
+  <div class="checklist"><h4>問2-8 で書くこと（3〜5行）</h4><ul>
+    <li>課題2で、<b>構造体（データの形）が分かった前と後</b>で、<code>reader.c</code> を書く大変さはどう変わったか。それを教訓9と結びつけて書く。</li>
+  </ul></div>
+
+  <h2><span class="tag plus">余裕があれば</span>問2-9　自分で「読み解き問題」を作る</h2>
+  <p class="note">自分で好きな構造体を決め、2〜3件を <code>write</code> で書き出すCプログラムを作ってください。できたファイルを、<b>形を教えずに</b>友だちに渡して読み解いてもらいましょう。<b>プログラム・ファイルの <code>od</code> 出力・友だちがどう推理したか</b>を書けば加点します。</p>
+  <div class="foot">課題2 ／ 中間レポート</div>
+</section>
+
+<!-- ============================ SUBMIT ============================ -->
+<section class="sheet k6" id="submit">
+  <div class="eyebrow">SUBMIT<span class="badge">締切は eclass で告知</span></div>
+  <h1>提出のしかた</h1>
+  <p class="lead">課題1と課題2を<b>1つの Word ファイル</b>にまとめ、<b>記録ファイル2つ</b>と一緒に提出します。</p>
+  <table class="levels">
+    <tbody>
+      <tr><td style="width:140px;"><b>提出先</b></td><td>eclass の「中間レポート」</td></tr>
+      <tr><td><b>提出するもの</b></td><td>① <code>syspro_mid_学籍番号.docx</code>（レポート本体）<br>② <code>kadai1.log</code>　③ <code>kadai2.log</code><br>④ <code>bufcp.c</code>（書き足したもの）　⑤ <code>reader.c</code>（完成したもの）</td></tr>
+      <tr><td><b>レポートの見出し</b></td><td>0 学籍番号・氏名・<b>自分の mystery ファイル名</b><br>1 課題1（問1-1〜問1-7）<br>2 課題2（問2-1〜問2-8）<br>3 余裕があれば（問1-5・問2-9）<br>4 <b>AIとのやり取り</b>（<a href="#ai">書き方</a>）<br>5 感想・質問（任意）</td></tr>
+      <tr><td><b>コードと記録の貼り方</b></td><td>レポートに貼るときは<b>テキストとして</b>貼り、フォントを <b>等幅（Consolas や MS ゴシック）</b>にする。<b>画面の写真（スクリーンショット）は、グラフ以外は使わない</b>（数字を読み取れないため）。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>評価の観点</h2>
+  <table class="levels">
+    <thead><tr><th>観点</th><th>よく書けているレポート</th></tr></thead>
+    <tbody>
+      <tr><td><b>自分で動かしたか</b></td><td>レポートの数字が、提出した <code>.log</code> の中の数字と<b>一致している</b>。</td></tr>
+      <tr><td><b>根拠があるか</b></td><td>「〜だと分かった」の後に、<b>どのコマンドで、何が見えたから</b>かが書いてある。</td></tr>
+      <tr><td><b>説明できるか</b></td><td>書き足したコードの<b>どの行も</b>、自分の言葉で説明されている。</td></tr>
+      <tr><td><b>予測と結果の差</b></td><td>外れた予測を隠さず、<b>なぜ外れたか</b>を考えている。</td></tr>
+      <tr><td><b>課題2の答え</b></td><td>件数・抜けている番号・最高気温の場所が、<b>あなたのファイルの正解と一致</b>している。</td></tr>
+    </tbody>
+  </table>
+  <div class="ainote"><b>口頭で確認することがあります。</b>レポートの中から何人かに、「この行は何をしていますか」「この数字はどのコマンドで出しましたか」と授業中に聞くことがあります。<b>自分で書いて、自分で動かしていれば、すぐ答えられる質問です。</b></div>
+  <div class="foot">提出 ／ 中間レポート</div>
+</section>
+
+<!-- ============================ REFERENCE ============================ -->
+<section class="sheet i2" id="ref">
+  <div class="eyebrow">REFERENCE<span class="badge alt">困ったら</span></div>
+  <h1>用語集・困ったとき</h1>
+  <h2>用語集</h2>
+  <table class="levels">
+    <tbody>
+      <tr><td style="width:150px;"><b>システムコール</b></td><td>プログラムがカーネルに仕事を頼むための窓口。<code>open</code>・<code>read</code>・<code>write</code>・<code>close</code> など。</td></tr>
+      <tr><td><b>バッファ</b></td><td>データを一時的にためておく入れ物（メモリの一部）。<code>bufcp</code> では「1回に読む量」を入れる箱。</td></tr>
+      <tr><td><b>標準入出力ライブラリ</b></td><td><code>printf</code>・<code>getc</code>・<code>fopen</code> などの関数の集まり。中で自分のバッファを持ち、<code>read</code>/<code>write</code> の回数を減らしている。</td></tr>
+      <tr><td><b>ページ／ブロック</b></td><td>メモリやディスクを管理するときの「ひとまとまり」の大きさ。多くの Linux では 4096 バイト。</td></tr>
+      <tr><td><b>レコード</b></td><td>同じ形のデータ1件分。課題2では「番号・名前・時刻・気温」の4つで1件。</td></tr>
+      <tr><td><b>オフセット</b></td><td>ファイルや構造体の先頭から数えて「何バイト目か」。0から数える。</td></tr>
+      <tr><td><b>パディング</b></td><td>構造体の項目と項目の間（や最後）に、コンパイラが入れる詰め物。数を決まった位置（4の倍数・8の倍数など）から始めるため。</td></tr>
+      <tr><td><b>UNIX時刻</b></td><td>1970年1月1日0時（世界標準時）から数えた秒数。<code>date +%s</code> で今のUNIX時刻が見られる。</td></tr>
+      <tr><td><b>16進数</b></td><td>0〜9とa〜fの16種類で数を表す書き方。1バイト（0〜255）がちょうど2桁（00〜ff）で書ける。</td></tr>
+    </tbody>
+  </table>
+
+  <h2>困ったとき</h2>
+  <table class="levels">
+    <thead><tr><th style="width:42%;">こうなった</th><th>こうする</th></tr></thead>
+    <tbody>
+      <tr><td><code>./measure.sh: Permission denied</code></td><td>実行の許可がない。<code>chmod +x measure.sh</code> してからもう一度。または <code>bash measure.sh</code>。</td></tr>
+      <tr><td><code>./bufcp: No such file or directory</code></td><td>まだコンパイルしていない。<code>gcc -Wall -o bufcp bufcp.c</code>。</td></tr>
+      <tr><td><code>big.dat: No such file or directory</code></td><td><code>head -c 10M /dev/urandom &gt; big.dat</code> を先に打つ。</td></tr>
+      <tr><td><code>measure.sh</code> が終わらない</td><td>1バイトのところは1回数秒かかります（3回で十数秒）。1分以上待っても終わらなければ <code>Ctrl+C</code> で止めて、手を挙げる／質問する。</td></tr>
+      <tr><td><code>strace: command not found</code></td><td>その環境には <code>strace</code> がありません。問1-5は時間の比較だけで答えてください。</td></tr>
+      <tr><td>ディスクがいっぱい（<code>No space left on device</code>）</td><td><code>rm big.dat copy.dat copy2.dat</code> で大きいファイルを消す。<code>df -h ~</code> で空きを確認。</td></tr>
+      <tr><td><code>curl</code> で <code>404</code> が返る</td><td>学籍番号を打ち間違えていないか、<code>printf '%s'</code> を使ったか（<code>echo</code> は不可）を確認。</td></tr>
+      <tr><td><code>od</code> の出力が長すぎて読めない</td><td><code>| head -20</code> を付けて先頭だけ見る。<code>| less</code> を付けると1画面ずつ見られる（<code>q</code> で終わる）。</td></tr>
+      <tr><td><code>int32_t</code> で <code>unknown type name</code></td><td><code>#include &lt;stdint.h&gt;</code> を忘れている。</td></tr>
+      <tr><td><code>sizeof</code> が求めた1件の大きさと違う</td><td>どこかの項目の型か、順番が違う。もう一度 <code>od -A d -t x1 -w1件の大きさ</code> で縦に並べて確かめる。</td></tr>
+      <tr><td>名前の後ろに変な文字が付いて表示される</td><td>名前の配列の大きさが小さすぎて、<code>\0</code> まで読めていない可能性。配列の大きさを見直す。</td></tr>
+    </tbody>
+  </table>
+  <h2>参考</h2>
+  <ul class="note" style="padding-left:20px;">
+    <li>Molay『Unix/Linux プログラミング』第2章（<code>who</code> と <code>cp</code>、バッファリング、システムコールのコスト）</li>
+    <li>『Linux標準教科書』シェルスクリプトの章（<code>for</code> によるくり返し） — <a href="https://linuc.org/textbooks/linux/">https://linuc.org/textbooks/linux/</a></li>
+    <li>エリック・S・レイモンド『伽藍とバザール』（山形浩生 訳） — <a href="http://cruel.org/freeware/cathedral.html">http://cruel.org/freeware/cathedral.html</a></li>
+  </ul>
+  <div class="foot">用語集・困ったとき ／ 中間レポート</div>
+</section>
+
+<script>
+(function(){
+  // --- コード欄にコピーボタン ---
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var w=document.createElement('div'); w.className='codewrap';
+    pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    var b=document.createElement('button'); b.type='button'; b.className='copybtn'; b.textContent='コピー';
+    b.addEventListener('click',function(){
+      var t=pre.innerText;
+      var done=function(){ b.textContent='コピーしました'; b.classList.add('done');
+        setTimeout(function(){ b.textContent='コピー'; b.classList.remove('done'); },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done,function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    });
+    w.appendChild(b);
+  });
+  function fallback(t,cb){
+    var ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // --- チェックリストをクリックで消し込み ---
+  document.querySelectorAll('.checklist').forEach(function(cl){
+    var items=cl.querySelectorAll('li'), h4=cl.querySelector('h4');
+    var prog=document.createElement('span'); prog.className='ckprog';
+    if(h4) h4.appendChild(prog);
+    var hint=document.createElement('p'); hint.className='ckhint';
+    hint.textContent='※ クリックすると消し込みできます（保存はされません）';
+    if(h4) h4.insertAdjacentElement('afterend',hint);
+    function upd(){ prog.textContent=cl.querySelectorAll('li.done').length+' / '+items.length; }
+    items.forEach(function(li){
+      li.addEventListener('click',function(e){
+        if(e.target.closest('a')) return;
+        li.classList.toggle('done'); upd();
+      });
+    });
+    upd();
+  });
+
+  // --- 現在位置をナビに反映 ---
+  var links=[].slice.call(document.querySelectorAll('.topnav .links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var idx=-1;
+    secs.forEach(function(s,i){ if(s && s.getBoundingClientRect().top<=96) idx=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===idx); });
+    var on=links[idx];
+    if(on && on.parentNode.scrollWidth>on.parentNode.clientWidth){
+      var p=on.parentNode, l=on.offsetLeft-p.offsetLeft;
+      if(l<p.scrollLeft || l+on.offsetWidth>p.scrollLeft+p.clientWidth){
+        p.scrollTo({left:l-16,behavior:'smooth'});
+      }
+    }
+  }
+  window.addEventListener('scroll',spy,{passive:true});
+  window.addEventListener('resize',spy); spy();
+})();
+
+</script>
+</body></html>
