@@ -678,15 +678,19 @@ echo $?                                               <span class="cmt"># 直前
 <section class="sheet k6" id="submit">
   <div class="eyebrow">SUBMIT<span class="badge">締切 11月23日（月・祝）23:59</span></div>
   <h1>提出のしかた</h1>
-  <p class="lead">課題1と課題2を<b>1つの Word ファイル</b>にまとめ、<b>記録ファイル2つ</b>と一緒に提出します。</p>
+  <p class="lead">課題1と課題2を<b>1つの Word ファイル</b>にまとめ、記録ファイル2つ・ソース2つと合わせた<b>5つを1つの ZIP ファイル</b>にして提出します（eclass は ZIP しか受け付けません）。</p>
   <table class="levels">
     <tbody>
-      <tr><td style="width:140px;"><b>提出先</b></td><td>eclass の「中間レポート」</td></tr>
-      <tr><td><b>提出するもの</b></td><td>① <code>syspro_mid_学籍番号.docx</code>（レポート本体）<br>② <code>kadai1.log</code>　③ <code>kadai2.log</code><br>④ <code>bufcp.c</code>（書き足したもの）　⑤ <code>reader.c</code>（完成したもの）</td></tr>
+      <tr><td style="width:140px;"><b>提出先</b></td><td>eclass の「中間レポート提出場所」（ZIP ファイル1つ、10MB まで）</td></tr>
+      <tr><td><b>提出するもの</b></td><td>① <code>syspro_mid_学籍番号.docx</code>（レポート本体）<br>② <code>kadai1.log</code>　③ <code>kadai2.log</code><br>④ <code>bufcp.c</code>（書き足したもの）　⑤ <code>reader.c</code>（完成したもの）<br>→ この5つを <code>syspro_mid_学籍番号.zip</code> 1つにまとめて出す（手順は表のすぐ下）。</td></tr>
       <tr><td><b>レポートの見出し</b></td><td>0 学籍番号・氏名・<b>自分の mystery ファイル名</b><br>1 課題1（問1-1〜問1-7）<br>2 課題2（問2-1〜問2-8）<br>3 余裕があれば（問1-5・問2-9）<br>4 <b>AIとのやり取り</b>（<a href="#ai">書き方</a>）<br>5 感想・質問（任意）</td></tr>
       <tr><td><b>コードと記録の貼り方</b></td><td>レポートに貼るときは<b>テキストとして</b>貼り、フォントを <b>等幅（Consolas や MS ゴシック）</b>にする。<b>画面の写真（スクリーンショット）は、グラフ以外は使わない</b>（数字を読み取れないため）。</td></tr>
     </tbody>
   </table>
+  <h3 style="margin:18px 0 4px;">5つを ZIP 1つにまとめて出す手順</h3>
+  <ol style="margin:6px 0 0 1.4em;padding:0;line-height:1.8;"><li>Windows の Word で書いたレポートを、<b>ローカルディスク (E:)</b> に <code>syspro_mid_学籍番号.docx</code> の名前で保存する。E: は仮想Linux からは <code>/win/e</code> として見える（同じ場所）。</li><li>仮想Linux の端末で作業場所に移り、docx が見えるか確かめる。<pre class="code" style="margin-top:6px;padding-right:84px;white-space:pre-wrap;overflow-wrap:anywhere;"><code>cd ~/syspro/midterm
+ls /win/e</code></pre></li><li>5つを1つの ZIP にして、E: に置く。<code>zip</code> は「ZIP ファイルを作る」コマンドで、最初に作る ZIP の名前、続けて入れるファイルを並べる。<code>-j</code> は「フォルダの名前を付けずに、ファイルだけ入れる」の意味。<pre class="code" style="margin-top:6px;padding-right:84px;white-space:pre-wrap;overflow-wrap:anywhere;"><code>zip -j /win/e/syspro_mid_学籍番号.zip /win/e/syspro_mid_学籍番号.docx kadai1.log kadai2.log bufcp.c reader.c</code></pre></li><li>中に5つ入っているか確かめる（最後の行が <code>5 files</code> になっていればよい）。<pre class="code" style="margin-top:6px;padding-right:84px;white-space:pre-wrap;overflow-wrap:anywhere;"><code>unzip -l /win/e/syspro_mid_学籍番号.zip</code></pre></li><li>Windows のブラウザで eclass を開き、E: の <code>syspro_mid_学籍番号.zip</code> を提出する。提出が済むまでログオフしない。</li></ol>
+
 
   <h2>評価の観点</h2>
   <table class="levels">
