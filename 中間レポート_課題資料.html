@@ -289,6 +289,8 @@ ls -l                           <span class="cmt"># 中身を確認する</span>
   <div class="outlabel">こう表示されればOK（日付などは違ってかまいません）</div>
   <pre class="out">-rw-r--r-- 1 you you 1210 ... bufcp.c
 -rwxr-xr-x 1 you you  291 ... measure.sh
+-rw-r--r-- 1 you you  ... ... midterm_set.zip
+drwxr-xr-x 2 you you 4096 ... mystery
 -rw-r--r-- 1 you you   72 ... practice.dat
 -rw-r--r-- 1 you you  924 ... practice_reader.c
 -rw-r--r-- 1 you you 1135 ... reader.c
@@ -568,12 +570,14 @@ od -A d -t x1 practice.dat      <span class="cmt"># 1バイトずつ、16進数�
       <p><span class="lbl">sha256sum</span>受け取ったデータから、<b>64文字の「指紋」</b>（ハッシュ値）を計算する。1文字でも違えば、まったく違う指紋になります。</p>
       <p><span class="lbl">cut -c1-10</span>各行の1文字目から10文字目までを取り出す。</p></div>
   </div>
-  <p class="note">表示された10文字が <code>○○○○○○○○○○</code> です。次のURLからダウンロードし、<code>~/syspro/midterm</code> に置いてください。</p>
-  <pre class="code">curl -O https://tkoita.github.io/syspro-pages/dist/midterm/mystery_○○○○○○○○○○.dat</pre>
+  <p class="note">表示された10文字が <code>○○○○○○○○○○</code> です。配布セットを展開してできた <code>mystery</code> フォルダから、自分のファイルだけを <code>~/syspro/midterm</code> に写してください（第5週目の授業で済ませた人は、もうあります）。</p>
+  <pre class="code">cd ~/syspro/midterm
+cp mystery/mystery_○○○○○○○○○○.dat .    <span class="cmt"># 最後の . は「今いる場所へ」</span></pre>
   <div class="cmdlist">
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">curl -O URL</span><span class="cmdtag">ダウンロード</span></div>
-      <p><span class="lbl">何をする</span>URL のファイルを取ってきて、同じ名前で今いるディレクトリに保存します（<code>-O</code> は大文字のオー）。</p>
-      <p><span class="lbl">困ったら</span><code>404</code> や <code>Not Found</code> が返ってきたら、学籍番号の打ち間違いか、<code>printf</code> の代わりに <code>echo</code> を使った可能性があります。<code>curl</code> が使えない環境では、ブラウザでURLを開いて保存し、作業ディレクトリに移してください。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">cp 写す元 写す先</span><span class="cmdtag">写す</span></div>
+      <p><span class="lbl">何をする</span>ファイルを写します（copy の略）。<code>mystery/mystery_○○○○○○○○○○.dat</code> は「mystery フォルダの中の、そのファイル」、最後の <code>.</code> は「今いる場所へ」という意味です。</p>
+      <p><span class="lbl">mystery フォルダ</span>配布セットを展開するとできます。<b>受講者全員のファイルが入っていますが、使うのは自分の1つだけです。</b>大学のネットワークはプロキシを通るので、ターミナルからは取ってこられません。そのため配布セットに入れてあります。</p>
+      <p><span class="lbl">困ったら</span><code>No such file or directory</code> と出たら、学籍番号の打ち間違いか、<code>printf</code> の代わりに <code>echo</code> を使った可能性があります。</p></div>
   </div>
   <div class="warn"><b>他の人のファイルを使わないでください。</b>ファイルは一人ひとり形が違い、採点は<b>あなたの学籍番号のファイルの答え</b>と照らし合わせます。友だちと「やり方」を相談するのは大歓迎ですが、答えの数字は自分のファイルからしか出ません。</div>
 
@@ -721,7 +725,7 @@ echo $?                                               <span class="cmt"># 直前
       <tr><td><code>measure.sh</code> が終わらない</td><td>1バイトのところは1回数秒かかります（3回で十数秒）。1分以上待っても終わらなければ <code>Ctrl+C</code> で止めて、手を挙げる／質問する。</td></tr>
       <tr><td><code>strace: command not found</code></td><td>その環境には <code>strace</code> がありません。問1-5は時間の比較だけで答えてください。</td></tr>
       <tr><td>ディスクがいっぱい（<code>No space left on device</code>）</td><td><code>rm big.dat copy.dat copy2.dat</code> で大きいファイルを消す。<code>df -h ~</code> で空きを確認。</td></tr>
-      <tr><td><code>curl</code> で <code>404</code> が返る</td><td>学籍番号を打ち間違えていないか、<code>printf '%s'</code> を使ったか（<code>echo</code> は不可）を確認。</td></tr>
+      <tr><td><code>cp</code> で <code>No such file or directory</code></td><td>学籍番号を打ち間違えていないか、<code>printf '%s'</code> を使ったか（<code>echo</code> は不可）を確認。</td></tr>
       <tr><td><code>od</code> の出力が長すぎて読めない</td><td><code>| head -20</code> を付けて先頭だけ見る。<code>| less</code> を付けると1画面ずつ見られる（<code>q</code> で終わる）。</td></tr>
       <tr><td><code>int32_t</code> で <code>unknown type name</code></td><td><code>#include &lt;stdint.h&gt;</code> を忘れている。</td></tr>
       <tr><td><code>sizeof</code> が求めた1件の大きさと違う</td><td>どこかの項目の型か、順番が違う。もう一度 <code>od -A d -t x1 -w1件の大きさ</code> で縦に並べて確かめる。</td></tr>

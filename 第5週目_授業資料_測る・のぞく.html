@@ -472,7 +472,7 @@ cd ~/syspro/midterm           <span class="cmt"># そこへ移動する</span></
   <pre class="code">unzip midterm_set.zip         <span class="cmt"># zip を展開する</span>
 ls                            <span class="cmt"># ファイルの一覧を見る</span></pre>
   <div class="outlabel">こう出れば正解（並び順は違ってもよい）</div>
-  <pre class="out">bufcp.c  measure.sh  midterm_set.zip  practice.dat  practice_reader.c  reader.c  stdcp.c</pre>
+  <pre class="out">bufcp.c  measure.sh  midterm_set.zip  mystery  practice.dat  practice_reader.c  reader.c  stdcp.c</pre>
   <div class="cmdlist">
     <div class="cmd"><div class="cmdhead"><span class="cmdname">unzip ファイル名</span><span class="cmdtag">展開</span></div>
       <p><span class="lbl">何をする</span>zip ファイルの中身を、今いるディレクトリに取り出します。</p></div>
@@ -582,15 +582,16 @@ sys	0m0.015s</pre>
       <p><span class="lbl">cut -c1-10</span>1文字目から10文字目までを取り出す。</p></div>
   </div>
 
-  <h2>C-2 ファイルを取ってきて、大きさを見る</h2>
+  <h2>C-2 自分のファイルを取り出して、大きさを見る</h2>
   <p class="note">下の <code>○○○○○○○○○○</code> を、C-1 で出た10文字に変えて打ちます。</p>
-  <pre class="code">curl -O https://tkoita.github.io/syspro-pages/dist/midterm/mystery_○○○○○○○○○○.dat
+  <pre class="code">cp mystery/mystery_○○○○○○○○○○.dat .    <span class="cmt"># 自分のファイルだけを、今の場所に写す（最後の . を忘れずに）</span>
 wc -c mystery_*.dat                      <span class="cmt"># ファイルの大きさ（バイト）を見る</span></pre>
   <div class="outlabel">こう出ます（数はあなたのファイルで違います）</div>
   <pre class="out">864 mystery_15c45abbfb.dat</pre>
   <div class="cmdlist">
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">curl -O URL</span><span class="cmdtag">ダウンロード</span></div>
-      <p><span class="lbl">何をする</span>URL のファイルを取ってきて、同じ名前で今のディレクトリに保存します（<code>-O</code> は大文字のオー）。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">cp 写す元 写す先</span><span class="cmdtag">写す</span></div>
+      <p><span class="lbl">何をする</span>ファイルを写します（copy の略）。<code>mystery/mystery_○○○○○○○○○○.dat</code> は「mystery フォルダの中の、そのファイル」、最後の <code>.</code> は「今いる場所へ」という意味です。</p>
+      <p><span class="lbl">mystery フォルダ</span>配布セットを展開するとできます。<b>受講者全員のファイルが入っていますが、使うのは自分の1つだけです。</b>大学のネットワークはプロキシを通るので、ターミナルからは取ってこられません。そのため配布セットに入れてあります。</p></div>
     <div class="cmd"><div class="cmdhead"><span class="cmdname">wc -c ファイル</span><span class="cmdtag">大きさ</span></div>
       <p><span class="lbl">何をする</span>ファイルが何バイトかを数えます。<b>左の数を、下の欄に送ります。</b></p></div>
   </div>
@@ -711,8 +712,7 @@ wc -c mystery_*.dat                      <span class="cmt"># ファイルの大�
       <tr><td><code>bash: ./bufcp: No such file or directory</code></td><td>A-2 のコンパイルが済んでいるか。<code>ls -l bufcp</code> で確かめる。</td></tr>
       <tr><td><code>big.dat: No such file or directory</code></td><td>B-1 を打ったか。<code>script</code> の中でも外でも、同じディレクトリにいるか。</td></tr>
       <tr><td><code>cmp</code> で <code>differ: byte …</code> と出た</td><td>コピーが途中で止まった可能性。もう一度 <code>time ./bufcp big.dat copy.dat 1</code>。</td></tr>
-      <tr><td><code>curl: (22) … 404</code> ／ <code>Not Found</code></td><td>学籍番号の打ち間違いか、<code>printf</code> の代わりに <code>echo</code> を使った。C-1 をもう一度。</td></tr>
-      <tr><td><code>curl: (6) Could not resolve host</code> など</td><td>ターミナルから外につながらない。ブラウザで同じ URL を開いて保存し、<code>~/syspro/midterm</code> に移す。</td></tr>
+      <tr><td><code>cp: cannot stat 'mystery/…'</code> ／ <code>No such file or directory</code></td><td>学籍番号の打ち間違いか、<code>printf</code> の代わりに <code>echo</code> を使った。C-1 をもう一度。<code>ls</code> に <code>mystery</code> がなければ、演習Aの展開からやり直す。</td></tr>
       <tr><td>送る欄で「名簿にありません」</td><td>いちばん上の学籍番号の欄を見直す（10桁）。</td></tr>
       <tr><td>送る欄で「送れませんでした」</td><td>もう一度押す。だめなら手を挙げる（数字は紙に書いておいて、あとで送ってもよい）。</td></tr>
     </tbody>
@@ -741,7 +741,7 @@ wc -c mystery_*.dat                      <span class="cmt"># ファイルの大�
       <option value="script">script で記録</option>
       <option value="time">time の読み方</option>
       <option value="hash">ハッシュの1行</option>
-      <option value="curl">ファイルを取る（curl）</option>
+      <option value="curl">自分のファイルを取り出す（cp）</option>
       <option value="od">od の読み方</option>
       <option value="other">そのほか</option>
     </select>
