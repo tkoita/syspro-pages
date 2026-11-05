@@ -367,7 +367,8 @@ dl.gloss code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padd
     </div>
     <div class="mer" data-show="joined"></div>
   </div>
-  <div class="axis" style="margin-top:12px;"><b>止まったら、右下の「止まったら押す」を押してください。</b>先生に、どこで止まっているかが届きます。直ったら「直った」を押します。</div>
+  <div class="axis" style="margin-top:12px;"><b>この資料は、仮想Linux の Google Chrome で開いてください。</b>コピーボタンで写したコマンドを、同じ画面の端末にそのまま貼れます。</div>
+  <div class="axis" style="margin-top:8px;"><b>止まったら、右下の「止まったら押す」を押してください。</b>先生に、どこで止まっているかが届きます。直ったら「直った」を押します。</div>
 </section>
 
 <!-- ============================ INTRO ============================ -->
@@ -465,15 +466,22 @@ sys	0m0.000s</pre>
   <div class="eyebrow"><span class="no">A</span>PREPARE<span class="badge">0:30〜0:38</span></div>
   <h1><span class="tag must">必須</span>演習A　置いて、コンパイルして、予測する</h1>
 
-  <h2>A-1 作業場所を作り、配布セットを置く</h2>
+  <h2>A-1 配布セットを落として、作業場所に置く</h2>
+  <ol class="steps">
+    <li><b>仮想Linux の Google Chrome</b> で入口ページ <code>https://tkoita.github.io/syspro-pages/</code> を開き、<b>「中間レポート　一式」</b>を押す（この資料の <a href="dist/midterm_set.zip"><code>midterm_set.zip</code></a> からでも同じ）。</li>
+    <li>保存の画面が出たら、そのまま <b>Save</b>（保存先はデスクトップでもダウンロードでもかまいません）。ユーザIDとパスワードを聞かれたら、同志社のものを入れる。</li>
+    <li>端末で、次のコマンドを上から1行ずつ打つ（<code>#</code> から右は説明なので、打たなくてかまいません）。</li>
+  </ol>
   <pre class="code">mkdir -p ~/syspro/midterm     <span class="cmt"># 作業場所を作る（もうあれば何もしない）</span>
-cd ~/syspro/midterm           <span class="cmt"># そこへ移動する</span></pre>
-  <p class="note">配布セット <a href="dist/midterm_set.zip"><code>midterm_set.zip</code></a>（入口ページの「中間レポート」にもあります）を、<b>これまでの回と同じやり方で</b> <code>~/syspro/midterm</code> に置いて、展開します。</p>
-  <pre class="code">unzip midterm_set.zip         <span class="cmt"># zip を展開する</span>
+cd ~/syspro/midterm           <span class="cmt"># そこへ移動する</span>
+mv ~/*/midterm_set.zip .      <span class="cmt"># 保存した zip を、今の場所へ移す（最後の . を忘れずに）</span>
+unzip midterm_set.zip         <span class="cmt"># zip を展開する</span>
 ls                            <span class="cmt"># ファイルの一覧を見る</span></pre>
   <div class="outlabel">こう出れば正解（並び順は違ってもよい）</div>
   <pre class="out">bufcp.c  measure.sh  midterm_set.zip  mystery  practice.dat  practice_reader.c  reader.c  stdcp.c</pre>
   <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">mv ~/*/midterm_set.zip .</span><span class="cmdtag">移す</span></div>
+      <p><span class="lbl">何をする</span>ファイルを移します（move の略）。<code>~/*/</code> は「ホームの中の、どのフォルダでも」という意味です。<b>デスクトップやダウンロードなど、どこに保存しても見つけて</b>、最後の <code>.</code>（今いる場所）へ移します。日本語のフォルダ名を打たずに済みます。</p></div>
     <div class="cmd"><div class="cmdhead"><span class="cmdname">unzip ファイル名</span><span class="cmdtag">展開</span></div>
       <p><span class="lbl">何をする</span>zip ファイルの中身を、今いるディレクトリに取り出します。</p></div>
   </div>
@@ -708,7 +716,8 @@ wc -c mystery_*.dat                      <span class="cmt"># ファイルの大�
   <table class="levels">
     <thead><tr><th style="width:42%;">画面に出た文字</th><th>まず確かめること</th></tr></thead>
     <tbody>
-      <tr><td><code>unzip: cannot find or open midterm_set.zip</code></td><td><code>ls</code> で、zip が <code>~/syspro/midterm</code> にあるか。<code>pwd</code> で今いる場所を確かめる。</td></tr>
+      <tr><td><code>mv: cannot stat '/home/user/*/midterm_set.zip'</code></td><td>zip を保存していないか、2回目の保存で名前が <code>midterm_set (1).zip</code> になった。<code>ls ~/*/</code> で探し、Chrome で保存し直す。</td></tr>
+      <tr><td><code>unzip: cannot find or open midterm_set.zip</code></td><td><code>mv</code> を打ったか。<code>pwd</code> で今いる場所が <code>~/syspro/midterm</code> かを確かめる。</td></tr>
       <tr><td><code>bash: ./bufcp: No such file or directory</code></td><td>A-2 のコンパイルが済んでいるか。<code>ls -l bufcp</code> で確かめる。</td></tr>
       <tr><td><code>big.dat: No such file or directory</code></td><td>B-1 を打ったか。<code>script</code> の中でも外でも、同じディレクトリにいるか。</td></tr>
       <tr><td><code>cmp</code> で <code>differ: byte …</code> と出た</td><td>コピーが途中で止まった可能性。もう一度 <code>time ./bufcp big.dat copy.dat 1</code>。</td></tr>

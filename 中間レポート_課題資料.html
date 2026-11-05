@@ -280,10 +280,15 @@ details.ans code{background:#fff;border:1px solid var(--accentbd);border-radius:
   <div class="idnote"><b>「予測」は、動かす前に書いてください。</b>予測が外れたところこそ、レポートでいちばん大事なところです。<b>外れた予測を後から書き直すと、書くことがなくなります。</b></div>
 
   <h2 id="prep">準備：作業場所を作って、配布セットを取り出す</h2>
-  <p class="note">次のコマンドを、上から順に1行ずつ打ってください。<code>#</code> から右は説明なので、打たなくてかまいません。</p>
+  <p class="note"><b>第5週目の授業で済ませた人は、ここは飛ばしてかまいません。</b></p>
+  <ol class="steps">
+    <li><b>仮想Linux の Google Chrome</b> で入口ページ <code>https://tkoita.github.io/syspro-pages/</code> を開き、<b>「中間レポート　一式」</b>を押す。</li>
+    <li>保存の画面が出たら、そのまま <b>Save</b>（保存先はデスクトップでもダウンロードでもかまいません）。ユーザIDとパスワードを聞かれたら、同志社のものを入れる。</li>
+    <li>端末で、次のコマンドを上から1行ずつ打つ（<code>#</code> から右は説明なので、打たなくてかまいません）。</li>
+  </ol>
   <pre class="code">mkdir -p ~/syspro/midterm       <span class="cmt"># 作業用のディレクトリを作る（-p：途中のディレクトリもまとめて作る。もうあっても怒られない）</span>
 cd ~/syspro/midterm             <span class="cmt"># そこへ移動する</span>
-<span class="cmt"># ↓ 配布セット midterm_set.zip を、このディレクトリに置いてから</span>
+mv ~/*/midterm_set.zip .        <span class="cmt"># 保存した zip を、今の場所へ移す（最後の . を忘れずに）</span>
 unzip midterm_set.zip           <span class="cmt"># zip を展開する</span>
 ls -l                           <span class="cmt"># 中身を確認する</span></pre>
   <div class="outlabel">こう表示されればOK（日付などは違ってかまいません）</div>
@@ -296,6 +301,8 @@ drwxr-xr-x 2 you you 4096 ... mystery
 -rw-r--r-- 1 you you 1135 ... reader.c
 -rw-r--r-- 1 you you  682 ... stdcp.c</pre>
   <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">mv ~/*/midterm_set.zip .</span><span class="cmdtag">移す</span></div>
+      <p><span class="lbl">何をする</span>ファイルを移します（move の略）。<code>~/*/</code> は「ホームの中の、どのフォルダでも」という意味です。<b>デスクトップやダウンロードなど、どこに保存しても見つけて</b>、最後の <code>.</code>（今いる場所）へ移します。日本語のフォルダ名を打たずに済みます。</p></div>
     <div class="cmd"><div class="cmdhead"><span class="cmdname">unzip</span><span class="cmdtag">展開</span></div>
       <p><span class="lbl">何をする</span>zip ファイルの中身を、今いるディレクトリに取り出します。</p>
       <p><span class="lbl">困ったら</span><code>unzip: command not found</code> と出たら、<code>python3 -m zipfile -e midterm_set.zip .</code> でも同じことができます（最後の <code>.</code> は「今いる場所へ」の意味）。</p></div>
