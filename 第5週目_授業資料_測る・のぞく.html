@@ -544,14 +544,19 @@ time ./bufcp big.dat copy.dat 1          <span class="cmt"># 1バイトずつコ
 cmp big.dat copy.dat                     <span class="cmt"># 正しくコピーできたか確かめる</span>
 time ./bufcp big.dat copy.dat 4096       <span class="cmt"># 4096バイトずつコピー</span>
 exit                                     <span class="cmt"># 記録を終える</span></pre>
-  <div class="outlabel">こう出ます（作成時の例。数字は人によって違います）</div>
-  <pre class="out">real	0m6.597s      ← 1バイトずつ
-user	0m1.178s
-sys	0m5.348s
+  <div class="outlabel">こういう形で出ます（○ のところが、あなたの数字）</div>
+  <pre class="out">real	0m○.○○○s      ← 1バイトずつ（この real を送る）
+user	0m○.○○○s
+sys	0m○.○○○s
 
-real	0m0.022s      ← 4096バイトずつ
-user	0m0.000s
-sys	0m0.015s</pre>
+real	0m○.○○○s      ← 4096バイトずつ（この real を送る）
+user	0m○.○○○s
+sys	0m○.○○○s</pre>
+  <details class="ans"><summary>教室の仮想Linux で測った例（自分で測って、送ってから開く）</summary><div>
+  <pre class="out">real	0m9.298s      ← 1バイトずつ
+user	0m0.489s
+sys	0m7.778s</pre>
+  時間のほとんどが <b>sys</b>（カーネルが働いた時間）です。あなたの数字と比べてみてください。</div></details>
   <div class="cmdlist">
     <div class="cmd"><div class="cmdhead"><span class="cmdname">./bufcp コピー元 コピー先 大きさ</span><span class="cmdtag">今日の主役</span></div>
       <p><span class="lbl">何をする</span>コピー元を、<b>1回に「大きさ」バイトずつ</b> <code>read</code> して、コピー先へ <code>write</code> します。<code>./</code> は「今いるディレクトリの」という意味。</p></div>
@@ -564,7 +569,7 @@ sys	0m0.015s</pre>
   <div class="pair" data-act="b">
   <div class="send" data-act="b">
     <h4><span class="tag must">必須</span>B を送る（real の数字を、そのまま写す）</h4>
-    <div class="row"><span class="lab">1バイトずつの real</span><span><input name="r1" placeholder="0m6.597s"> <span class="hint">0m6.597s のままでも、6.597 でもよい</span></span></div>
+    <div class="row"><span class="lab">1バイトずつの real</span><span><input name="r1" placeholder="0m9.298s"> <span class="hint">0m9.298s の形のままでも、9.298 でもよい</span></span></div>
     <div class="row"><span class="lab">4096バイトずつの real</span><span><input name="r4096" placeholder="0m0.022s"></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
