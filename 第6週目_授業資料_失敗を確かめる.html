@@ -1,0 +1,1258 @@
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第6週目 授業資料：失敗を確かめる — システムプログラミング</title><style>
+
+
+:root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
+*{box-sizing:border-box;}html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:#e8ebef;color:var(--ink);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;padding:0 16px 80px;}
+/* ---- Web閲覧向け：固定ナビゲーション ---- */
+.topnav{position:sticky;top:0;z-index:60;margin:0 -16px 24px;padding:0 16px;background:rgba(232,235,239,.93);backdrop-filter:saturate(150%) blur(10px);-webkit-backdrop-filter:saturate(150%) blur(10px);border-bottom:1px solid #d3d9e0;}
+.topnav .inner{max-width:880px;margin:0 auto;display:flex;align-items:center;gap:14px;height:54px;}
+.topnav .brand{font-size:12.5px;font-weight:800;color:#1f2933;white-space:nowrap;letter-spacing:.02em;}
+.topnav .brand span{display:block;font-size:10.5px;font-weight:700;color:#7b8794;letter-spacing:.06em;}
+.topnav .links{display:flex;gap:3px;overflow-x:auto;flex:1;scrollbar-width:none;-ms-overflow-style:none;}
+.topnav .links::-webkit-scrollbar{display:none;}
+.topnav .links a{font-size:12px;font-weight:700;color:#52606d;text-decoration:none;padding:6px 11px;border-radius:6px;white-space:nowrap;transition:background .12s,color .12s;}
+.topnav .links a:hover{background:#dde2e8;color:#1f2933;}
+.topnav .links a.on{background:#1f2933;color:#fff;}
+.topnav .go{flex:0 0 auto;font-size:11.5px;font-weight:800;color:#fff;background:#4338ca;border-radius:6px;padding:7px 13px;text-decoration:none;white-space:nowrap;}
+.topnav .go:hover{background:#312e81;}
+.sheet,.topnotice{scroll-margin-top:70px;}
+/* ---- リンク ---- */
+a.ulink{text-decoration:none;border-bottom:1px solid rgba(11,108,181,.35);}
+a.ulink code{color:#0b6cb5;cursor:pointer;}
+a.ulink:hover code{background:#eef6fc;border-color:#bcdcf2;}
+/* ---- コードのコピーボタン ---- */
+.codewrap{position:relative;}
+.copybtn{position:absolute;top:9px;right:9px;font-size:11px;font-weight:700;color:#52606d;background:#fff;border:1px solid var(--line);border-radius:5px;padding:4px 11px;cursor:pointer;font-family:inherit;line-height:1.6;}
+.copybtn:hover{background:#eef1f4;color:#1f2933;}
+.copybtn.done{background:#eafaf0;border-color:#b9e4c8;color:#1f6631;}
+/* ---- チェックリストを操作可能に ---- */
+.checklist li{cursor:pointer;-webkit-user-select:none;user-select:none;border-radius:5px;transition:opacity .15s,background .12s;}
+.checklist li:hover{background:#f7f9fb;}
+.checklist li.done{opacity:.45;}
+.checklist li.done::before{background:var(--accent);border-color:var(--accent);}
+.checklist li.done::after{content:"\2713";position:absolute;left:3px;top:1px;color:#fff;font-size:12px;font-weight:900;line-height:1.45;}
+.ckprog{float:right;font-size:11px;font-weight:800;color:var(--soft);letter-spacing:.04em;}
+.ckhint{font-size:11px;color:#8a97a3;font-weight:600;margin:0 0 9px;}
+.sheet{max-width:880px;margin:0 auto 26px;background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 30px rgba(20,30,45,.10);padding:44px 48px 52px;}
+.sheet.k1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 観察＝人間が見る */
+.sheet.k2{--accent:#1668B5;--accent-deep:#0E4A82;--accentbg:#E6F1FB;--accentbd:#B6D6EF;}  /* 機械・構造 */
+.sheet.k3{--accent:#BE3E1B;--accent-deep:#8C2D12;--accentbg:#FAE5DD;--accentbd:#EDBCA9;}  /* 壊れている */
+.sheet.k4{--accent:#4FA8A0;--accent-deep:#0F6B60;--accentbg:#EAF6F4;--accentbd:#B6DED8;}  /* 予備 */
+.sheet.k5{--accent:#0F6B60;--accent-deep:#0A4A42;--accentbg:#E3F5F2;--accentbd:#A8DCD4;}  /* 直った */
+.sheet.k6{--accent:#0E4A82;--accent-deep:#0A3760;--accentbg:#E9F0F7;--accentbd:#BDD2E6;}  /* 宿題 */
+.sheet.i1{--accent:#E8A317;--accent-deep:#8A6200;--accentbg:#FDF0D4;--accentbd:#EFD193;}  /* 導入 */
+.sheet.i2{--accent:#334155;--accent-deep:#1e293b;--accentbg:#f1f5f9;--accentbd:#cbd5e1;}
+.figure{margin-top:14px;padding:16px 18px 10px;background:#fff;border:1px solid var(--line);border-radius:8px;overflow-x:auto;}
+.figure .cap{font-size:11.5px;color:var(--soft);margin:6px 0 0;text-align:left;line-height:1.7;}
+.figure svg{display:block;min-width:620px;}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;font-weight:700;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;}
+.eyebrow .no{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:15px;}
+.badge{font-size:11px;letter-spacing:.08em;font-weight:800;color:#fff;background:var(--accent);padding:2px 9px;border-radius:20px;}
+.badge.alt{background:#334155;}
+h1{font-size:28px;font-weight:800;margin:6px 0 0;line-height:1.25;}
+.lead{margin:13px 0 0;color:var(--soft);font-size:14px;}
+.lead b{color:var(--ink);font-weight:700;} code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.meta{margin-top:16px;display:flex;gap:22px;flex-wrap:wrap;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:11px 0;font-size:12.5px;color:var(--soft);}
+.meta b{color:var(--ink);font-weight:700;}
+.grid2{display:flex;gap:14px;margin-top:18px;flex-wrap:wrap;}
+.card{flex:1;min-width:240px;padding:14px 16px;border-radius:8px;border:1px solid var(--accentbd);background:var(--accentbg);}
+.card h3{margin:0 0 7px;font-size:13px;font-weight:800;color:var(--accent-deep);letter-spacing:.03em;}
+.card ul{margin:0;padding-left:18px;font-size:12.8px;color:#444;} .card li{margin:3px 0;}
+.card code{background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:0 4px;font-size:12px;}
+.verify{margin-top:14px;padding:13px 16px;background:#E6F1FB;border:1px solid #B6D6EF;border-left:4px solid #1668B5;border-radius:8px;font-size:12.8px;color:#0E4A82;line-height:1.7;}
+.verify b{font-weight:800;} .verify code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.warn{margin-top:12px;padding:11px 15px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:4px solid #BE3E1B;border-radius:8px;font-size:12.6px;color:#8C2D12;line-height:1.65;} .warn b{font-weight:800;}
+.warn code{background:#fff;border:1px solid #EDBCA9;border-radius:4px;padding:0 4px;}
+.timerule{margin-top:14px;padding:13px 16px;background:#FAE5DD;border:1px solid #EDBCA9;border-left:5px solid #BE3E1B;border-radius:8px;font-size:13.3px;color:#8C2D12;line-height:1.7;} .timerule b{font-weight:800;} .timerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:5px solid #0F6B60;border-radius:8px;font-size:13.3px;color:#0A4A42;line-height:1.7;} .notimerule b{font-weight:800;} .notimerule .big{display:inline-block;font-size:15px;font-weight:800;margin-right:6px;}
+.notimerule code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.plabel{font-size:11px;font-weight:700;letter-spacing:.12em;color:var(--soft);text-transform:uppercase;margin:26px 0 9px;}
+pre.code{margin:0;background:var(--codebg);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:5px;padding:18px 20px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:13px;line-height:1.9;color:#27313b;white-space:pre;}
+.cmt{color:#8a97a3;} .kw{color:#0b6cb5;font-weight:600;} .str{color:#1f7a3d;}
+.idnote{margin:14px 0 0;padding:11px 15px;background:#FDF0D4;border:1px solid #EFD193;border-left:4px solid #E8A317;border-radius:8px;font-size:13px;color:#6B4D00;line-height:1.6;}
+.idnote b{font-weight:800;} .idnote code{font-family:"SFMono-Regular",Consolas,Menlo,monospace;background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.dayof{margin-top:14px;padding:13px 16px;background:#1C2027;border-radius:8px;color:#E6EAF0;font-size:12.8px;line-height:1.8;}
+.dayof b{color:#E8A317;font-weight:800;}
+.dayof code{background:#3a4049;border-radius:4px;padding:0 5px;color:#e6edf3;}
+.ainote{margin-top:14px;padding:13px 16px;background:#E3F5F2;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:8px;font-size:12.8px;color:#0A4A42;line-height:1.75;}
+.ainote b{font-weight:800;} .ainote code{background:#fff;border:1px solid #A8DCD4;border-radius:4px;padding:0 4px;}
+.design{margin-top:14px;padding:13px 16px;background:#f4f6f9;border:1px solid var(--line);border-left:4px solid var(--soft);border-radius:8px;font-size:12.6px;color:#3a4654;line-height:1.75;}
+.design b{color:var(--ink);}
+.topnotice{max-width:880px;margin:0 auto 26px;background:#FDF6E6;border:2px solid #E8A317;border-radius:8px;padding:22px 26px;box-shadow:0 8px 30px rgba(20,30,45,.10);}
+.topnotice h2{margin:0 0 10px;font-size:16px;font-weight:800;color:#8A6200;display:flex;align-items:center;gap:8px;}
+.topnotice h2::before{content:"";width:4px;height:18px;background:#E8A317;border-radius:2px;}
+.topnotice p{margin:0 0 8px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice ul{margin:6px 0 8px;padding-left:20px;font-size:13.3px;line-height:1.85;color:#4a3c00;}
+.topnotice li{margin:4px 0;}
+.topnotice b{color:#5c4700;}
+.topnotice .axis{margin-top:10px;padding:11px 15px;background:#fff;border:1px solid #E8A317;border-radius:6px;font-size:13px;color:#4a3c00;}
+h2{font-size:16px;font-weight:800;margin:30px 0 6px;display:flex;align-items:center;gap:10px;}
+h2::before{content:"";width:4px;height:18px;background:var(--accent);border-radius:2px;}
+.note{font-size:12.8px;color:var(--soft);margin:0 0 14px;}
+table.levels{border-collapse:collapse;width:100%;margin:4px 0 6px;font-size:13px;}
+table.levels th,table.levels td{border:1px solid var(--line);padding:8px 12px;text-align:left;vertical-align:top;}
+table.levels thead th{background:var(--accentbg);color:var(--accent-deep);font-weight:800;}
+table.levels tbody tr:nth-child(even){background:#fafbfc;}
+table.levels code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:11.6px;word-break:break-all;}
+table.levels b{font-weight:700;}
+.level{margin-bottom:12px;border:1px solid var(--accentbd);border-radius:8px;overflow:hidden;background:#fff;}
+.lvhead{display:flex;align-items:center;gap:10px;padding:8px 13px;background:var(--accentbg);border-bottom:1px solid var(--accentbd);}
+.chip{font-size:11px;font-weight:800;color:#fff;padding:2px 10px;border-radius:20px;}
+.c-beg{background:#E8A317;color:#1C2027;}.c-mid{background:#1668B5;}.c-adv{background:#BE3E1B;}.c-exp{background:#0F6B60;}
+.lvhead .t{font-size:13px;font-weight:700;} .level ul,.level ol{margin:9px 15px 13px;padding-left:20px;font-size:12.8px;line-height:1.7;color:#3a4654;} .level li{margin:4px 0;}
+.level code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;word-break:break-all;} .level b{font-weight:700;color:var(--ink);}
+.level p{margin:9px 15px 11px;font-size:12.8px;line-height:1.7;color:#3a4654;}
+.cmdlist{margin:10px 15px 15px;}
+.cmdlist .cmd{border:1px solid #e0e4ea;border-left:3px solid var(--accent);border-radius:6px;background:#fafbfc;padding:12px 15px;margin:10px 0;}
+.cmdlist .cmdhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.cmdlist .cmdname{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:13.5px;font-weight:800;color:var(--accent-deep);background:#fff;border:1px solid var(--accentbd);border-radius:4px;padding:2px 9px;}
+.cmdlist .cmdtag{font-size:10.5px;font-weight:800;color:#fff;background:var(--accent);border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.cmdlist .cmdtag.red{background:#c0392b;}
+.cmdlist p{margin:9px 0 0;font-size:12.6px;line-height:1.8;color:#3a4654;}
+.cmdlist p .lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.cmdlist code{background:#fff;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.cmdlist .ex{margin-top:9px;padding:9px 12px;background:#fff;border:1px dashed #b8c2ce;border-radius:5px;font-size:12px;line-height:1.8;color:#52606d;}
+.cmdlist .ex .q{display:block;font-family:"SFMono-Regular",Consolas,Menlo,"Hiragino Kaku Gothic ProN",monospace;color:#27313b;margin:3px 0;}
+.cmdlist .ex b{color:var(--accent-deep);}
+.lbl{display:inline-block;font-size:10.5px;font-weight:800;color:var(--accent-deep);background:var(--accentbg);border:1px solid var(--accentbd);border-radius:3px;padding:0 6px;margin-right:7px;vertical-align:1px;}
+.stats{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.stat{flex:1;min-width:148px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;padding:14px 14px 12px;text-align:center;}
+.stat .n{font-size:31px;font-weight:800;color:var(--accent);line-height:1.05;letter-spacing:-.02em;}
+.stat .n small{font-size:16px;font-weight:800;}
+.stat .l{font-size:11.5px;color:#3a4654;margin-top:8px;line-height:1.6;}
+.stat.bad{border-color:#f3b9b9;background:#fffafa;}
+.stat.bad .n{color:#c0392b;}
+.statsrc{font-size:11px;color:var(--soft);margin-top:9px;line-height:1.6;}
+.statlead{font-size:12.5px;font-weight:800;color:var(--accent-deep);margin:18px 0 0;letter-spacing:.03em;}
+.statlead.bad{color:#c0392b;}
+.qrbox{flex:0 0 auto;width:158px;text-align:center;}
+.qrimg{width:158px;height:158px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px;box-sizing:border-box;}
+.qrimg svg{width:100%;height:auto;display:block;flex:0 0 auto;}
+.qrimg .ph{font-size:11.5px;font-weight:800;color:var(--accent);line-height:1.7;}
+.qrcap{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.55;}
+.formurl{margin:11px 0 0;padding:11px 14px;background:#fff;border:1px solid var(--accentbd);border-radius:6px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:12.5px;color:#0b6cb5;word-break:break-all;font-weight:700;}
+.formfields{margin:11px 0 0;padding:0;list-style:none;}
+.formfields li{font-size:12.6px;line-height:1.75;color:#3a4654;padding:5px 0 5px 26px;position:relative;border-bottom:1px dotted var(--accentbd);}
+.formfields li:last-child{border-bottom:none;}
+.formfields li::before{content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:2px;background:var(--accent);}
+.formfields li b{color:var(--ink);}
+.record{margin-top:30px;display:flex;gap:22px;align-items:center;background:var(--accentbg);border:1px solid var(--accentbd);border-left:4px solid var(--accent);border-radius:8px;padding:20px 22px;}
+.record .txt{flex:1;min-width:0;} .record .rh{font-size:15px;font-weight:800;margin:0 0 7px;display:flex;align-items:center;gap:9px;color:var(--accent-deep);}
+.record .rh .ic{width:25px;height:25px;border-radius:6px;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.record p{margin:0 0 8px;font-size:13px;line-height:1.65;color:#444;}
+.record .vals{display:flex;gap:10px;flex-wrap:wrap;margin:9px 0 11px;}
+.record .vals span{background:#fff;border:1px solid var(--accentbd);border-radius:5px;padding:5px 12px;font-size:12.3px;font-weight:700;color:var(--accent-deep);}
+.record .lnk{font-size:12px;word-break:break-all;} .record .lnk a{color:#0b6cb5;font-weight:700;}
+.foot{margin-top:30px;padding-top:14px;border-top:1px dashed var(--line);font-size:12px;color:var(--soft);}
+ol.steps{margin:12px 0 0;padding-left:22px;font-size:13.3px;line-height:1.85;}
+ol.steps li{margin:7px 0;} ol.steps code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 5px;font-size:12.3px;word-break:break-all;}
+ol.steps b{font-weight:700;}
+.checklist{margin-top:16px;padding:16px 18px;background:#fff;border:1px solid var(--accentbd);border-radius:8px;}
+.checklist h4{margin:0 0 10px;font-size:12px;font-weight:800;letter-spacing:.1em;color:var(--accent-deep);text-transform:uppercase;}
+.checklist ul{margin:0;padding:0;list-style:none;font-size:13px;}
+.checklist li{margin:8px 0;padding-left:29px;position:relative;line-height:1.7;color:#3a4654;}
+.checklist li::before{content:"";position:absolute;left:0;top:3px;width:16px;height:16px;border:2px solid var(--accent);border-radius:3px;background:#fff;}
+.checklist li b{color:var(--ink);font-weight:700;}
+.checklist code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+.checklist .fill{display:inline-block;min-width:80px;border-bottom:1.5px dashed var(--accent);}
+.flowbox{margin-top:12px;display:flex;flex-direction:column;gap:0;}
+.frow{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #E8A317;border-radius:6px;padding:10px 14px;}
+.frow .fno{flex:0 0 auto;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11px;font-weight:800;letter-spacing:.1em;color:#8A6200;background:#fff7e0;border:1px solid #EFD193;border-radius:20px;padding:2px 11px;}
+.frow .ftxt{flex:1;font-size:13px;color:#4a3c00;}
+.frow .ftime{flex:0 0 auto;font-size:11.5px;color:#8A6200;font-weight:700;}
+.farrow{text-align:center;color:#C08A12;font-size:14px;line-height:1;padding:3px 0;}
+.frow.home{background:#fffdf5;}
+.ftag{flex:0 0 auto;font-size:10.5px;font-weight:800;color:#fff;background:#C08A12;border-radius:20px;padding:2px 9px;letter-spacing:.04em;}
+.roomnote{margin-top:12px;padding:13px 16px;background:#eafaf0;border:2px solid #2f9e44;border-radius:8px;font-size:13.2px;color:#1f6631;line-height:1.8;}
+.roomnote b{font-weight:800;}
+.roomnote .rt{display:block;font-size:14px;font-weight:800;margin-bottom:7px;}
+.roomnote code{background:#fff;border:1px solid #b9e4c8;border-radius:4px;padding:0 4px;}
+.roomtag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 14px;background:#eafaf0;border:1px solid #b9e4c8;border-left:4px solid #2f9e44;border-radius:8px;font-size:12.8px;color:#1f6631;line-height:1.7;}
+.fwait{background:#fdecec;border:1px dashed #c0392b;border-radius:6px;padding:8px 14px;font-size:12.6px;color:#7a1f1f;font-weight:700;text-align:center;}
+@media print{html{scroll-behavior:auto;}body{background:#fff;padding:0;}.topnav,.copybtn,.ckprog,.ckhint{display:none!important;}a.ulink{border-bottom:none;}.sheet{box-shadow:none;border:none;border-radius:0;max-width:none;padding:24px 28px;margin:0;}.topnotice{box-shadow:none;max-width:none;margin:0 0 14px;}.sheet.i2,.sheet.k1,.sheet.k2,.sheet.k3,.sheet.k4,.sheet.k5,.sheet.k6{page-break-before:always;}.level,pre.code,.record,.card,.verify,.checklist,.ainote,.warn,.dayof,.idnote,.figure,table.levels{break-inside:avoid;}}
+@media (max-width:640px){.topnav .inner{height:50px;gap:9px;}.topnav .brand span{display:none;}.topnav .go{padding:6px 10px;font-size:11px;}.qrbox{width:100%;}.qrimg{margin:0 auto;}.sheet{padding:30px 22px 40px;}h1{font-size:23px;}pre.code{font-size:12px;padding:15px;}.record{flex-direction:column;align-items:flex-start;}.frow{flex-wrap:wrap;gap:7px;}}
+/* ---- 第5週目で追加：やさしくするための部品 ---- */
+.tag{display:inline-block;font-size:10.5px;font-weight:800;letter-spacing:.04em;border-radius:20px;padding:1px 9px;margin-right:6px;vertical-align:2px;}
+.tag.must{background:#1668B5;color:#fff;}
+.tag.plus{background:#fff;color:#8A6200;border:1.5px solid #E8A317;}
+.tag.new{background:#E8A317;color:#1C2027;}
+h2 .tag,h3 .tag{vertical-align:3px;}
+.plusbox{margin-top:14px;padding:12px 16px;background:#FFFBF0;border:1.5px dashed #E8A317;border-radius:8px;font-size:12.8px;color:#5c4400;line-height:1.75;}
+.plusbox b{font-weight:800;} .plusbox code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.outlabel{margin:12px 0 4px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#0F6B60;}
+pre.out{margin:0;background:#fff;border:1px solid #A8DCD4;border-left:4px solid #0F6B60;border-radius:5px;padding:12px 18px;overflow-x:auto;font-family:"SFMono-Regular",Consolas,Menlo,"Yu Gothic",monospace;font-size:12.6px;line-height:1.75;color:#0A4A42;white-space:pre;}
+.predict{margin-top:14px;padding:12px 16px;background:#FDF6E6;border:1.5px dashed #E8A317;border-radius:8px;font-size:13px;color:#5c4400;line-height:1.8;}
+.predict .ph{display:block;font-size:12px;font-weight:800;color:#8A6200;letter-spacing:.06em;margin-bottom:4px;}
+.predict b{font-weight:800;} .predict code{background:#fff;border:1px solid #EFD193;border-radius:4px;padding:0 4px;}
+.predict table{border-collapse:collapse;margin-top:6px;font-size:12.8px;}
+.predict td{border:1px solid #EFD193;padding:4px 12px;background:#fff;}
+.predict td.blank{min-width:70px;}
+.pair{margin-top:14px;padding:12px 16px;background:#E6F1FB;border:2px solid #1668B5;border-radius:8px;font-size:13px;color:#0E4A82;line-height:1.8;}
+.pair .ph{display:block;font-size:12.5px;font-weight:800;margin-bottom:3px;}
+.pair b{font-weight:800;} .pair code{background:#fff;border:1px solid #B6D6EF;border-radius:4px;padding:0 4px;}
+.predict .slots{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+.predict .slots span{display:inline-flex;align-items:center;gap:6px;font-weight:800;}
+.predict .slots i{display:inline-block;width:56px;height:26px;background:#fff;border:1px solid #EFD193;border-radius:4px;}
+.topnav .links{min-width:0;}
+@media (max-width:640px){.topnav .brand{min-width:0;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis;max-width:42vw;}}
+/* 番号札の図 */
+.fdfig{margin-top:14px;padding:16px 18px 12px;background:#fff;border:1px solid var(--line);border-radius:8px;}
+.fdrow{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;}
+.fdproc{flex:0 0 150px;border:2px solid #334155;border-radius:8px;padding:10px;text-align:center;font-size:12.5px;font-weight:800;color:#1e293b;display:flex;flex-direction:column;justify-content:center;}
+.fdproc small{display:block;font-weight:600;color:#52606d;font-size:11px;margin-top:4px;}
+.fdtags{flex:1;min-width:280px;display:flex;flex-direction:column;gap:6px;}
+.fdtag{display:flex;align-items:center;gap:10px;font-size:12.8px;}
+.fdtag .n{flex:0 0 auto;width:34px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;font-size:15px;color:#fff;background:#1668B5;}
+.fdtag .ar{color:#7b8794;}
+.fdtag .to{flex:1;background:#E6F1FB;border:1px solid #B6D6EF;border-radius:6px;padding:4px 10px;color:#0E4A82;}
+.fdtag.added .n{background:#E8A317;color:#1C2027;}
+.fdtag.added .to{background:#FDF0D4;border-color:#EFD193;color:#6B4D00;font-weight:700;}
+.fdtag.none .n{background:#BE3E1B;}
+.fdtag.none .to{background:#FAE5DD;border-color:#EDBCA9;color:#8C2D12;font-weight:700;}
+.fdfig .cap{font-size:11.5px;color:var(--soft);margin:10px 0 0;line-height:1.7;}
+/* 4つの関数 */
+.fourfn{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;}
+.fn{border:1px solid #B6D6EF;border-top:5px solid #1668B5;border-radius:8px;background:#fff;padding:10px 11px;font-size:12.3px;line-height:1.65;color:#3a4654;}
+.fn .nm{font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-weight:800;font-size:14.5px;color:#0E4A82;display:block;}
+.fn .ja{display:block;font-weight:800;color:#1f2933;margin:2px 0 6px;}
+.fn .sig{display:block;font-family:"SFMono-Regular",Consolas,Menlo,monospace;font-size:11.2px;background:#f4f6f9;border-radius:4px;padding:3px 6px;margin-bottom:6px;word-break:break-all;}
+.fn.o{border-top-color:#E8A317;} .fn.o .nm{color:#8A6200;}
+@media (max-width:640px){.fourfn{grid-template-columns:repeat(2,1fr);}.fdproc{flex:1 1 100%;}}
+/* 用語集 */
+dl.gloss{margin:10px 0 0;display:grid;grid-template-columns:150px 1fr;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#fff;font-size:12.8px;}
+dl.gloss dt,dl.gloss dd{margin:0;padding:8px 12px;border-bottom:1px solid #eef0f3;line-height:1.7;}
+dl.gloss dt{font-weight:800;color:#1f2933;background:#f7f9fb;}
+dl.gloss dd{color:#3a4654;}
+dl.gloss code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padding:0 4px;font-size:12px;}
+@media (max-width:640px){dl.gloss{grid-template-columns:1fr;}dl.gloss dt{border-bottom:none;padding-bottom:2px;}}
+/* 変更点（教員向け） */
+.diffrow td:first-child{white-space:nowrap;}
+@media print{.predict,.pair,.plusbox,.fdfig,.fourfn,dl.gloss,pre.out{break-inside:avoid;}}
+
+/* ---- 第5週目（測る・のぞく）で追加：送る欄・みんなの結果・止まったらボタン ---- */
+/* 青 #1668B5 ＝ 測った数字・機械の側、アンバー #E8A317 ＝ 予測・人の側（補色の組） */
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+.two .box{border-radius:8px;padding:12px 15px;font-size:12.8px;line-height:1.75;}
+.two .box h3{margin:0 0 6px;font-size:14px;font-weight:800;}
+.two .box.m{background:#E6F1FB;border:1px solid #B6D6EF;color:#0E4A82;}
+.two .box.r{background:#FDF0D4;border:1px solid #EFD193;color:#6B4D00;}
+@media (max-width:640px){.two{grid-template-columns:1fr;}}
+
+.quote{margin-top:12px;padding:12px 16px;background:#fff;border:1px solid var(--line);border-left:4px solid #E8A317;border-radius:6px;font-size:13px;line-height:1.8;color:#1f2933;}
+.quote .qh{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:#8A6200;margin-bottom:3px;}
+.quote .tie{display:block;margin-top:6px;font-size:12.4px;color:#52606d;}
+.quote .tie b{color:#1f2933;}
+
+/* 自分の学籍番号 */
+.me{margin-top:14px;padding:12px 16px;background:#fff;border:2px solid #1668B5;border-radius:10px;font-size:13px;}
+.me label{font-weight:800;margin-right:8px;}
+.me input{font:inherit;font-size:16px;padding:6px 10px;border:1.5px solid #94a3b8;border-radius:7px;width:11em;}
+.me .ok{margin-left:8px;font-weight:800;color:#0F6B60;}
+.me .passrow{display:none;margin-top:8px;}
+
+/* 送る欄 */
+.send{margin-top:16px;padding:14px 16px;border:2px solid #1668B5;border-radius:12px;background:#F5F9FE;font-size:13.2px;line-height:1.7;}
+.send h4{margin:0 0 8px;font-size:14.5px;color:#0E4A82;}
+.send h4 .tag{vertical-align:2px;}
+.send .row{display:grid;grid-template-columns:10.5em 1fr;gap:4px 12px;align-items:center;padding:7px 0;border-top:1px dashed #B6D6EF;}
+.send .row .lab{font-weight:800;}
+.send input,.send select,.send textarea{font:inherit;font-size:15px;padding:6px 9px;border:1.5px solid #94a3b8;border-radius:7px;background:#fff;color:#111827;max-width:100%;}
+.send input{width:10em;} .send textarea{width:100%;min-height:3.2em;resize:vertical;}
+.send .chips{display:flex;flex-wrap:wrap;gap:6px;}
+.send .chips label{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border:1.5px solid #B6D6EF;border-radius:20px;background:#fff;cursor:pointer;font-weight:700;font-size:12.8px;}
+.send .chips input{width:auto;margin:0;}
+.send .chips label:has(input:checked){background:#1668B5;border-color:#1668B5;color:#fff;}
+.send .go{font:inherit;font-size:15px;font-weight:800;padding:9px 24px;border-radius:9px;border:0;background:#1668B5;color:#fff;cursor:pointer;margin-top:8px;}
+.send .go:disabled{background:#94a3b8;cursor:default;}
+.send .msg{display:block;margin-top:8px;font-weight:800;}
+.send .msg.ok{color:#0F6B60;} .send .msg.bad{color:#BE3E1B;}
+.send .hint{font-size:12px;color:var(--soft);}
+@media (max-width:640px){.send .row{grid-template-columns:1fr;}}
+
+/* みんなの結果 */
+.live{margin-top:14px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-top:4px solid #1668B5;border-radius:8px;font-size:12.8px;}
+.live h4{margin:0 0 6px;font-size:14px;}
+.lstat{font-size:12px;color:var(--soft);margin-bottom:6px;}
+.live .wait{color:#8A6200;font-weight:700;}
+.bars .b{display:grid;grid-template-columns:9em 1fr 3em;gap:8px;align-items:center;margin:3px 0;}
+.bars .b .l{font-weight:700;font-size:12.4px;}
+.bars .b .t{height:16px;background:#eef1f5;border-radius:4px;overflow:hidden;}
+.bars .b .t i{display:block;height:100%;background:#1668B5;transition:width .6s;}
+.bars .b.am .t i{background:#E8A317;}
+.bars .b.tl .t i{background:#4FA8A0;}
+.bars .b .n{text-align:right;font-weight:800;font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.cmp3 .grp{padding:6px 0;border-top:1px dashed #d9dee5;}
+.cmp3 .grp:first-of-type{border-top:0;}
+.cmp3 .gl{font-weight:800;font-size:12.6px;margin-bottom:2px;}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:11.8px;margin:2px 0 8px;}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:-1px;background:#1668B5;}
+.legend .am::before{background:#E8A317;} .legend .tl::before{background:#4FA8A0;}
+.prog{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:6px;}
+.prog div{background:#E6F1FB;border:1px solid #B6D6EF;border-radius:8px;padding:8px 10px;text-align:center;}
+.prog b{display:block;font-size:20px;color:#0E4A82;font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.prog span{font-size:11.5px;color:#0E4A82;font-weight:700;}
+.bignum{font-size:22px;font-weight:800;color:#0E4A82;font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+@media (max-width:640px){.prog{grid-template-columns:repeat(2,1fr);}.bars .b{grid-template-columns:7em 1fr 2.6em;}}
+
+/* 止まったらボタン（右下に固定） */
+.help{position:fixed;right:14px;bottom:14px;z-index:80;font-size:13px;}
+.help .open{font:inherit;font-weight:800;font-size:14px;padding:10px 16px;border-radius:24px;border:0;background:#E8A317;color:#1C2027;box-shadow:0 3px 10px rgba(0,0,0,.18);cursor:pointer;}
+.help .open.on{background:#BE3E1B;color:#fff;}
+.help .panel{display:none;position:absolute;right:0;bottom:52px;width:300px;max-width:calc(100vw - 28px);background:#fff;border:2px solid #E8A317;border-radius:12px;padding:12px 14px;box-shadow:0 6px 20px rgba(0,0,0,.18);}
+.help.show .panel{display:block;}
+.help select{font:inherit;font-size:14px;width:100%;padding:6px;border:1.5px solid #94a3b8;border-radius:7px;margin:6px 0;}
+.help button.s{font:inherit;font-weight:800;padding:7px 14px;border-radius:8px;border:0;background:#E8A317;color:#1C2027;cursor:pointer;margin-right:6px;}
+.help button.r{font:inherit;font-weight:800;padding:7px 14px;border-radius:8px;border:1.5px solid #0F6B60;background:#fff;color:#0F6B60;cursor:pointer;}
+.help .msg{display:block;margin-top:6px;font-weight:700;font-size:12.4px;}
+.help .shint{display:block;margin-top:6px;font-size:12px;color:#7a4b00;}
+@media print{.help,.send,.me{display:none;}}
+
+/* 送る欄と全員の状況を横に並べる（狭い画面では縦） */
+.pair{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start;margin-top:16px;}
+.pair>.send,.pair>.live{margin-top:0;}
+.pair .send .row{grid-template-columns:1fr;gap:4px;}
+.pair .live{position:sticky;top:64px;}
+.lstat{font-size:12px;font-weight:700;color:#0E4A82;background:#E6F1FB;border-radius:6px;padding:3px 9px;display:inline-block;margin:0 0 8px;}
+.lockmsg{display:none;margin:6px 0;color:#6b5a4a;font-weight:700;}
+.live.locked .lockmsg{display:block;}
+.live.locked [data-show]:not(.lstat), .live.locked .lstat{display:none;}
+.live.flash{animation:flash 1.4s ease-out;}
+@keyframes flash{0%{box-shadow:0 0 0 4px #E8A317;}100%{box-shadow:0 0 0 0 rgba(232,163,23,0);}}
+@media (max-width:760px){.pair{grid-template-columns:1fr;}.pair .live{position:static;}}
+
+/* 学籍番号の欄の右：入れた人数 */
+.me{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;}
+.me .mel{flex:1 1 320px;min-width:0;}
+.me .mer{flex:0 0 auto;min-width:150px;text-align:center;background:#E6F1FB;border:1px solid #B6D6EF;border-radius:10px;padding:8px 14px;color:#0E4A82;font-size:12.5px;font-weight:700;line-height:1.5;}
+.me .mer .bignum{font-size:26px;}
+.me .mer .t{display:block;font-size:11px;font-weight:600;color:#5a6a7a;}
+.me .msg.bad{color:#BE3E1B;font-weight:800;margin-left:8px;}
+@media (max-width:640px){.me .mer{flex:1 1 100%;}}
+
+/* ---- 第6週目で追加：ヘッダの移動リンクと時計（tkoita/Exp の render.py の PREV・NEXT・CLOCK と同じ形）、手順ごとの「できた」 ---- */
+
+/* 左上：科目全体のページへのリンク ＋ その下に「← 第5週目の資料」 */
+.topnav .inner{height:auto;min-height:54px;padding:5px 0;}
+.brandstack{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+.brandstack a.brand{color:inherit;text-decoration:none;}
+.brandstack a.brand:hover{text-decoration:underline;text-underline-offset:3px;}
+.brandstack .prev{font-size:11.5px;font-weight:800;color:#0F6B60;text-decoration:none;white-space:nowrap;line-height:1.2;}
+.brandstack .prev:hover{text-decoration:underline;text-underline-offset:3px;}
+@media (max-width:640px){.brandstack{flex:0 1 auto;min-width:0;}.brandstack .prev{font-size:11px;}.brandstack .brand{white-space:normal;font-size:11.5px;line-height:1.35;}}
+
+/* 右上：ボタン ＋ その下に「中間レポート →」 ＋ 時計（いま見ている節の残り時間の横棒） */
+.gostack{position:relative;flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+.gostack .next{font-size:11.5px;font-weight:800;color:#0F6B60;text-decoration:none;white-space:nowrap;line-height:1.2;}
+.gostack .next:hover{text-decoration:underline;text-underline-offset:3px;}
+.nowclock{position:absolute;right:0;top:calc(100% + 9px);z-index:5;font-size:12px;font-weight:800;color:#3d4957;background:#fff;border:1px solid #c2cbd6;box-shadow:0 2px 6px rgba(20,30,45,.12);white-space:nowrap;line-height:1.3;font-variant-numeric:tabular-nums;border-radius:6px;padding:2px 8px;}
+.nowclock .ncm{font-weight:700;margin-left:5px;}
+.nowclock .ncd{display:block;text-align:right;font-weight:800;color:#0F6B60;}
+.nowclock .ncd:empty{display:none;}
+.nowclock .ncb{display:block;min-width:132px;height:7px;margin:3px 0;border-radius:4px;background:#e2e8f0;overflow:hidden;}
+.nowclock .ncb i{display:block;height:100%;width:100%;border-radius:4px;background:#94a3b8;transition:width .6s linear;}
+.nowclock .ncb.run i{background:#1668B5;}
+.nowclock .ncb.soon i{background:#E8A317;}
+.nowclock .ncb.over i{background:#BE3E1B;}
+.nowclock.over .ncb{background:#FAE5DD;}
+.nowclock.soon{background:#FDF0D4;border-color:#E8A317;color:#6B4D00;}
+.nowclock.over{background:#FAE5DD;border-color:#BE3E1B;color:#8C2D12;}
+@media (max-width:640px){.nowclock .ncm{display:block;margin-left:0;text-align:right;}}
+@media print{.brandstack .prev,.gostack .next,.nowclock{display:none!important;}}
+
+/* 手順ごとの「できた」「ここで止まった」（tkoita/Exp の live.css をこの科目の青とアンバーにしたもの） */
+.stepcheck{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;margin:14px 0 18px;padding:9px 14px;border:1.5px dashed #1668B5;border-radius:10px;background:#F5F9FE;font-size:13px;}
+.stepcheck .sl{font-weight:800;color:#0E4A82;margin-right:4px;}
+.stepcheck button{font:inherit;font-weight:800;font-size:13.5px;padding:6px 16px;border-radius:8px;cursor:pointer;}
+.stepcheck button:disabled{opacity:.55;cursor:default;}
+.stepcheck .sdone{border:0;background:#1668B5;color:#fff;}
+.stepcheck .sstuck{border:1.5px solid #E8A317;background:#fff;color:#6B4D00;}
+.stepcheck .scount{font-size:12.4px;color:#334155;}
+.stepcheck .scount b{font-size:15px;font-variant-numeric:tabular-nums;}
+.stepcheck .scount .red{color:#BE3E1B;}
+.stepcheck.done{border-style:solid;background:#E6F1FB;}
+.stepcheck .shint{font-size:12px;color:#6B4D00;}
+.stepcheck .selapsed{flex-basis:100%;font-size:12.4px;color:#475569;}
+.stepcheck .selapsed b{font-variant-numeric:tabular-nums;color:#0E4A82;}
+.stepcheck .msg{flex-basis:100%;font-size:12.4px;font-weight:800;}
+.stepcheck .msg:empty{display:none;}
+.stepcheck .msg.ok{color:#0F6B60;} .stepcheck .msg.bad{color:#BE3E1B;}
+.prog.p8{grid-template-columns:repeat(4,1fr);}
+@media print{.stepcheck,.live{display:none!important;}}
+
+/* 先週の質問に答える */
+.qa{margin-top:10px;border:1px solid var(--line);border-radius:8px;background:#fff;}
+.qa .q{padding:9px 14px;background:#FDF0D4;border-bottom:1px solid #EFD193;border-radius:8px 8px 0 0;font-weight:800;font-size:13px;color:#6B4D00;}
+.qa .a{padding:10px 14px;font-size:13px;line-height:1.8;}
+
+/* 「送ってから開く」の折り畳み */
+details.ans{margin-top:12px;border:1px solid #EFD193;border-radius:8px;background:#FFFBF0;font-size:13px;line-height:1.8;}
+details.ans summary{cursor:pointer;padding:8px 14px;font-weight:800;color:#6B4D00;}
+details.ans>div{padding:0 14px 12px;}
+
+</style></head><body>
+<header class="topnav">
+  <div class="inner">
+    <div class="brandstack"><a class="brand" href="index.html" title="システムプログラミングの資料一覧へ">第6週目 授業資料：失敗を確かめる<span>システムプログラミング</span></a><a class="prev" href="第5週目_授業資料_測る・のぞく.html">← 第5週目の資料</a></div>
+    <div class="links">
+      <a href="#intro">今日の90分</a>
+      <a href="#lecture">講義</a>
+      <a href="#exA">演習A</a>
+      <a href="#exB">演習B</a>
+      <a href="#exC">演習C</a>
+      <a href="#exD">演習D</a>
+      <a href="#board">みんなの結果</a>
+      <a href="#ref">困ったとき</a>
+    </div>
+    <div class="gostack"><a class="go" href="#board">みんなの結果</a><a class="next" href="中間レポート_課題資料.html">中間レポート →</a><span class="nowclock" aria-live="off"><span class="ncb" title="いま見ている節の残り時間"><i></i></span><b class="nct">--:--</b><span class="ncm"></span><span class="ncd"></span></span></div>
+  </div>
+</header>
+
+<section class="topnotice" id="top">
+  <h2>★ 今日の90分で、必ずやること（3つ）</h2>
+  <ol>
+    <li><b>自作の <code>mycat1</code> を打って、無いファイルで「黙って成功する」ところを <code>echo $?</code> で見る</b>（演習B）</li>
+    <li><b><code>mycat2</code> に3か所足して、本物の <code>cat</code> と同じ「失敗」の終わり方にする</b>（演習C）</li>
+    <li><b>「<code>mycat1</code> はなぜ黙ったのか」を1文で書いて送る</b>（みんなの結果）</li>
+  </ol>
+  <p>演習A（作業場所を作り、番号を当てる）は、この3つの準備です。この3つが終われば<b>今日は合格</b>です。<b>今日は提出物はありません</b>（中間レポートを進めてください）。終わるたびに、演習の下の欄から送ってください。結果は「みんなの結果」にその場で出ます（人数と分布だけ。名前は出ません）。</p>
+  <div class="me">
+    <div class="mel">
+    <label>自分の学籍番号</label><input name="sid" inputmode="numeric" autocomplete="off" placeholder="1116240000"><span class="ok"></span>
+    <div class="passrow"><label>合言葉</label><input name="pass" autocomplete="off"> <span class="hint">教室で伝えます</span></div>
+    <p class="hint" style="margin:6px 0 0;">最初に1回だけ入れてください。このブラウザが覚えます（第5週目に入れた人は、もう入っています）。</p>
+    </div>
+    <div class="mer" data-show="joined"></div>
+  </div>
+  <div class="axis" style="margin-top:12px;"><b>この資料は、仮想Linux の Google Chrome で開いてください。</b>コピーしたコマンドやプログラムを、そのまま端末やエディタに貼れます。</div>
+  <div class="axis" style="margin-top:8px;"><b>手順の下の「できた」「ここで止まった」と、右下の「止まったら押す」を使ってください。</b>止まっている場所が先生に届きます。<b>状態が変わったら（直った・また止まった・別の所で止まった）、そのたびにボタンを押し直してください。</b></div>
+</section>
+
+<!-- ============================ INTRO ============================ -->
+<section class="sheet i1" id="intro">
+  <div class="eyebrow">INTRO<span class="badge">9:00〜10:30</span></div>
+  <h1>失敗を確かめる</h1>
+  <p class="lead">ファイルを開くと、番号がもらえます。<b>もらえなかったときは -1 が返ります。</b>今日は、<b>-1 を確かめないプログラムを自分で書いて、黙って壊れるところを見ます。</b>新しく覚えることは<b>「-1 を確かめて、失敗で終わる」の1つ</b>です（そのための道具として <code>echo $?</code> と <code>perror</code> を使います）。</p>
+  <div class="meta">
+    <span><b>作業場所</b> <code>~/syspro/week07</code></span>
+    <span><b>環境</b> Linux ／ ターミナル ／ gcc</span>
+    <span><b>AI</b> 今日は使いません</span>
+    <span><b>教材</b> 教科書2章 2.5.2・2.10</span>
+  </div>
+  <h2>今日の流れ</h2>
+  <table class="levels">
+    <thead><tr><th style="width:110px;">時刻</th><th>内容</th><th style="width:60px;">分</th></tr></thead>
+    <tbody>
+      <tr><td>9:00〜9:20</td><td>講義：先週の質問 ／ <code>bufcp.c</code> の1行 ／ 番号札と -1 ／ 終わり方 <code>$?</code></td><td>20</td></tr>
+      <tr><td>9:20〜9:35</td><td><b>演習A</b>　作業場所を作り、<code>open</code> がくれる番号を当てる</td><td>15</td></tr>
+      <tr><td>9:35〜9:55</td><td><b>演習B</b>　<code>mycat1</code> を打って、無いファイルで壊す</td><td>20</td></tr>
+      <tr><td>9:55〜10:12</td><td><b>演習C</b>　<code>mycat2</code> で直す</td><td>17</td></tr>
+      <tr><td>10:12〜10:17</td><td><span class="tag plus">余裕があれば</span><b>演習D</b>　理由は何番に出ているか</td><td>5</td></tr>
+      <tr><td>10:17〜10:30</td><td>みんなの結果を見る ／ 1文を送る ／ 今日の1文（軸文）を読む</td><td>13</td></tr>
+    </tbody>
+  </table>
+  <p class="note">右上の時計の下の横棒は、<b>いま見ている節の残り時間</b>です。終わりの5分前に黄色、過ぎると赤になります。</p>
+  <div class="foot">システムプログラミング ／ 第6週目 授業資料</div>
+</section>
+
+<!-- ============================ LECTURE ============================ -->
+<section class="sheet k2" id="lecture" data-start="9:00" data-end="9:20" data-label="講義">
+  <div class="eyebrow">LECTURE<span class="badge">9:00〜9:20</span></div>
+  <h1>講義：番号がもらえなかったら</h1>
+  <p class="lead">手は動かしません。メモも不要です（全部この資料にあります）。</p>
+
+  <h2>1-1 先週の質問に答える（2分）</h2>
+  <div class="qa"><div class="q">Q. 小さく分けたほうが速かったのに、なぜ AI は「大きいバイト」と答えたのですか？</div>
+    <div class="a">先週の実測では、<b>4096バイトずつのほうが速く</b>、1バイトずつ（いちばん小さく分けた）がいちばん遅かったはずです（送った人の真ん中の値で、約200倍）。AI の「大きいほうが速い」は、<b>向きとしては実測と同じ</b>です。ただし「どこまで大きくすれば速くなり続けるか」は、AI も知りません。<b>それを 1バイト〜1MB で測るのが、中間レポートの課題1です。</b></div></div>
+  <details class="ans"><summary>もう1つの質問：第5週目の演習Cで、なぜ地名が見えたのですか？（参考）</summary><div>ファイルの中に、地名の文字が<b>1文字1バイトのまま</b>入っているからです。<code>od -c</code> は、文字として読めるバイトを文字で出します。数（整数や小数）は文字ではなく<b>値の形</b>で入っているので、<code>\0</code> や3桁の数字に見えます。どこから何バイトが何なのかを突き止めるのが、課題2です。</div></details>
+
+  <h2>1-2 <code>bufcp.c</code> に、もう入っていた1行</h2>
+  <p class="note">先週コンパイルした <code>bufcp.c</code> の22行目に、こういう行がありました。</p>
+  <pre class="code">int in = open(argv[1], O_RDONLY);
+if (in == -1) { perror(argv[1]); return 1; }   <span class="cmt">// ← この行</span></pre>
+  <div class="design"><b>この行が無かったら、どうなるか。</b>今日は、この行が無いプログラム（<code>mycat1</code>）を自分で書いて確かめ、そのあとで足します（<code>mycat2</code>）。</div>
+
+  <h2>1-3 番号がもらえなかったら、-1</h2>
+  <p class="note">クロークの番号札と同じです。<b>0（キーボード＝標準入力）・1（画面＝標準出力）・2（画面のエラー用＝標準エラー出力）は、起動したときからもう配られている</b>ので、<code>open</code> が最初にくれるのは <b>3</b>。ファイルが無いときや読む権限が無いときは、札の代わりに <b>-1</b>（「だめでした」の合図）が返ります。</p>
+  <div class="fourfn">
+    <div class="fn o"><span class="nm">open</span><span class="ja">番号をもらう</span><span class="sig">fd = open(名前, O_RDONLY);</span>成功すると <b>3</b> などの番号。失敗すると <b>-1</b>。</div>
+    <div class="fn"><span class="nm">read</span><span class="ja">番号の先から読む</span><span class="sig">n = read(fd, buf, 4096);</span>読めたバイト数。終わりなら <b>0</b>。</div>
+    <div class="fn"><span class="nm">write</span><span class="ja">番号の先へ書く</span><span class="sig">write(1, buf, n);</span>1番（画面）へ n バイト書く。</div>
+    <div class="fn"><span class="nm">close</span><span class="ja">番号を返す</span><span class="sig">close(fd);</span>使い終わった番号を返す。</div>
+  </div>
+
+  <h2>1-4 プログラムの「終わり方」：<code>echo $?</code></h2>
+  <pre class="code">ls
+echo $?</pre>
+  <div class="outlabel">こう出ます（ls の一覧のあとに）</div>
+  <pre class="out">0</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">echo $?</span><span class="cmdtag">終わり方を見る</span></div>
+      <p><span class="lbl">何をする</span><b>直前のコマンドが、どう終わったか</b>を数で表示します。<b>0 なら成功、0 以外なら失敗</b>。</p>
+      <p><span class="lbl">どこから来る</span>C の <code>main</code> の最後の <code>return 0;</code> の <b>0</b> が、ここに出ます。</p></div>
+  </div>
+
+  <h2>1-5 『伽藍とバザール』：見えない失敗は、誰にも見つけられない</h2>
+  <div class="quote"><span class="qh">引用 ── 教訓 8（リーヌスの法則）</span>ベータテスタと共同開発者の基盤さえ十分大きければ、ほとんどすべての問題はすぐに見つけだされて、その直し方もだれかにはすぐわかるはず。<span class="tie">Raymond はこれを「目玉の数さえ十分あれば、どんなバグも深刻ではない」と言い直しています。→ <b>ただし、目玉が何個あっても、見えないものは見つけられません。</b>今日の <code>mycat1</code> は、失敗しても何も言わず、0（成功）で終わります。</span></div>
+  <div class="foot">講義 ／ 第6週目</div>
+</section>
+
+<!-- ============================ A ============================ -->
+<section class="sheet k1" id="exA" data-start="9:20" data-end="9:35" data-label="演習A">
+  <div class="eyebrow"><span class="no">A</span>OBSERVE<span class="badge">9:20〜9:35</span></div>
+  <h1><span class="tag must">必須</span>演習A　番号を当てる</h1>
+
+  <h2>A-1 今日の作業場所を作る</h2>
+  <pre class="code">mkdir -p ~/syspro/week07     <span class="cmt"># 今日の作業場所を作る</span>
+cd ~/syspro/week07           <span class="cmt"># そこへ移動する</span>
+seq 200 &gt; numbers.txt        <span class="cmt"># 1〜200 の200行のファイルを作る</span>
+wc -l numbers.txt            <span class="cmt"># 行数を数える</span></pre>
+  <div class="outlabel">こう出れば正解</div>
+  <pre class="out">200 numbers.txt</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">seq 200</span><span class="cmdtag">数を並べる</span></div>
+      <p><span class="lbl">何をする</span>1 から 200 までの数を、1行に1つずつ出力します。<code>&gt; numbers.txt</code> で、画面ではなくファイルに書きます（第3・4週目の <code>numbers.txt</code> と同じ中身になります）。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">wc -l ファイル</span><span class="cmdtag">行数</span></div>
+      <p><span class="lbl">何をする</span>ファイルの行数を数えます（<code>-l</code> は lines の l）。</p></div>
+  </div>
+  <div class="stepcheck" data-step="a1"><span class="sl">A-1 作業場所を作った</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-a1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="a1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
+
+  <h2>A-2 番号を予想してから、当てる</h2>
+  <p class="note">エディタで <code>fdnum.c</code> を作り、下のコードを<b>コピーボタンで貼って</b>保存します（打たなくてかまいません）。<b>実行する前に、①〜④ に何が出るかを予想してください。</b></p>
+  <pre class="code">/* fdnum.c ---- open がくれる番号を見る（コピーして貼る。打たなくてよい） */
+#include &lt;stdio.h&gt;      /* printf */
+#include &lt;fcntl.h&gt;      /* open   */
+#include &lt;unistd.h&gt;     /* close  */
+
+int main(void)
+{
+    int a, b, c, d;
+
+    a = open("numbers.txt", O_RDONLY);
+    printf("① 1回目の open        : %d\n", a);
+
+    b = open("numbers.txt", O_RDONLY);
+    printf("② 2回目の open        : %d\n", b);
+
+    close(a);
+    c = open("numbers.txt", O_RDONLY);
+    printf("③ %d を返してから open : %d\n", a, c);
+
+    d = open("nofile.txt", O_RDONLY);
+    printf("④ 無いファイルを open : %d\n", d);
+
+    return 0;
+}</pre>
+  <pre class="code">gcc -Wall -o fdnum fdnum.c    <span class="cmt"># コンパイルする（何も出なければ成功）</span>
+./fdnum                       <span class="cmt"># 動かす</span></pre>
+  <details class="ans"><summary>こう出れば正解（予想してから開く）</summary><div>
+  <pre class="out">① 1回目の open        : 3
+② 2回目の open        : 4
+③ 3 を返してから open : 3
+④ 無いファイルを open : -1</pre>
+  ① が 3 なのは、0・1・2 がもう使われているから。③ がまた 3 なのは、札は<b>空いている中でいちばん小さい番号</b>だから。④ の <b>-1</b> は「札は出せません」。この -1 を、演習Bでもう一度見ます。</div></details>
+
+  <div class="pair" data-act="a">
+  <div class="send" data-act="a">
+    <h4><span class="tag must">必須</span>A を送る</h4>
+    <div class="row"><span class="lab">④ の予想（実行する前）</span><span class="chips"><label><input type="radio" name="pred4" value="m1">-1</label><label><input type="radio" name="pred4" value="z">0</label><label><input type="radio" name="pred4" value="p3">3</label><label><input type="radio" name="pred4" value="p4">4</label><label><input type="radio" name="pred4" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">④ で出た数</span><span class="chips"><label><input type="radio" name="got4" value="m1">-1</label><label><input type="radio" name="got4" value="z">0</label><label><input type="radio" name="got4" value="p3">3</label><label><input type="radio" name="got4" value="p4">4</label><label><input type="radio" name="got4" value="o">そのほか</label></span></div>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>みんなの ④（予想と、出た数）</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="fd"></div></div>
+  </div>
+  <div class="foot">演習A ／ 第6週目</div>
+</section>
+
+<!-- ============================ B ============================ -->
+<section class="sheet k2" id="exB" data-start="9:35" data-end="9:55" data-label="演習B">
+  <div class="eyebrow"><span class="no">B</span>BREAK<span class="badge">9:35〜9:55</span></div>
+  <h1><span class="tag must">必須</span>演習B　<code>mycat1</code> を書いて、壊す</h1>
+
+  <h2>B-1 <code>mycat1.c</code> を打って、コンパイルする</h2>
+  <p class="note">エディタで <code>mycat1.c</code> を作り、次のとおりに<b>打って</b>ください（<code>/* */</code> の中は説明なので、打たなくてもかまいません）。<code>main</code> の中は7行です。</p>
+  <pre class="code">/* mycat1.c ---- ファイルの中身を出す : バージョン 1 */
+#include &lt;fcntl.h&gt;      /* open               */
+#include &lt;unistd.h&gt;     /* read, write, close */
+
+#define BUFSIZE 4096
+
+int main(int argc, char *argv[])
+{
+    char buf[BUFSIZE];
+    int  fd, n;
+
+    fd = open(argv[1], O_RDONLY);               /* ① 番号をもらう   */
+    while ((n = read(fd, buf, BUFSIZE)) &gt; 0)    /* ② その番号で読む */
+        write(1, buf, n);                       /* ③ 1番に書く     */
+    close(fd);                                  /* ④ 番号を返す     */
+    return 0;
+}</pre>
+  <pre class="code">gcc -Wall -o mycat1 mycat1.c</pre>
+  <div class="outlabel">こう出れば正解</div>
+  <pre class="out">（何も出ない。次のプロンプト $ が出る）</pre>
+  <div class="timerule"><b>8分たっても打ち終わらなければ、コピーボタンを使ってかまいません。</b>打つことは手段です。B-3 に届かないほうが、ずっと損です。</div>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">argv[1]</span><span class="cmdtag">1つ目の言葉</span></div>
+      <p><span class="lbl">何か</span>コマンドの後ろに書いた1つ目の言葉です。<code>./mycat1 numbers.txt</code> なら <code>"numbers.txt"</code>。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">while ((n = read(…)) &gt; 0)</span><span class="cmdtag">くり返す</span></div>
+      <p><span class="lbl">何をする</span><code>read</code> が1バイト以上読めたあいだ、くり返します。読み終わると <code>read</code> は 0 を返すので、ループが終わります。</p></div>
+  </div>
+  <div class="stepcheck" data-step="b1"><span class="sl">B-1 mycat1 をコンパイルした</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-b1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="b1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
+
+  <h2>B-2 本物の <code>cat</code> と比べる</h2>
+  <pre class="code">./mycat1 numbers.txt | wc -l    <span class="cmt"># 自作で 200 行出るか</span>
+cat numbers.txt | wc -l         <span class="cmt"># 本物も 200</span></pre>
+  <div class="outlabel">こう出れば正解</div>
+  <pre class="out">200
+200</pre>
+
+  <h2>B-3 壊す ― 無いファイルを渡す<span class="tag must" style="margin-left:8px;">今日の中心</span></h2>
+  <p class="note"><code>nofile.txt</code> というファイルは<b>ありません</b>。本物と自作に、同じものを渡します。</p>
+  <pre class="code">cat nofile.txt         <span class="cmt"># ① 本物の cat に、無いファイルを渡す</span>
+echo $?                <span class="cmt">#    終わり方を見る</span>
+./mycat1 nofile.txt    <span class="cmt"># ② 自作の mycat1 に、同じものを渡す</span>
+echo $?                <span class="cmt">#    終わり方を見る</span></pre>
+  <div class="outlabel">こういう形で出ます（○ のところを、自分の画面で確かめて送る）</div>
+  <pre class="out">cat: nofile.txt: No such file or directory
+○        ← ① の終わり方
+○        ← ② の終わり方（② は、この数字1つだけ）</pre>
+  <p class="note">1行目は、日本語で <code>cat: nofile.txt: そのようなファイルやディレクトリはありません</code> と出ることもあります（どちらでも正解です）。</p>
+
+  <div class="pair" data-act="b">
+  <div class="send" data-act="b">
+    <h4><span class="tag must">必須</span>B を送る（<code>echo $?</code> に出た数）</h4>
+    <div class="row"><span class="lab">① 本物の cat</span><span class="chips"><label><input type="radio" name="catx" value="z">0</label><label><input type="radio" name="catx" value="one">1</label><label><input type="radio" name="catx" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">② 自作の mycat1</span><span class="chips"><label><input type="radio" name="myx" value="z">0</label><label><input type="radio" name="myx" value="one">1</label><label><input type="radio" name="myx" value="o">そのほか</label></span></div>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>みんなの終わり方</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="exitb"></div></div>
+  </div>
+
+  <details class="ans"><summary>何が起きたか（送ってから開く）</summary><div>
+  本物の <code>cat</code> は「そんなファイルはない」と言って、<b>1（失敗）</b>で終わりました。<code>mycat1</code> は何も言わず、<b>0（成功）</b>で終わりました。<br>
+  <code>open</code> はちゃんと <b>-1</b> を返していました（A-2 の ④ と同じ）。<code>mycat1</code> はそれを確かめずに、-1 番で <code>read</code> しました。<code>read</code> も失敗して、ループは1回も回らずに <code>return 0;</code> まで来ました。<br>
+  <b>打ち間違いは1文字もありません。確かめる行が、無かっただけです。</b>毎晩 <code>./mycat1 data.txt &gt; backup.txt</code> を自動で動かしていたら、<code>data.txt</code> が消えた日から、<code>backup.txt</code> は毎晩<b>空で上書き</b>され、それでも「成功」で終わります。最後の正しいバックアップまで消えます。</div></details>
+  <div class="foot">演習B ／ 第6週目</div>
+</section>
+
+<!-- ============================ C ============================ -->
+<section class="sheet k3" id="exC" data-start="9:55" data-end="10:12" data-label="演習C">
+  <div class="eyebrow"><span class="no">C</span>FIX<span class="badge">9:55〜10:12</span></div>
+  <h1><span class="tag must">必須</span>演習C　<code>mycat2</code> で直す</h1>
+
+  <h2>C-1 写して、★の3か所を足す</h2>
+  <pre class="code">cp mycat1.c mycat2.c    <span class="cmt"># mycat1.c を写して mycat2.c を作る</span></pre>
+  <p class="note"><code>mycat2.c</code> をエディタで開き、<b>★変更1 の1行と、★変更2 の <code>if</code> から <code>}</code> までの4行</b>を足します（★変更3 の <code>return 1;</code> はこの4行の中です。1行目の「バージョン 1」も「2」に直しておきます）。</p>
+  <pre class="code">/* mycat2.c ---- ファイルの中身を出す : バージョン 2 */
+#include &lt;stdio.h&gt;      /* perror             */  /* ★変更1 */
+#include &lt;fcntl.h&gt;      /* open               */
+#include &lt;unistd.h&gt;     /* read, write, close */
+
+#define BUFSIZE 4096
+
+int main(int argc, char *argv[])
+{
+    char buf[BUFSIZE];
+    int  fd, n;
+
+    fd = open(argv[1], O_RDONLY);               /* ① 番号をもらう   */
+    if (fd == -1) {                             /* ★変更2：札が出なかったら */
+        perror(argv[1]);                        /*   理由を2番に書いて       */
+        return 1;                               /* ★変更3：「失敗」で終わる */
+    }
+    while ((n = read(fd, buf, BUFSIZE)) &gt; 0)    /* ② その番号で読む */
+        write(1, buf, n);                       /* ③ 1番に書く     */
+    close(fd);                                  /* ④ 番号を返す     */
+    return 0;
+}</pre>
+  <pre class="code">gcc -Wall -o mycat2 mycat2.c</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更2　if (fd == -1)</span><span class="cmdtag">今日の本体</span></div>
+      <p><span class="lbl">何をする</span>札が -1 なら、それより先へ進まない。<b>今日いちばん大事な1行</b>です。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更1・perror(argv[1])</span><span class="cmdtag">理由を出す</span></div>
+      <p><span class="lbl">何をする</span>失敗の理由を人の言葉にして、<b>2番（標準エラー出力）</b>に書く関数です（教科書 2.10）。使うには <code>#include &lt;stdio.h&gt;</code> が要ります。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更3　return 1;</span><span class="cmdtag">失敗で終わる</span></div>
+      <p><span class="lbl">何をする</span>この <b>1</b> が <code>echo $?</code> に出ます。本物の <code>cat</code> と同じ終わり方になります。</p></div>
+  </div>
+  <div class="stepcheck" data-step="c1"><span class="sl">C-1 mycat2 をコンパイルした</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-c1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="c1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
+
+  <h2>C-2 本物と同じ終わり方になったか</h2>
+  <pre class="code">./mycat2 nofile.txt              <span class="cmt"># 無いファイルを渡す</span>
+echo $?                          <span class="cmt"># 終わり方を見る</span>
+./mycat2 numbers.txt | wc -l     <span class="cmt"># ふつうのときは、今まで通り 200</span></pre>
+  <div class="outlabel">こう出れば正解</div>
+  <pre class="out">nofile.txt: No such file or directory
+1
+200</pre>
+
+  <div class="pair" data-act="c">
+  <div class="send" data-act="c">
+    <h4><span class="tag must">必須</span>C を送る</h4>
+    <div class="row"><span class="lab">mycat2 の echo $?</span><span class="chips"><label><input type="radio" name="fixx" value="z">0</label><label><input type="radio" name="fixx" value="one">1</label><label><input type="radio" name="fixx" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">理由（No such file or directory）が出たか</span><span class="chips"><label><input type="radio" name="msg" value="yes">出た</label><label><input type="radio" name="msg" value="no">出なかった</label></span></div>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>みんなの mycat2</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="exitc"></div></div>
+  </div>
+  <div class="foot">演習C ／ 第6週目</div>
+</section>
+
+<!-- ============================ D ============================ -->
+<section class="sheet k4" id="exD" data-start="10:12" data-end="10:17" data-label="演習D">
+  <div class="eyebrow"><span class="no">D</span>WHERE<span class="badge">10:12〜10:17</span></div>
+  <h1><span class="tag plus">余裕があれば</span>演習D　理由は、何番に出ているか</h1>
+  <p class="lead"><code>&gt;</code> は <b>1番（標準出力）だけ</b>をファイルへ付け替えます（第3週目）。<code>perror</code> の理由は、どこに出るでしょうか。</p>
+  <pre class="code">./mycat2 nofile.txt &gt; out.txt    <span class="cmt"># 1番を out.txt に付け替えて動かす</span>
+wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バイト）を見る</span></pre>
+  <div class="pair" data-act="d">
+  <div class="send" data-act="d">
+    <h4>D を送る</h4>
+    <div class="row"><span class="lab">理由は画面に出たか</span><span class="chips"><label><input type="radio" name="screen" value="yes">画面に出た</label><label><input type="radio" name="screen" value="no">出なかった</label></span></div>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>みんなの答え</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="screen"></div></div>
+  </div>
+  <details class="ans"><summary>答え（送ってから開く）</summary><div>理由は<b>画面に出て</b>、<code>out.txt</code> は <b>0 バイト</b>です。<code>perror</code> は<b>2番</b>に書くので、1番を付け替えても画面に残ります。<b>データは1番、エラーは2番</b>に分けてあるから、<code>&gt;</code> で保存したファイルにエラーの文が混ざりません。</div></details>
+  <div class="foot">演習D ／ 第6週目</div>
+</section>
+
+<!-- ============================ BOARD ============================ -->
+<section class="sheet k5" id="board" data-start="10:17" data-end="10:30" data-label="みんなの結果">
+  <div class="eyebrow">SHARE<span class="badge">10:17〜10:30</span></div>
+  <h1>みんなの結果</h1>
+  <p class="lead">48人が送ったものが、ここに集まります（前のスクリーンにも映します）。</p>
+  <div class="lstat" data-show="time"></div>
+  <h2>どこまで来たか</h2>
+  <div class="live"><div data-show="progress"></div></div>
+  <h2>番号と終わり方</h2>
+  <div class="live"><h4>④ 無いファイルを open（予想と、出た数）</h4><div data-show="fd"></div></div>
+  <div class="live"><h4>無いファイルを渡したときの終わり方</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
+  <div class="live"><h4>理由は画面に出たか（演習D）</h4><div data-show="screen"></div></div>
+  <div class="live"><h4>いま止まっている人（直ったら0に戻ります）</h4><div data-show="stuck"></div></div>
+
+  <h2>1文で書いて、送る</h2>
+  <div class="pair" data-act="r">
+  <div class="send" data-act="r">
+    <h4><span class="tag must">必須</span>振り返りを送る</h4>
+    <div class="row"><span class="lab">今日の難しさ</span><span class="chips"><label><input type="radio" name="diff" value="1">1 とても簡単</label><label><input type="radio" name="diff" value="2">2</label><label><input type="radio" name="diff" value="3">3 ちょうどよい</label><label><input type="radio" name="diff" value="4">4</label><label><input type="radio" name="diff" value="5">5 とても難しい</label></span></div>
+    <div class="row"><span class="lab">★ <code>mycat1</code> は無いファイルで、なぜ黙って「成功」したのか（1文）</span><span><textarea name="why" placeholder="open が ○ を返したのに、…"></textarea></span></div>
+    <div class="row"><span class="lab">質問（任意。次の回の最初に答えます）</span><span><textarea name="q"></textarea></span></div>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>今日の難しさ</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="diff"></div></div>
+  </div>
+  <div class="axis" style="margin-top:16px;font-size:16px;text-align:center;"><b>番号がもらえなかったら、-1 が返る。確かめなければ、プログラムは黙る。</b></div>
+
+  <h2>授業のあとで</h2>
+  <p class="note"><b>今日の提出物はありません。</b>中間レポートを進めてください（入口ページの「中間レポート」）。<b>課題1は今日の授業の前までが目安でした。まだの人は早めに。課題2まで含めた締切は 11月23日（月・祝）23:59</b>、提出は eclass です。今日の授業の中では、中間レポートの時間は取りません。課題1の <code>bufcp.c</code> の22行目は、今日の <code>mycat2</code> の ★変更2・3 と同じ形です。</p>
+  <div class="foot">みんなの結果 ／ 第6週目</div>
+</section>
+
+<!-- ============================ REF ============================ -->
+<section class="sheet i2" id="ref">
+  <div class="eyebrow">REFERENCE<span class="badge alt">困ったら</span></div>
+  <h1>困ったとき・用語集</h1>
+  <h2>困ったとき</h2>
+  <table class="levels">
+    <thead><tr><th style="width:42%;">画面に出た文字</th><th>まず確かめること</th></tr></thead>
+    <tbody>
+      <tr><td><code>wc: numbers.txt: No such file or directory</code></td><td><code>pwd</code> で今いる場所が <code>~/syspro/week07</code> か。違えば A-1 の <code>cd</code> から。</td></tr>
+      <tr><td><code>fdnum.c: No such file or directory</code>（gcc で）</td><td>エディタの保存先が <code>~/syspro/week07</code> か。<code>ls</code> で <code>fdnum.c</code> が見えるか。</td></tr>
+      <tr><td><code>warning: implicit declaration of function 'perror'</code></td><td><code>mycat2.c</code> の ★変更1（<code>#include &lt;stdio.h&gt;</code>）が抜けている。</td></tr>
+      <tr><td><code>error: expected ';'</code></td><td>言われた行かその1つ上の行の、最後の <code>;</code> が抜けている。</td></tr>
+      <tr><td><code>bash: ./mycat1: No such file or directory</code></td><td><code>gcc</code> が済んでいるか。<code>ls -l mycat1</code> で確かめる。</td></tr>
+      <tr><td><code>./mycat2 nofile.txt</code> のあと <code>echo $?</code> が 0</td><td>★変更2・3 が入っているか。直したあと <b><code>gcc</code> をやり直した</b>か（やり直さないと、古いまま動く）。</td></tr>
+      <tr><td><code>echo $?</code> の数が思ったのと違う</td><td><code>echo $?</code> は<b>すぐ前の1つ</b>のコマンドの終わり方。間に別のコマンドを打つと、その終わり方になる。</td></tr>
+      <tr><td>送る欄で「名簿にありません」</td><td>いちばん上の学籍番号の欄を見直す（10桁）。</td></tr>
+      <tr><td>送る欄で「送れませんでした」</td><td>もう一度押す。だめなら手を挙げる。</td></tr>
+    </tbody>
+  </table>
+  <h2>用語集</h2>
+  <dl class="gloss">
+    <dt>ファイルディスクリプタ</dt><dd><code>open</code> が返す小さな番号（番号札）。<code>read</code>・<code>write</code> はこの番号でファイルを指す。0・1・2 は起動したときから配られている。</dd>
+    <dt>システムコール</dt><dd>プログラムが、カーネル（OS の中心）に仕事を頼むための窓口。<code>open</code>・<code>read</code>・<code>write</code>・<code>close</code> など。</dd>
+    <dt>-1</dt><dd><code>open</code> などのシステムコールが失敗したときに返す値。「札は出せません」の合図。</dd>
+    <dt>終わり方（終了ステータス）</dt><dd>プログラムが終わるときに返す数。<code>main</code> の <code>return</code> の数。0 が成功、0 以外が失敗。<code>echo $?</code> で見る。</dd>
+    <dt>perror</dt><dd>失敗の理由を、人の言葉にして2番（標準エラー出力）に書く関数。<code>#include &lt;stdio.h&gt;</code> が要る。</dd>
+    <dt>標準エラー出力（2番）</dt><dd>エラーの文を書く先。ふつうは画面。<code>&gt;</code> では付け替わらない。</dd>
+    <dt>argv[1]</dt><dd>コマンドの後ろに書いた1つ目の言葉。</dd>
+    <dt>seq</dt><dd>数を順に並べて出力するコマンド。<code>seq 200</code> で 1〜200。</dd>
+  </dl>
+  <p class="note">Molay『Unixシステムプログラミング』2.5.2・2.10 ／ Linux標準教科書（LPI-Japan） ／ Eric S. Raymond『伽藍とバザール』山形浩生 訳（教訓8 を引用）。<br>『伽藍とバザール』訳文の版権表示：© 2000 YAMAGATA Hiroo. この版権表示を残す限りにおいてこの翻訳は商業利用を含む複製、再配布が自由に認められる。プロジェクト杉田玄白 正式参加作品。原文 <code>http://www.catb.org/~esr/writings/cathedral-bazaar/</code> ／ 翻訳 <code>http://cruel.org/freeware/cathedral.html</code></p>
+  <div class="foot">困ったとき・用語集 ／ 第6週目</div>
+</section>
+
+<div class="help">
+  <div class="panel">
+    <b>どこで止まっていますか</b>
+    <select>
+      <option value="">選んでください</option>
+      <option value="dir">作業場所・numbers.txt</option>
+      <option value="paste">fdnum.c を作る（貼る）</option>
+      <option value="gcc">コンパイル（gcc）</option>
+      <option value="type">mycat1.c を打つ</option>
+      <option value="exit">echo $? の読み方</option>
+      <option value="fix">mycat2.c に足す</option>
+      <option value="other">そのほか</option>
+    </select>
+    <button type="button" class="s">止まっている</button><button type="button" class="r">直った</button>
+    <span class="msg"></span>
+    <span class="shint">状態が変わったら、そのたびに押し直してください</span>
+  </div>
+  <button type="button" class="open">止まったら押す</button>
+</div>
+
+<script>
+(function(){
+  // --- コード欄にコピーボタン ---
+  document.querySelectorAll('pre.code').forEach(function(pre){
+    var w=document.createElement('div'); w.className='codewrap';
+    pre.parentNode.insertBefore(w,pre); w.appendChild(pre);
+    var b=document.createElement('button'); b.type='button'; b.className='copybtn'; b.textContent='コピー';
+    b.addEventListener('click',function(){
+      var t=pre.innerText;
+      var done=function(){ b.textContent='コピーしました'; b.classList.add('done');
+        setTimeout(function(){ b.textContent='コピー'; b.classList.remove('done'); },1600); };
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(t).then(done,function(){fallback(t,done);});
+      } else { fallback(t,done); }
+    });
+    w.appendChild(b);
+  });
+  function fallback(t,cb){
+    var ta=document.createElement('textarea'); ta.value=t;
+    ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); cb(); }catch(e){}
+    document.body.removeChild(ta);
+  }
+
+  // --- チェックリストをクリックで消し込み ---
+  document.querySelectorAll('.checklist').forEach(function(cl){
+    var items=cl.querySelectorAll('li'), h4=cl.querySelector('h4');
+    var prog=document.createElement('span'); prog.className='ckprog';
+    if(h4) h4.appendChild(prog);
+    var hint=document.createElement('p'); hint.className='ckhint';
+    hint.textContent='※ クリックすると消し込みできます（保存はされません）';
+    if(h4) h4.insertAdjacentElement('afterend',hint);
+    function upd(){ prog.textContent=cl.querySelectorAll('li.done').length+' / '+items.length; }
+    items.forEach(function(li){
+      li.addEventListener('click',function(e){
+        if(e.target.closest('a')) return;
+        li.classList.toggle('done'); upd();
+      });
+    });
+    upd();
+  });
+
+  // --- 現在位置をナビに反映 ---
+  var links=[].slice.call(document.querySelectorAll('.topnav .links a'));
+  var secs=links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function spy(){
+    var idx=-1;
+    secs.forEach(function(s,i){ if(s && s.getBoundingClientRect().top<=96) idx=i; });
+    links.forEach(function(a,i){ a.classList.toggle('on', i===idx); });
+    var on=links[idx];
+    if(on && on.parentNode.scrollWidth>on.parentNode.clientWidth){
+      var p=on.parentNode, l=on.offsetLeft-p.offsetLeft;
+      if(l<p.scrollLeft || l+on.offsetWidth>p.scrollLeft+p.clientWidth){
+        p.scrollTo({left:l-16,behavior:'smooth'});
+      }
+    }
+  }
+  window.addEventListener('scroll',spy,{passive:true});
+  window.addEventListener('resize',spy); spy();
+})();
+
+window.LIVE_URL = "https://script.google.com/macros/s/AKfycbx2k64kQa228DrJNfNZZ38FsvgocuJers5SlKhiynuoNyJe3u71ZX2ceIYpqeH0s7-EdA/exec";
+// ---- 第6週目：送る欄・手順ごとの「できた」・みんなの結果（送る先は Google スプレッドシート＋Apps Script。week06/live/Code.gs）----
+// 第5週目の live.js に、手順ごとの「できた」「ここで止まった」（人数と、最初の1人が押してからの分秒）を足したもの（CONVENTIONS 1-10）
+(function(){
+  var URL = window.LIVE_URL || '';
+  var NS = 'syspro-w06';
+  var me = document.querySelector('.me');
+  var sidIn = me && me.querySelector('input[name=sid]');
+  var passIn = me && me.querySelector('input[name=pass]');
+  function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k)||''; localStorage.setItem(k, v); }catch(e){ return ''; } }
+  function sid(){ return sidIn ? sidIn.value.trim() : ''; }
+  function say(el, t, ok){ el.textContent = t; el.className = 'msg ' + (ok ? 'ok' : 'bad'); }
+  if (sidIn){
+    // 第5週目に入れた学籍番号があれば、それを使う（同じブラウザなら入れ直さなくてよい）
+    // 入口（CONVENTIONS 1-11 の viewgate.js）で入れた番号があれば、それも使う
+    var gateSid = ''; try { for (var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if (k.indexOf('viewlog-sid-') === 0 && localStorage.getItem(k)) gateSid = localStorage.getItem(k); } }catch(e){}
+    sidIn.value = store(NS + '-sid') || sidIn.value || gateSid || store('syspro-w05-sid');
+    if (sidIn.value) store(NS + '-sid', sidIn.value);
+    var okm = me.querySelector('.ok');
+    var upd = function(){ okm.textContent = sid() ? '下4桁 ' + sid().slice(-4) + ' で送ります' : ''; };
+    var jt = null, joinedSid = '';
+    var join = function(){   // 名簿にあるかを確かめ、入れた人数に数えてもらう（1つの番号につき1回）
+      if (!URL || !sid() || joinedSid === sid()) return;
+      joinedSid = sid();
+      post({act:'join'}, okm, null, function(r){ say(okm, '名簿にあります。下4桁 ' + r.last4 + ' で送ります', true); });
+    };
+    var lastSid = sid();
+    var onSid = function(){
+      lastSid = sid();
+      store(NS + '-sid', sid()); upd(); gate(); markSteps();
+      clearTimeout(jt); if (sid().length >= 8) jt = setTimeout(join, 800);
+    };
+    sidIn.addEventListener('input', onSid);
+    // 入口のスクリプトは input の合図を出さずに欄を書き換えるので、1秒ごとに見て、変わっていたら同じ処理をする
+    setInterval(function(){ if (sid() !== lastSid) onSid(); }, 1000);
+    upd();
+    if (sid()) setTimeout(join, 300);
+  }
+
+  // 送った欄だけ、右（狭い画面では下）に全員の状況を出す。送ったことはブラウザが覚える（学籍番号ごと）
+  function sentKey(act){ return NS + '-sent-' + sid() + '-' + act; }
+  function gate(){
+    document.querySelectorAll('.pair[data-act]').forEach(function(p){
+      var lv = p.querySelector('.live');
+      if (lv) lv.classList.toggle('locked', !(sid() && store(sentKey(p.getAttribute('data-act')))));
+    });
+  }
+  function flash(act){
+    var lv = document.querySelector('.pair[data-act="' + act + '"] .live');
+    if (!lv) return;
+    lv.classList.remove('flash'); void lv.offsetWidth; lv.classList.add('flash');
+  }
+
+  function post(d, msg, btn, done){
+    if (!URL){ say(msg, 'まだ準備中です（先生がこの欄を使えるようにします）', false); return; }
+    if (!sid()){ say(msg, 'いちばん上の欄に、自分の学籍番号を入れてください', false); if(sidIn) sidIn.focus(); return; }
+    d.sid = sid(); d.pass = passIn ? passIn.value : '';
+    if (btn) btn.disabled = true;
+    say(msg, '送っています…', true);
+    fetch(URL, {method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(d)})
+      .then(function(x){ return x.json(); })
+      .then(function(r){
+        if (btn) btn.disabled = false;
+        if (!r.ok){ say(msg, r.msg || '受け付けられませんでした', false); return; }
+        if (done) done(r); else say(msg, '受け付けました（下4桁 ' + r.last4 + '）。もう一度送ると書き換わります。', true);
+        if (/^[abcdr]$/.test(d.act)) { store(sentKey(d.act), '1'); gate(); }
+        load().then(function(){ flash(d.act); });
+      })
+      .catch(function(){ if (btn) btn.disabled = false; say(msg, '送れませんでした。もう一度押してください。だめなら手を挙げてください。', false); });
+  }
+
+  // 送る欄：<div class="send" data-act="a"> の中の入力をそのまま送る
+  document.querySelectorAll('.send').forEach(function(box){
+    var act = box.getAttribute('data-act'), btn = box.querySelector('.go'), msg = box.querySelector('.msg');
+    btn.addEventListener('click', function(){
+      var d = {act: act};
+      box.querySelectorAll('input,select,textarea').forEach(function(x){
+        if (!x.name) return;
+        if (x.type === 'radio'){ if (x.checked) d[x.name] = x.value; }
+        else d[x.name] = x.value;
+      });
+      post(d, msg, btn, function(r){
+        say(msg, '受け付けました（下4桁 ' + r.last4 + '）。' + (r.note ? r.note : 'もう一度送ると書き換わります。'), !r.note);
+      });
+    });
+  });
+
+  // 手順ごとの「できた」「ここで止まった」。押したことはブラウザが覚える
+  function stepKey(id){ return NS + '-step-' + sid() + '-' + id; }
+  function markSteps(){
+    document.querySelectorAll('.stepcheck').forEach(function(box){
+      var on = !!(sid() && store(stepKey(box.getAttribute('data-step'))));
+      box.classList.toggle('done', on);
+      box.querySelector('.sdone').textContent = on ? '✓ できた' : 'できた';
+    });
+  }
+  var help = document.querySelector('.help');
+  var ho = help && help.querySelector('.open');
+  function stuckOn(on){ if (!ho) return; ho.classList.toggle('on', on); ho.textContent = on ? '止まっています' : '止まったら押す'; }
+  document.querySelectorAll('.stepcheck').forEach(function(box){
+    var id = box.getAttribute('data-step'), msg = box.querySelector('.msg');
+    box.querySelector('.sdone').addEventListener('click', function(){
+      post({act:'step', step:id}, msg, this, function(){
+        store(stepKey(id), '1'); markSteps(); stuckOn(false);
+        say(msg, '届きました。このあとこの手順でまた止まったら、「ここで止まった」を押し直してください', true);
+      });
+    });
+    box.querySelector('.sstuck').addEventListener('click', function(){
+      post({act:'stuck', where:'step_' + id}, msg, this, function(){
+        stuckOn(true);
+        say(msg, '先生に届きました。直ったら「できた」を押し直してください', true);
+      });
+    });
+  });
+  markSteps();
+
+  // 右下の「止まったら押す」
+  if (help){
+    var hm = help.querySelector('.msg'), hs = help.querySelector('select');
+    ho.addEventListener('click', function(){ help.classList.toggle('show'); });
+    help.querySelector('.s').addEventListener('click', function(){
+      if (!hs.value){ say(hm, '止まっている所を選んでください', false); return; }
+      post({act:'stuck', where:hs.value}, hm, null, function(){ say(hm, '先生に届きました。直ったら「直った」を、別の所で止まったら選び直して「止まっている」を押し直してください', true); stuckOn(true); });
+    });
+    help.querySelector('.r').addEventListener('click', function(){
+      post({act:'stuck', where:''}, hm, null, function(){ say(hm, '直ったことを伝えました。また止まったら、もう一度押してください', true); stuckOn(false); hs.value = ''; });
+    });
+  }
+
+  // みんなの結果
+  function bars(rows, cls, top){   // top を渡すと、その数を棒いっぱいにする（いくつかの bars を同じ物差しで並べるとき）
+    var max = top || 1; if (!top) rows.forEach(function(r){ if (r.n > max) max = r.n; });
+    return '<div class="bars">' + rows.map(function(r){
+      return '<div class="b ' + (r.c || cls || '') + '"><span class="l">' + r.l + '</span><span class="t"><i style="width:' + Math.round(100 * r.n / max) + '%"></i></span><span class="n">' + r.n + '</span></div>';
+    }).join('') + '</div>';
+  }
+  function fill(name, html){ document.querySelectorAll('[data-show="' + name + '"]').forEach(function(el){ el.innerHTML = html; }); }
+  var WAIT = '<p class="wait">先生の合図のあとで出ます。</p>', NONE = '<p class="wait">まだ誰も送っていません。</p>';
+  var EXIT = [['z', '0（成功）'], ['one', '1（失敗）'], ['o', 'そのほか']];
+  var FD = [['m1', '-1'], ['z', '0'], ['p3', '3'], ['p4', '4'], ['o', 'そのほか']];
+  function rows(obj, keys, c){ return keys.map(function(k){ return {l:k[1], n:(obj && obj[k[0]]) || 0, c:c}; }); }
+
+  // 手順ごとに「最初の1人が押してから」の分秒（サーバの時刻に合わせる）
+  var FIRST = {}, OFFSET = 0;
+  function tick(){
+    document.querySelectorAll('.selapsed[data-first]').forEach(function(el){
+      var t = FIRST[el.getAttribute('data-first')];
+      if (!t) { el.innerHTML = '最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）'; return; }
+      var s = Math.max(0, Math.floor((Date.now() + OFFSET - t) / 1000));
+      var m = Math.floor(s / 60), ss = s % 60;
+      el.innerHTML = '最初の1人が押してから <b>' + m + '分' + (ss < 10 ? '0' : '') + ss + '秒</b>';
+    });
+  }
+  setInterval(tick, 1000);
+  // 右上の時刻の下に、いま画面に出ている手順（まだ上へ流れていない最初の「できた」ボタン）の「できた人」を出す
+  var DONE = null, ncd = document.querySelector('.nowclock .ncd'), checks = [].slice.call(document.querySelectorAll('.stepcheck'));
+  function drawDone(){
+    if (!ncd || !checks.length) return;
+    var box = null;
+    for (var i = 0; i < checks.length; i++){ if (checks[i].getBoundingClientRect().bottom > 70){ box = checks[i]; break; } }
+    if (!box) box = checks[checks.length - 1];
+    var id = box.getAttribute('data-step'), name = box.querySelector('.sl').textContent;
+    ncd.textContent = name + '（できた人：' + (DONE && id in DONE ? DONE[id] : '--') + '人）';
+  }
+  window.addEventListener('scroll', drawDone, {passive:true});
+  drawDone();
+
+  function draw(r){
+    var N = r.roster || 48, p = r.progress || {};
+    document.querySelectorAll('[data-show=time]').forEach(function(el){ el.textContent = '更新 ' + r.time + '（10秒ごとに新しくなります）'; });
+    fill('joined', '学籍番号を入れた人<br><span class="bignum">' + r.joined + '</span> ／ ' + N + '人<span class="t">更新 ' + r.time + '</span>');
+    (r.steps || []).forEach(function(x, i){
+      var st = r.stepStuck && r.stepStuck[i] ? r.stepStuck[i].n : 0;
+      fill('step-' + x.k, 'できた <b>' + x.n + '</b>人 ／ 止まっている <b' + (st ? ' class="red"' : '') + '>' + st + '</b>人');
+    });
+    FIRST = r.stepFirst || {}; if (r.now) OFFSET = r.now - Date.now(); tick();
+    DONE = {}; (r.steps || []).forEach(function(x){ DONE[x.k] = x.n; }); drawDone();
+    var P = [['a1', 'A-1 作業場所'], ['a', 'A 番号を当てた'], ['b1', 'B-1 mycat1'], ['b', 'B 壊した'],
+             ['c1', 'C-1 mycat2'], ['c', 'C 直した'], ['d', 'D 2番'], ['r', '振り返り']];
+    fill('progress', '<div class="prog p8">' + P.map(function(x){ return '<div><b>' + (p[x[0]] || 0) + '</b><span>' + x[1] + '</span></div>'; }).join('') +
+      '</div><p class="lstat">' + N + '人中の人数</p>');
+    var S = r.show || {};
+    // A：④ の予想と、出た数
+    fill('fd', !S.a ? WAIT : (!r.a || !r.a.n ? NONE :
+      '<div class="legend"><span class="am">予想</span><span>出た数</span></div><div class="cmp3">' +
+      FD.map(function(k){ return '<div class="grp"><div class="gl">④ が ' + k[1] + '</div>' + bars([{l:'予想', n:r.a.pred[k[0]] || 0, c:'am'}, {l:'出た数', n:r.a.got[k[0]] || 0}], '', r.a.n) + '</div>'; }).join('') +
+      '</div><p>予想が当たった人：<span class="bignum">' + r.a.hit + '</span> ／ ' + r.a.n + ' 人</p>'));
+    // B：本物の cat と mycat1 の終わり方
+    fill('exitb', !S.b ? WAIT : (!r.b || !r.b.n ? NONE :
+      '<h4 style="margin-top:4px;">本物の cat の終わり方</h4>' + bars(rows(r.b.cat, EXIT, 'tl'), '', r.b.n) +
+      '<h4 style="margin-top:10px;">mycat1 の終わり方</h4>' + bars(rows(r.b.my, EXIT, 'am'), '', r.b.n) + '<p class="lstat">' + r.b.n + '人が送りました</p>'));
+    // C：mycat2 の終わり方
+    fill('exitc', !S.c ? WAIT : (!r.c || !r.c.n ? NONE :
+      '<h4 style="margin-top:4px;">mycat2 の終わり方</h4>' + bars(rows(r.c.fix, EXIT)) +
+      '<p>理由（No such file or directory）が出た人 <span class="bignum">' + r.c.msg + '</span> ／ ' + r.c.n + ' 人</p>'));
+    // D：> out.txt でも画面に出たか
+    fill('screen', !S.d ? WAIT : (!r.d || !r.d.n ? NONE : bars([{l:'画面に出た', n:r.d.yes}, {l:'出なかった', n:r.d.no, c:'am'}])));
+    // 振り返り：難しさ
+    fill('diff', !S.r ? WAIT : (!r.r || !r.r.n ? NONE :
+      bars([1, 2, 3, 4, 5].map(function(i){ return {l:i + (i === 1 ? '（とても簡単）' : i === 3 ? '（ちょうどよい）' : i === 5 ? '（とても難しい）' : ''), n:r.r.diff[i - 1], c:i >= 4 ? 'am' : ''}; })) +
+      '<p>送った人 <b>' + r.r.n + '</b> 人。4・5 を選んだ人 <span class="bignum">' + (r.r.diff[3] + r.r.diff[4]) + '</span> 人</p>'));
+    var sk = Object.keys(r.stuck || {}).map(function(k){ return r.stuck[k]; }).filter(function(x){ return x.n > 0; });
+    fill('stuck', !S.stuck ? WAIT : '<p>いま止まっている人 <span class="bignum">' + (r.stuckN || 0) + '</span> 人</p>' + (sk.length ? bars(sk, 'am') : ''));
+    if (passIn) me.querySelector('.passrow').style.display = r.pass ? 'block' : 'none';
+  }
+  function load(){
+    if (!URL){ fill('progress', '<p class="wait">まだ準備中です。</p>'); return Promise.resolve(); }
+    return fetch(URL).then(function(x){ return x.json(); }).then(function(r){ if (r.ok) draw(r); })
+      .catch(function(){ document.querySelectorAll('[data-show=time]').forEach(function(el){ el.textContent = '集計を読めませんでした。しばらくしてからもう一度読みます。'; }); });
+  }
+  gate();
+  load();
+  setInterval(function(){ if (document.visibilityState !== 'hidden') load(); }, 10000);
+})();
+
+// ---- 右上の現在時刻：いま見ている節の予定の終わりの5分前から黄色、過ぎたら赤（tkoita/Exp の CLOCK_JS と同じ形）
+// 色を付けるのは授業の日＝火曜の 8:50〜10:40 だけ（ほかの日時に読んでも赤くならないように）。時刻は見ている PC の時計
+(function(){
+  var el = document.querySelector('.nowclock'); if (!el) return;
+  var t = el.querySelector('.nct'), m = el.querySelector('.ncm'), bar = el.querySelector('.ncb'), fill = bar && bar.querySelector('i');
+  var secs = [].slice.call(document.querySelectorAll('section.sheet'));
+  function min(s){ var p = s.split(':'); return +p[0] * 60 + +p[1]; }
+  function cur(){ var c = null; secs.forEach(function(s){ if (s.getBoundingClientRect().top <= 120) c = s; }); return c; }
+  function draw(){
+    var d = window.NOWCLOCK_TEST ? new Date(window.NOWCLOCK_TEST) : new Date();
+    var hm = d.getHours() * 60 + d.getMinutes();
+    t.textContent = d.getHours() + ':' + ('0' + d.getMinutes()).slice(-2);
+    var s = cur(), cls = '', msg = '', bcls = '', pct = 100;   // 横棒＝その節の残り時間（始まる前は 100%、過ぎたら赤）
+    if (s && s.dataset.end && d.getDay() === 2 && hm >= 530 && hm <= 640){
+      var e = min(s.dataset.end), left = e - hm;
+      var st = s.dataset.start ? min(s.dataset.start) : e, now = hm + d.getSeconds() / 60;
+      bcls = 'run';
+      if (now >= e){ bcls = 'over'; pct = 100; }
+      else if (now > st){ pct = Math.max(2, 100 * (e - now) / (e - st)); if (e - now <= 5) bcls = 'soon'; }
+      msg = s.dataset.label + ' は ' + s.dataset.end + ' まで';
+      if (left <= 0){ cls = 'over'; msg += left < 0 ? '（' + (-left) + '分オーバー）' : '（時間です）'; }
+      else if (left <= 5){ cls = 'soon'; msg += '（あと' + left + '分）'; }
+    }
+    el.className = 'nowclock' + (cls ? ' ' + cls : ''); m.textContent = msg;
+    if (bar){ bar.className = 'ncb' + (bcls ? ' ' + bcls : ''); fill.style.width = pct + '%'; }
+  }
+  draw(); setInterval(draw, 1000);
+  window.addEventListener('scroll', draw, {passive:true});
+})();
+</script>
+<!-- viewlog:start -->
+<style>/* ---- 学籍番号の入口（3科目共通。共通/live/viewgate.js といっしょに使う。2026-11-11）---- */
+html.vg-locked body > *:not(.vg-gate){filter:blur(7px);pointer-events:none;user-select:none;}
+html.vg-locked, html.vg-locked body{overflow:hidden;}
+.vg-gate{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(232,235,239,.72);}
+.vg-card{width:min(440px,100%);padding:26px 26px 20px;background:#fff;border:1px solid #d3d9e0;border-top:6px solid #1668B5;border-radius:12px;box-shadow:0 10px 30px rgba(31,41,51,.18);font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",YuGothic,"Meiryo",sans-serif;color:#1f2933;}
+.vg-t{font-size:20px;font-weight:800;margin-bottom:6px;}
+.vg-d{font-size:13.5px;line-height:1.7;margin:0 0 14px;color:#52606d;}
+.vg-in{display:block;width:100%;box-sizing:border-box;padding:11px 12px;font-size:20px;letter-spacing:.06em;border:2px solid #9aa5b1;border-radius:8px;font-family:"SFMono-Regular",Consolas,Menlo,monospace;}
+.vg-in:focus{outline:none;border-color:#1668B5;}
+.vg-go{margin-top:12px;width:100%;padding:11px;font-size:16px;font-weight:800;color:#fff;background:#1668B5;border:0;border-radius:8px;cursor:pointer;}
+.vg-go:disabled{opacity:.6;}
+.vg-msg{min-height:1.4em;margin:10px 0 0;font-size:13.5px;font-weight:700;color:#C62828;}
+.vg-note{margin:8px 0 0;font-size:11.5px;line-height:1.6;color:#7b8794;}
+.vg-badge{position:fixed;left:10px;bottom:10px;z-index:75;padding:4px 8px;font-size:11.5px;color:#52606d;background:rgba(255,255,255,.92);border:1px solid #d3d9e0;border-radius:6px;font-family:"Hiragino Kaku Gothic ProN","Yu Gothic","Meiryo",sans-serif;}
+.vg-badge button{margin-left:4px;font-size:11px;padding:1px 6px;border:1px solid #9aa5b1;background:#fff;border-radius:4px;cursor:pointer;}
+@media print{.vg-gate,.vg-badge{display:none!important;}html.vg-locked body > *{filter:none!important;}}
+</style>
+<script>window.VIEWLOG = {"url": "https://script.google.com/macros/s/AKfycbwDugtsYOtdKCJQwJ9KpZZKmOQKCDgSzKESiyQ4wHjwEfk3x0e3iHWS0mTARFZb5ueO/exec", "course": "syspro", "page": "第6週目_授業資料_失敗を確かめる"};</script>
+<script>// ---- 学籍番号の入口と、資料を見ていた時間の記録（3科目共通。2026-11-11、小板）-----------------
+// 原本は tkoita/Net の 共通/live/viewgate.js。Syspro・Exp へは 共通/tools/sync_viewlog.py で写す。
+// ページには 共通/tools/inject_viewlog.py が、この中身と viewgate.css と設定（window.VIEWLOG）を差し込む。
+//
+// ・学籍番号を入れるまで、資料の中身は見えない（入口の画面が上にかぶさる）。入れた番号はブラウザが覚える（科目ごと）
+// ・送り先（共通の記録シートの Apps Script）があれば、名簿にある番号かを確かめてから開く。
+//   つながらないときは、番号の形だけ確かめて開く（教室の外や、つながらない場所でも読めるように）
+// ・ページが画面に出ていて、5分以内に操作（スクロール・クリック・キー）があった時間だけを数え、
+//   1分たまるごとに送る。ページを隠す・閉じるときは、たまった分を送る
+// ・ページに「学籍番号」の欄（Net・Syspro の .me input[name=sid]、Exp の input[data-k=sid]）があれば、同じ番号を入れておく
+// ★ このファイルに閉じタグの文字列を書かないこと（HTML に埋め込むと、そこで script が終わる）
+(function(){
+  var C = window.VIEWLOG || {};
+  var URL = C.url || '', COURSE = C.course || 'x', PAGE = C.page || document.title;
+  var KEY = 'viewlog-sid-' + COURSE;
+  function store(k, v){ try { if (v === undefined) return localStorage.getItem(k) || ''; localStorage.setItem(k, v); } catch(e) { return ''; } }
+  function norm(x){
+    return String(x || '').replace(/[０-９Ａ-Ｚａ-ｚ]/g, function(c){ return String.fromCharCode(c.charCodeAt(0) - 0xFEE0); })
+      .toUpperCase().replace(/[^0-9A-Z]/g, '');
+  }
+  function okForm(s){ return /^\d{8,10}$/.test(s) || /^T\d{3}$/.test(s); }
+  function post(d, keep){
+    d.course = COURSE; d.page = PAGE;
+    return fetch(URL, {method:'POST', keepalive:!!keep, headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(d)})
+      .then(function(r){ return r.json(); });
+  }
+
+  // ---------------- 入口 ----------------
+  var sid = norm(store(KEY));
+  var gate = null;
+  function syncPageSid(){
+    document.querySelectorAll('.me input[name=sid], input[data-k=sid]').forEach(function(inp){
+      if (inp.value.trim()) return;
+      inp.value = sid;
+      try { inp.dispatchEvent(new Event('input', {bubbles:true})); } catch(e) {}
+    });
+  }
+  function open_(){
+    document.documentElement.classList.remove('vg-locked');
+    if (gate){ gate.parentNode.removeChild(gate); gate = null; }
+    syncPageSid();
+    badge();
+  }
+  function lock(msg){
+    document.documentElement.classList.add('vg-locked');
+    gate = document.createElement('div');
+    gate.className = 'vg-gate';
+    gate.innerHTML =
+      '<form class="vg-card" autocomplete="off">' +
+      '<div class="vg-t">学籍番号を入れてください</div>' +
+      '<p class="vg-d">入れると、資料が開きます。入れるのは最初の1回だけです（このブラウザが覚えます）。</p>' +
+      '<input class="vg-in" inputmode="numeric" placeholder="1116240000" aria-label="学籍番号">' +
+      '<button type="submit" class="vg-go">資料を開く</button>' +
+      '<p class="vg-msg"></p>' +
+      '<p class="vg-note">この資料を見ていた時間（画面に出ていて、5分以内に操作したとき）を、学籍番号といっしょに記録します。</p>' +
+      '</form>';
+    document.body.appendChild(gate);
+    var f = gate.querySelector('form'), inp = gate.querySelector('.vg-in'), m = gate.querySelector('.vg-msg'), b = gate.querySelector('.vg-go');
+    if (msg) m.textContent = msg;
+    setTimeout(function(){ try { inp.focus(); } catch(e) {} }, 50);
+    f.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var s = norm(inp.value);
+      if (!okForm(s)){ m.textContent = '学籍番号（数字だけ）を入れてください'; return; }
+      if (!URL){ sid = s; store(KEY, s); open_(); return; }
+      b.disabled = true; m.textContent = '確かめています…';
+      post({act:'join', sid:s}).then(function(r){
+        b.disabled = false;
+        if (r && r.ok){ sid = s; store(KEY, s); open_(); }
+        else m.textContent = (r && r.msg) || '受け付けられませんでした';
+      }).catch(function(){
+        // つながらないときは、形だけ確かめて開く（記録は、つながったときから）
+        b.disabled = false; sid = s; store(KEY, s); open_();
+      });
+    });
+  }
+  // 右下の小さな札（下4桁と「変える」）
+  function badge(){
+    var old = document.querySelector('.vg-badge');
+    if (old) old.parentNode.removeChild(old);
+    var e = document.createElement('div');
+    e.className = 'vg-badge';
+    e.innerHTML = '学籍番号 下4桁 <b>' + sid.slice(-4) + '</b> <button type="button">変える</button>';
+    e.querySelector('button').addEventListener('click', function(){
+      flush();
+      store(KEY, ''); sid = '';
+      document.querySelectorAll('.me input[name=sid], input[data-k=sid]').forEach(function(inp){
+        inp.value = ''; try { inp.dispatchEvent(new Event('input', {bubbles:true})); } catch(x) {}
+      });
+      e.parentNode.removeChild(e);
+      lock();
+    });
+    document.body.appendChild(e);
+  }
+
+  // ---------------- 見ていた時間 ----------------
+  var SES = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  var acc = 0, lastTick = Date.now(), lastAct = Date.now();
+  ['scroll', 'mousemove', 'keydown', 'click', 'touchstart', 'wheel'].forEach(function(ev){
+    window.addEventListener(ev, function(){ lastAct = Date.now(); }, {passive:true});
+  });
+  function flush(){
+    var sec = Math.round(acc / 1000);
+    if (sec < 1 || !sid || !URL) { acc = 0; return; }
+    acc = 0;
+    try { post({act:'view', sid:sid, sec:sec, ses:SES}, true).catch(function(){}); } catch(e) {}
+  }
+  setInterval(function(){
+    var now = Date.now(), dt = now - lastTick;
+    lastTick = now;
+    if (sid && !gate && document.visibilityState === 'visible' && now - lastAct < 300000 && dt < 30000) acc += dt;
+    if (acc >= 60000) flush();
+  }, 5000);
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'hidden') flush(); lastTick = Date.now(); });
+  window.addEventListener('pagehide', flush);
+
+  function start(){
+    if (okForm(sid)) open_(); else { sid = ''; lock(); }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+<!-- viewlog:end -->
+</body>
+</html>
