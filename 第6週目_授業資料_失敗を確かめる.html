@@ -396,6 +396,8 @@ details.ans>div{padding:0 14px 12px;}
 <header class="topnav">
   <div class="inner">
     <div class="brandstack"><a class="brand" href="index.html" title="システムプログラミングの資料一覧へ">第6週目 授業資料：失敗を確かめる<span>システムプログラミング</span></a><a class="prev" href="第5週目_授業資料_測る・のぞく.html">← 第5週目の資料</a></div>
+    <style>.midstack{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;}.midstack .links{width:100%;}.midstack .mid{font-size:11.5px;font-weight:800;color:#0f766e;text-decoration:none;white-space:nowrap;line-height:1.2;}.midstack .mid:hover{text-decoration:underline;text-underline-offset:3px;}@media print{.midstack .mid{display:none!important;}}</style>
+    <div class="midstack">
     <div class="links">
       <a href="#intro">今日の90分</a>
       <a href="#lecture">講義</a>
@@ -403,10 +405,12 @@ details.ans>div{padding:0 14px 12px;}
       <a href="#exB">演習B</a>
       <a href="#exC">演習C</a>
       <a href="#exD">演習D</a>
-      <a href="#board">みんなの結果</a>
+      <a href="#wrap">まとめ</a>
       <a href="#ref">困ったとき</a>
     </div>
-    <div class="gostack"><a class="go" href="#board">みんなの結果</a><a class="next" href="中間レポート_課題資料.html">中間レポート →</a><span class="nowclock" aria-live="off"><span class="ncb" title="いま見ている節の残り時間"><i></i></span><b class="nct">--:--</b><span class="ncm"></span><span class="ncd"></span></span></div>
+    <a class="mid" href="#board">みんなの進み具合 ↓</a>
+    </div>
+    <div class="gostack"><a class="go" href="#wrap">まとめ（1文を送る）</a><a class="next" href="中間レポート_課題資料.html">中間レポート →</a><span class="nowclock" aria-live="off"><span class="ncb" title="いま見ている節の残り時間"><i></i></span><b class="nct">--:--</b><span class="ncm"></span><span class="ncd"></span></span></div>
   </div>
 </header>
 
@@ -415,9 +419,9 @@ details.ans>div{padding:0 14px 12px;}
   <ol>
     <li><b>自作の <code>mycat1</code> を打って、無いファイルで「黙って成功する」ところを <code>echo $?</code> で見る</b>（演習B）</li>
     <li><b><code>mycat2</code> に3か所足して、本物の <code>cat</code> と同じ「失敗」の終わり方にする</b>（演習C）</li>
-    <li><b>「<code>mycat1</code> はなぜ黙ったのか」を1文で書いて送る</b>（みんなの結果）</li>
+    <li><b>「<code>mycat1</code> はなぜ黙ったのか」を1文で書いて送る</b>（まとめ）</li>
   </ol>
-  <p>演習A（作業場所を作り、番号を当てる）は、この3つの準備です。この3つが終われば<b>今日は合格</b>です。<b>今日は提出物はありません</b>（中間レポートを進めてください）。終わるたびに、演習の下の欄から送ってください。結果は「みんなの結果」にその場で出ます（人数と分布だけ。名前は出ません）。</p>
+  <p>演習A（作業場所を作り、番号を当てる）は、この3つの準備です。この3つが終われば<b>今日は合格</b>です。<b>今日は提出物はありません</b>（中間レポートを進めてください）。終わるたびに、演習の下の欄から送ってください。結果はその欄の右と、資料のいちばん最後の「みんなの進み具合」にその場で出ます（人数と分布だけ。名前は出ません）。</p>
   <div class="me">
     <div class="mel">
     <label>自分の学籍番号</label><input name="sid" inputmode="numeric" autocomplete="off" placeholder="1116240000"><span class="ok"></span>
@@ -450,7 +454,7 @@ details.ans>div{padding:0 14px 12px;}
       <tr><td>9:35〜9:55</td><td><b>演習B</b>　<code>mycat1</code> を打って、無いファイルで壊す</td><td>20</td></tr>
       <tr><td>9:55〜10:12</td><td><b>演習C</b>　<code>mycat2</code> で直す</td><td>17</td></tr>
       <tr><td>10:12〜10:17</td><td><span class="tag plus">余裕があれば</span><b>演習D</b>　理由は何番に出ているか</td><td>5</td></tr>
-      <tr><td>10:17〜10:30</td><td>みんなの結果を見る ／ 1文を送る ／ 今日の1文（軸文）を読む</td><td>13</td></tr>
+      <tr><td>10:17〜10:30</td><td>まとめ：1文を送る ／ 今日の1文（軸文）を読む（みんなの進み具合は資料のいちばん最後）</td><td>13</td></tr>
     </tbody>
   </table>
   <p class="note">右上の時計の下の横棒は、<b>いま見ている節の残り時間</b>です。終わりの5分前に黄色、過ぎると赤になります。</p>
@@ -719,20 +723,11 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
   <div class="foot">演習D ／ 第6週目</div>
 </section>
 
-<!-- ============================ BOARD ============================ -->
-<section class="sheet k5" id="board" data-start="10:17" data-end="10:30" data-label="みんなの結果">
-  <div class="eyebrow">SHARE<span class="badge">10:17〜10:30</span></div>
-  <h1>みんなの結果</h1>
-  <p class="lead">48人が送ったものが、ここに集まります（前のスクリーンにも映します）。</p>
-  <div class="lstat" data-show="time"></div>
-  <h2>どこまで来たか</h2>
-  <div class="live"><div data-show="progress"></div></div>
-  <h2>番号と終わり方</h2>
-  <div class="live"><h4>④ 無いファイルを open（予想と、出た数）</h4><div data-show="fd"></div></div>
-  <div class="live"><h4>無いファイルを渡したときの終わり方</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
-  <div class="live"><h4>理由は画面に出たか（演習D）</h4><div data-show="screen"></div></div>
-  <div class="live"><h4>いま止まっている人（直ったら0に戻ります）</h4><div data-show="stuck"></div></div>
-
+<!-- ============================ まとめ ============================ -->
+<section class="sheet k5" id="wrap" data-start="10:17" data-end="10:30" data-label="まとめ">
+  <div class="eyebrow">WRAP-UP<span class="badge">10:17〜10:30</span></div>
+  <h1>まとめ：1文を送る</h1>
+  <p class="lead">今日の答えを1文にして送ります。みんなの結果は、資料のいちばん最後の<a href="#board">「みんなの進み具合」</a>にあります（前のスクリーンにも映します）。</p>
   <h2>1文で書いて、送る</h2>
   <div class="pair" data-act="r">
   <div class="send" data-act="r">
@@ -748,7 +743,7 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
 
   <h2>授業のあとで</h2>
   <p class="note"><b>今日の提出物はありません。</b>中間レポートを進めてください（入口ページの「中間レポート」）。<b>課題1は今日の授業の前までが目安でした。まだの人は早めに。課題2まで含めた締切は 11月23日（月・祝）23:59</b>、提出は eclass です。今日の授業の中では、中間レポートの時間は取りません。課題1の <code>bufcp.c</code> の22行目は、今日の <code>mycat2</code> の ★変更2・3 と同じ形です。</p>
-  <div class="foot">みんなの結果 ／ 第6週目</div>
+  <div class="foot">まとめ ／ 第6週目</div>
 </section>
 
 <!-- ============================ REF ============================ -->
@@ -783,6 +778,24 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
   </dl>
   <p class="note">Molay『Unixシステムプログラミング』2.5.2・2.10 ／ Linux標準教科書（LPI-Japan） ／ Eric S. Raymond『伽藍とバザール』山形浩生 訳（教訓8 を引用）。<br>『伽藍とバザール』訳文の版権表示：© 2000 YAMAGATA Hiroo. この版権表示を残す限りにおいてこの翻訳は商業利用を含む複製、再配布が自由に認められる。プロジェクト杉田玄白 正式参加作品。原文 <code>http://www.catb.org/~esr/writings/cathedral-bazaar/</code> ／ 翻訳 <code>http://cruel.org/freeware/cathedral.html</code></p>
   <div class="foot">困ったとき・用語集 ／ 第6週目</div>
+</section>
+
+<!-- ============================ みんなの進み具合（資料のいちばん最後。2026-11-12、小板） ============================ -->
+<section class="sheet k5" id="board">
+  <div class="eyebrow">みんなの進み具合 <span class="badge alt">授業中</span></div>
+  <h1>みんなの進み具合</h1>
+  <p class="lead">手順が1つ終わるたびに、その手順の下の「できた」を押してください。止まったら「ここで止まった」を押すと、先生に届きます。下の数は、1人目が押したときから教室の全員に見えます。出るのは人数だけで、誰が押したかは出ません。</p>
+
+  <div class="live"><h4>手順ごとの「できた」の人数</h4><div class="lstat" data-show="time"></div><div data-show="steps"></div><div data-show="stuck"></div></div>
+
+  <h2>どこまで来たか</h2>
+  <div class="live"><div data-show="progress"></div></div>
+  <h2>番号と終わり方</h2>
+  <div class="live"><h4>④ 無いファイルを open（予想と、出た数）</h4><div data-show="fd"></div></div>
+  <div class="live"><h4>無いファイルを渡したときの終わり方</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
+  <div class="live"><h4>理由は画面に出たか（演習D）</h4><div data-show="screen"></div></div>
+
+  <div class="foot">みんなの進み具合 ／ 第6週目</div>
 </section>
 
 <div class="help">
@@ -1042,6 +1055,8 @@ window.LIVE_URL = "https://script.google.com/macros/s/AKfycbx2k64kQa228DrJNfNZZ3
       var st = r.stepStuck && r.stepStuck[i] ? r.stepStuck[i].n : 0;
       fill('step-' + x.k, 'できた <b>' + x.n + '</b>人 ／ 止まっている <b' + (st ? ' class="red"' : '') + '>' + st + '</b>人');
     });
+    // みんなの進み具合（資料のいちばん最後）：手順ごとの「できた」の人数（Exp と同じ形。2026-11-12）
+    fill('steps', (r.steps || []).length ? bars(r.steps.map(function(x){ return {l:x.l, n:x.n}; }), '', N) : NONE);
     FIRST = r.stepFirst || {}; if (r.now) OFFSET = r.now - Date.now(); tick();
     DONE = {}; (r.steps || []).forEach(function(x){ DONE[x.k] = x.n; }); drawDone();
     var P = [['a1', 'A-1 作業場所'], ['a', 'A 番号を当てた'], ['b1', 'B-1 mycat1'], ['b', 'B 壊した'],
