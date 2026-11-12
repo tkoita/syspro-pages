@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第6週目 授業資料：失敗を確かめる — システムプログラミング</title><style>
+<!DOCTYPE html><html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>第6週目 授業資料：strace でのぞく — システムプログラミング</title><style>
 
 
 :root{--paper:#fbfaf7;--ink:#1f2933;--soft:#52606d;--line:#d9dee5;--codebg:#f4f6f9;}
@@ -379,7 +379,7 @@ dl.gloss code{background:#f1f3f6;border:1px solid #e0e4ea;border-radius:4px;padd
 .stepcheck .msg{flex-basis:100%;font-size:12.4px;font-weight:800;}
 .stepcheck .msg:empty{display:none;}
 .stepcheck .msg.ok{color:#0F6B60;} .stepcheck .msg.bad{color:#BE3E1B;}
-.prog.p8{grid-template-columns:repeat(4,1fr);}
+.prog.p8{grid-template-columns:repeat(3,1fr);}
 @media print{.stepcheck,.live{display:none!important;}}
 
 /* 先週の質問に答える */
@@ -395,7 +395,7 @@ details.ans>div{padding:0 14px 12px;}
 </style></head><body>
 <header class="topnav">
   <div class="inner">
-    <div class="brandstack"><a class="brand" href="index.html" title="システムプログラミングの資料一覧へ">第6週目 授業資料：失敗を確かめる<span>システムプログラミング</span></a><a class="prev" href="第5週目_授業資料_測る・のぞく.html">← 第5週目の資料</a></div>
+    <div class="brandstack"><a class="brand" href="index.html" title="システムプログラミングの資料一覧へ">第6週目 授業資料：strace でのぞく<span>システムプログラミング</span></a><a class="prev" href="第5週目_授業資料_測る・のぞく.html">← 第5週目の資料</a></div>
     <style>.midstack{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:2px;}.midstack .links{width:100%;}.midstack .mid{font-size:11.5px;font-weight:800;color:#0f766e;text-decoration:none;white-space:nowrap;line-height:1.2;}.midstack .mid:hover{text-decoration:underline;text-underline-offset:3px;}@media print{.midstack .mid{display:none!important;}}</style>
     <div class="midstack">
     <div class="links">
@@ -417,11 +417,11 @@ details.ans>div{padding:0 14px 12px;}
 <section class="topnotice" id="top">
   <h2>★ 今日の90分で、必ずやること（3つ）</h2>
   <ol>
-    <li><b>自作の <code>mycat1</code> を打って、無いファイルで「黙って成功する」ところを <code>echo $?</code> で見る</b>（演習B）</li>
-    <li><b><code>mycat2</code> に3か所足して、本物の <code>cat</code> と同じ「失敗」の終わり方にする</b>（演習C）</li>
-    <li><b>「<code>mycat1</code> はなぜ黙ったのか」を1文で書いて送る</b>（まとめ）</li>
+    <li><b><code>strace</code> で本物の <code>cat</code> をのぞき、<code>numbers.txt</code> を開いた行と、その返事を見つける</b>（演習A）</li>
+    <li><b>自作の <code>mycat1</code> に無いファイルを渡し、<code>strace</code> で「失敗の返事が来たのに、そのまま読みに行った」行を見つける</b>（演習B）</li>
+    <li><b><code>mycat2</code> で直し、「<code>mycat1</code> はなぜ黙ったのか」を1文で書いて送る</b>（演習C・まとめ。最後に1分のアンケートも）</li>
   </ol>
-  <p>演習A（作業場所を作り、番号を当てる）は、この3つの準備です。この3つが終われば<b>今日は合格</b>です。<b>今日は提出物はありません</b>（中間レポートを進めてください）。終わるたびに、演習の下の欄から送ってください。結果はその欄の右と、資料のいちばん最後の「みんなの進み具合」にその場で出ます（人数と分布だけ。名前は出ません）。</p>
+  <p>この3つが終われば<b>今日は合格</b>です。<b>今日は提出物はありません</b>（中間レポートを進めてください）。終わるたびに、演習の下の欄から送ってください。結果はその欄の右と、資料のいちばん最後の「みんなの進み具合」にその場で出ます（人数と分布だけ。名前は出ません）。</p>
   <div class="me">
     <div class="mel">
     <label>自分の学籍番号</label><input name="sid" inputmode="numeric" autocomplete="off" placeholder="1116240000"><span class="ok"></span>
@@ -437,24 +437,24 @@ details.ans>div{padding:0 14px 12px;}
 <!-- ============================ INTRO ============================ -->
 <section class="sheet i1" id="intro">
   <div class="eyebrow">INTRO<span class="badge">9:00〜10:30</span></div>
-  <h1>失敗を確かめる</h1>
-  <p class="lead">ファイルを開くと、番号がもらえます。<b>もらえなかったときは -1 が返ります。</b>今日は、<b>-1 を確かめないプログラムを自分で書いて、黙って壊れるところを見ます。</b>新しく覚えることは<b>「-1 を確かめて、失敗で終わる」の1つ</b>です（そのための道具として <code>echo $?</code> と <code>perror</code> を使います）。</p>
+  <h1>strace でのぞく</h1>
+  <p class="lead">プログラムは、ファイルを開く・読む・書くたびに、<b>カーネルに頼みごとをしています</b>。<code>strace</code> を使うと、<b>その頼みごとと、カーネルの返事が1行ずつ見えます</b>。今日は、<b>失敗しても黙っているプログラムを自分で書き、<code>strace</code> で中をのぞいて、どこで失敗していたかを見つけます</b>。新しく覚えることは <b><code>strace</code> の1行の読み方</b>の1つです。</p>
   <div class="meta">
     <span><b>作業場所</b> <code>~/syspro/week07</code></span>
-    <span><b>環境</b> Linux ／ ターミナル ／ gcc</span>
+    <span><b>環境</b> Linux ／ ターミナル ／ gcc ／ strace</span>
     <span><b>AI</b> 今日は使いません</span>
-    <span><b>教材</b> 教科書2章 2.5.2・2.10</span>
+    <span><b>教材</b> 教科書2章 2.5.2・2.10 ／ <code>man strace</code></span>
   </div>
   <h2>今日の流れ</h2>
   <table class="levels">
     <thead><tr><th style="width:110px;">時刻</th><th>内容</th><th style="width:60px;">分</th></tr></thead>
     <tbody>
-      <tr><td>9:00〜9:20</td><td>講義：先週の質問 ／ <code>bufcp.c</code> の1行 ／ 番号札と -1 ／ 終わり方 <code>$?</code></td><td>20</td></tr>
-      <tr><td>9:20〜9:35</td><td><b>演習A</b>　作業場所を作り、<code>open</code> がくれる番号を当てる</td><td>15</td></tr>
-      <tr><td>9:35〜9:55</td><td><b>演習B</b>　<code>mycat1</code> を打って、無いファイルで壊す</td><td>20</td></tr>
-      <tr><td>9:55〜10:12</td><td><b>演習C</b>　<code>mycat2</code> で直す</td><td>17</td></tr>
-      <tr><td>10:12〜10:17</td><td><span class="tag plus">余裕があれば</span><b>演習D</b>　理由は何番に出ているか</td><td>5</td></tr>
-      <tr><td>10:17〜10:30</td><td>まとめ：1文を送る ／ 今日の1文（軸文）を読む（みんなの進み具合は資料のいちばん最後）</td><td>13</td></tr>
+      <tr><td>9:00〜9:20</td><td>講義：先週の質問 ／ 頼みごとと返事 ／ <code>strace</code> の1行の読み方</td><td>20</td></tr>
+      <tr><td>9:20〜9:35</td><td><b>演習A</b>　本物の <code>cat</code> をのぞく</td><td>15</td></tr>
+      <tr><td>9:35〜9:55</td><td><b>演習B</b>　<code>mycat1</code> を打って、無いファイルで壊し、のぞく</td><td>20</td></tr>
+      <tr><td>9:55〜10:12</td><td><b>演習C</b>　<code>mycat2</code> で直し、もう一度のぞく</td><td>17</td></tr>
+      <tr><td>10:12〜10:17</td><td><span class="tag plus">余裕があれば</span><b>演習D</b>　本物の <code>cat</code> も -1 をもらっていたか</td><td>5</td></tr>
+      <tr><td>10:17〜10:30</td><td>まとめ：1文を送る ／ 今日の1文（軸文）を読む ／ 授業アンケート（1分）（みんなの進み具合は資料のいちばん最後）</td><td>13</td></tr>
     </tbody>
   </table>
   <p class="note">右上の時計の下の横棒は、<b>いま見ている節の残り時間</b>です。終わりの5分前に黄色、過ぎると赤になります。</p>
@@ -464,49 +464,42 @@ details.ans>div{padding:0 14px 12px;}
 <!-- ============================ LECTURE ============================ -->
 <section class="sheet k2" id="lecture" data-start="9:00" data-end="9:20" data-label="講義">
   <div class="eyebrow">LECTURE<span class="badge">9:00〜9:20</span></div>
-  <h1>講義：番号がもらえなかったら</h1>
+  <h1>講義：頼みごとと、返事</h1>
   <p class="lead">手は動かしません。メモも不要です（全部この資料にあります）。</p>
 
   <h2>1-1 先週の質問に答える（2分）</h2>
   <div class="qa"><div class="q">Q. 小さく分けたほうが速かったのに、なぜ AI は「大きいバイト」と答えたのですか？</div>
-    <div class="a">先週の実測では、<b>4096バイトずつのほうが速く</b>、1バイトずつ（いちばん小さく分けた）がいちばん遅かったはずです（送った人の真ん中の値で、約200倍）。AI の「大きいほうが速い」は、<b>向きとしては実測と同じ</b>です。ただし「どこまで大きくすれば速くなり続けるか」は、AI も知りません。<b>それを 1バイト〜1MB で測るのが、中間レポートの課題1です。</b></div></div>
+    <div class="a">まず言い直すと、<b>小さく分けた（1バイトずつ）ほうが遅く</b>、大きく分けたほうが速かったはずです。先週の実測では、<b>4096バイトずつのほうが速く</b>、1バイトずつ（いちばん小さく分けた）がいちばん遅かったはずです（送った人の真ん中の値で、約200倍）。AI の「大きいほうが速い」は、<b>向きとしては実測と同じ</b>です。ただし「どこまで大きくすれば速くなり続けるか」は、AI も知りません。<b>それを 1バイト〜1MB で測るのが、中間レポートの課題1です。</b></div></div>
   <details class="ans"><summary>もう1つの質問：第5週目の演習Cで、なぜ地名が見えたのですか？（参考）</summary><div>ファイルの中に、地名の文字が<b>1文字1バイトのまま</b>入っているからです。<code>od -c</code> は、文字として読めるバイトを文字で出します。数（整数や小数）は文字ではなく<b>値の形</b>で入っているので、<code>\0</code> や3桁の数字に見えます。どこから何バイトが何なのかを突き止めるのが、課題2です。</div></details>
 
-  <h2>1-2 <code>bufcp.c</code> に、もう入っていた1行</h2>
-  <p class="note">先週コンパイルした <code>bufcp.c</code> の22行目に、こういう行がありました。</p>
-  <pre class="code">int in = open(argv[1], O_RDONLY);
-if (in == -1) { perror(argv[1]); return 1; }   <span class="cmt">// ← この行</span></pre>
-  <div class="design"><b>この行が無かったら、どうなるか。</b>今日は、この行が無いプログラム（<code>mycat1</code>）を自分で書いて確かめ、そのあとで足します（<code>mycat2</code>）。</div>
-
-  <h2>1-3 番号がもらえなかったら、-1</h2>
-  <p class="note">クロークの番号札と同じです。<b>0（キーボード＝標準入力）・1（画面＝標準出力）・2（画面のエラー用＝標準エラー出力）は、起動したときからもう配られている</b>ので、<code>open</code> が最初にくれるのは <b>3</b>。ファイルが無いときや読む権限が無いときは、札の代わりに <b>-1</b>（「だめでした」の合図）が返ります。</p>
+  <h2>1-2 プログラムは、カーネルに頼んで仕事をする</h2>
+  <p class="note">第4週目の地図で、コマンドとハードウェアの間には<b>カーネル</b>がいました。ファイルを開く・読む・書く・閉じるは、どれも<b>カーネルへの頼みごと（システムコール）</b>です。頼むと、カーネルは<b>必ず数で返事</b>をします。</p>
   <div class="fourfn">
-    <div class="fn o"><span class="nm">open</span><span class="ja">番号をもらう</span><span class="sig">fd = open(名前, O_RDONLY);</span>成功すると <b>3</b> などの番号。失敗すると <b>-1</b>。</div>
+    <div class="fn o"><span class="nm">open</span><span class="ja">開いて、番号をもらう</span><span class="sig">fd = open(名前, O_RDONLY);</span>成功すると番号。失敗すると <b>-1</b>。</div>
     <div class="fn"><span class="nm">read</span><span class="ja">番号の先から読む</span><span class="sig">n = read(fd, buf, 4096);</span>読めたバイト数。終わりなら <b>0</b>。</div>
     <div class="fn"><span class="nm">write</span><span class="ja">番号の先へ書く</span><span class="sig">write(1, buf, n);</span>1番（画面）へ n バイト書く。</div>
     <div class="fn"><span class="nm">close</span><span class="ja">番号を返す</span><span class="sig">close(fd);</span>使い終わった番号を返す。</div>
   </div>
+  <p class="note">番号の 0（キーボード）・1（画面）・2（画面のエラー用）は、起動したときからもう配られています。</p>
 
-  <h2>1-4 プログラムの「終わり方」：<code>echo $?</code></h2>
-  <pre class="code">ls
-echo $?</pre>
-  <div class="outlabel">こう出ます（ls の一覧のあとに）</div>
-  <pre class="out">0</pre>
-  <div class="cmdlist">
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">echo $?</span><span class="cmdtag">終わり方を見る</span></div>
-      <p><span class="lbl">何をする</span><b>直前のコマンドが、どう終わったか</b>を数で表示します。<b>0 なら成功、0 以外なら失敗</b>。</p>
-      <p><span class="lbl">どこから来る</span>C の <code>main</code> の最後の <code>return 0;</code> の <b>0</b> が、ここに出ます。</p></div>
-  </div>
+  <h2>1-3 <code>strace</code> の1行の読み方</h2>
+  <p class="note"><code>strace コマンド</code> と打つと、そのコマンドがカーネルに頼んだことが、<b>1回につき1行</b>出ます。<b>読むのは「名前」と「= の右（返事）」だけ</b>で十分です。</p>
+  <pre class="code">openat(AT_FDCWD, "memo.txt", O_RDONLY) = ○
+<span class="cmt">└名前┘ └────── 頼んだ中身 ──────┘   └返事（番号）┘</span></pre>
+  <p class="note">○ に、カーネルがくれた番号が入ります（何番になるかは、演習Aで自分の目で見ます）。</p>
+  <p class="note">失敗したときは、返事が <b>-1</b> になり、その後ろに<b>理由の短い名前</b>が付きます。</p>
+  <pre class="code">openat(AT_FDCWD, "nosuch.txt", O_RDONLY) = -1 ENOENT (No such file or directory)</pre>
+  <div class="design"><b><code>open</code> は、<code>strace</code> では <code>openat</code> と出ます。</b>今の Linux では、C の <code>open</code> が中で <code>openat</code> という頼み方をするからです（中身は同じです）。<code>AT_FDCWD</code> は「今いる場所から探して」という意味です。</div>
 
-  <h2>1-5 『伽藍とバザール』：見えない失敗は、誰にも見つけられない</h2>
-  <div class="quote"><span class="qh">引用 ── 教訓 8（リーヌスの法則）</span>ベータテスタと共同開発者の基盤さえ十分大きければ、ほとんどすべての問題はすぐに見つけだされて、その直し方もだれかにはすぐわかるはず。<span class="tie">Raymond はこれを「目玉の数さえ十分あれば、どんなバグも深刻ではない」と言い直しています。→ <b>ただし、目玉が何個あっても、見えないものは見つけられません。</b>今日の <code>mycat1</code> は、失敗しても何も言わず、0（成功）で終わります。</span></div>
+  <h2>1-4 『伽藍とバザール』：見えない失敗は、誰にも見つけられない</h2>
+  <div class="quote"><span class="qh">引用 ── 教訓 8（リーヌスの法則）</span>ベータテスタと共同開発者の基盤さえ十分大きければ、ほとんどすべての問題はすぐに見つけだされて、その直し方もだれかにはすぐわかるはず。<span class="tie">Raymond はこれを「目玉の数さえ十分あれば、どんなバグも深刻ではない」と言い直しています。→ <b>ただし、目玉が何個あっても、見えないものは見つけられません。</b>今日の <code>mycat1</code> は、失敗しても何も言いません。<b><code>strace</code> は、プログラムが黙っていても、カーネルとのやりとりを見せてくれる「もう1つの目玉」です。</b></span></div>
   <div class="foot">講義 ／ 第6週目</div>
 </section>
 
 <!-- ============================ A ============================ -->
 <section class="sheet k1" id="exA" data-start="9:20" data-end="9:35" data-label="演習A">
   <div class="eyebrow"><span class="no">A</span>OBSERVE<span class="badge">9:20〜9:35</span></div>
-  <h1><span class="tag must">必須</span>演習A　番号を当てる</h1>
+  <h1><span class="tag must">必須</span>演習A　本物の <code>cat</code> をのぞく</h1>
 
   <h2>A-1 今日の作業場所を作る</h2>
   <pre class="code">mkdir -p ~/syspro/week07     <span class="cmt"># 今日の作業場所を作る</span>
@@ -518,62 +511,53 @@ wc -l numbers.txt            <span class="cmt"># 行数を数える</span></pre>
   <div class="cmdlist">
     <div class="cmd"><div class="cmdhead"><span class="cmdname">seq 200</span><span class="cmdtag">数を並べる</span></div>
       <p><span class="lbl">何をする</span>1 から 200 までの数を、1行に1つずつ出力します。<code>&gt; numbers.txt</code> で、画面ではなくファイルに書きます（第3・4週目の <code>numbers.txt</code> と同じ中身になります）。</p></div>
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">wc -l ファイル</span><span class="cmdtag">行数</span></div>
-      <p><span class="lbl">何をする</span>ファイルの行数を数えます（<code>-l</code> は lines の l）。</p></div>
   </div>
   <div class="stepcheck" data-step="a1"><span class="sl">A-1 作業場所を作った</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-a1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="a1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
 
-  <h2>A-2 番号を予想してから、当てる</h2>
-  <p class="note">エディタで <code>fdnum.c</code> を作り、下のコードを<b>コピーボタンで貼って</b>保存します（打たなくてかまいません）。<b>実行する前に、①〜④ に何が出るかを予想してください。</b></p>
-  <pre class="code">/* fdnum.c ---- open がくれる番号を見る（コピーして貼る。打たなくてよい） */
-#include &lt;stdio.h&gt;      /* printf */
-#include &lt;fcntl.h&gt;      /* open   */
-#include &lt;unistd.h&gt;     /* close  */
-
-int main(void)
-{
-    int a, b, c, d;
-
-    a = open("numbers.txt", O_RDONLY);
-    printf("① 1回目の open        : %d\n", a);
-
-    b = open("numbers.txt", O_RDONLY);
-    printf("② 2回目の open        : %d\n", b);
-
-    close(a);
-    c = open("numbers.txt", O_RDONLY);
-    printf("③ %d を返してから open : %d\n", a, c);
-
-    d = open("nofile.txt", O_RDONLY);
-    printf("④ 無いファイルを open : %d\n", d);
-
-    return 0;
-}</pre>
-  <pre class="code">gcc -Wall -o fdnum fdnum.c    <span class="cmt"># コンパイルする（何も出なければ成功）</span>
-./fdnum                       <span class="cmt"># 動かす</span></pre>
-  <details class="ans"><summary>こう出れば正解（予想してから開く）</summary><div>
-  <pre class="out">① 1回目の open        : 3
-② 2回目の open        : 4
-③ 3 を返してから open : 3
-④ 無いファイルを open : -1</pre>
-  ① が 3 なのは、0・1・2 がもう使われているから。③ がまた 3 なのは、札は<b>空いている中でいちばん小さい番号</b>だから。④ の <b>-1</b> は「札は出せません」。この -1 を、演習Bでもう一度見ます。</div></details>
+  <h2>A-2 予想してから、のぞく</h2>
+  <p class="note"><b>実行する前に予想してください。</b><code>cat</code> が <code>numbers.txt</code> を開いたとき、カーネルは何番を返すでしょうか（ヒント：0・1・2 はもう配られています）。</p>
+  <pre class="code">strace -e trace=openat,read,write,close cat numbers.txt &gt; /dev/null</pre>
+  <div class="cmdlist">
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">strace コマンド</span><span class="cmdtag">のぞく</span></div>
+      <p><span class="lbl">何をする</span>後ろのコマンドを動かしながら、そのコマンドがカーネルに頼んだことと返事を、<b>2番（画面のエラー用）</b>に1行ずつ出します。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">-e trace=openat,read,write,close</span><span class="cmdtag">絞る</span></div>
+      <p><span class="lbl">何をする</span>見る頼みごとを、今日の4つだけに絞ります（絞らないと、数十行出ます）。</p></div>
+    <div class="cmd"><div class="cmdhead"><span class="cmdname">&gt; /dev/null</span><span class="cmdtag">捨てる</span></div>
+      <p><span class="lbl">何をする</span><code>cat</code> が1番に出す200行を捨てます。<code>strace</code> の行は2番に出るので、画面に残ります。</p></div>
+  </div>
+  <div class="outlabel">こういう形で出ます（はじめの数行と、<code>0x</code> で始まる数は人によって違います）</div>
+  <pre class="out">openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3      <span class="cmt">← はじめの数行は</span>
+close(3)                                = 0                       <span class="cmt">   cat が動く準備</span>
+openat(AT_FDCWD, "/lib64/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+  ……
+openat(AT_FDCWD, "numbers.txt", O_RDONLY) = ○     <span class="cmt">← この行を探す</span>
+read(○, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14"..., 131072) = 692
+write(1, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14"..., 692) = 692
+read(○, "", 131072)                     = 0
+close(○)                                = 0
+close(1)                                = 0      <span class="cmt">← 最後の2行は、cat が</span>
+close(2)                                = 0      <span class="cmt">   1番・2番を片づけている</span>
++++ exited with 0 +++</pre>
+  <p class="note"><b>はじめの数行は、<code>cat</code> が動く準備（部品のライブラリを開いている）なので、読み飛ばします。</b><code>"numbers.txt"</code> が出てくる行を探してください。</p>
 
   <div class="pair" data-act="a">
   <div class="send" data-act="a">
     <h4><span class="tag must">必須</span>A を送る</h4>
-    <div class="row"><span class="lab">④ の予想（実行する前）</span><span class="chips"><label><input type="radio" name="pred4" value="m1">-1</label><label><input type="radio" name="pred4" value="z">0</label><label><input type="radio" name="pred4" value="p3">3</label><label><input type="radio" name="pred4" value="p4">4</label><label><input type="radio" name="pred4" value="o">そのほか</label></span></div>
-    <div class="row"><span class="lab">④ で出た数</span><span class="chips"><label><input type="radio" name="got4" value="m1">-1</label><label><input type="radio" name="got4" value="z">0</label><label><input type="radio" name="got4" value="p3">3</label><label><input type="radio" name="got4" value="p4">4</label><label><input type="radio" name="got4" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">numbers.txt を開いた行の返事の予想（実行する前）</span><span class="chips"><label><input type="radio" name="pred4" value="m1">-1</label><label><input type="radio" name="pred4" value="z">0</label><label><input type="radio" name="pred4" value="p3">3</label><label><input type="radio" name="pred4" value="p4">4</label><label><input type="radio" name="pred4" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">実際の返事（= の右）</span><span class="chips"><label><input type="radio" name="got4" value="m1">-1</label><label><input type="radio" name="got4" value="z">0</label><label><input type="radio" name="got4" value="p3">3</label><label><input type="radio" name="got4" value="p4">4</label><label><input type="radio" name="got4" value="o">そのほか</label></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
-  <div class="live"><h4>みんなの ④（予想と、出た数）</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="fd"></div></div>
+  <div class="live"><h4>みんなの返事（予想と、実際）</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="fd"></div></div>
   </div>
+  <details class="ans"><summary>何が見えたか（送ってから開く）</summary><div>
+  <code>numbers.txt</code> の返事は <b>3</b> です（0・1・2 はもう使われているので、空いている中でいちばん小さい番号）。そのあと <code>cat</code> は、<b>3番から読み（<code>read(3, …) = 692</code>：692バイト読めた）、1番に書き（<code>write(1, …)</code>）、もう一度読んで 0（終わり）が返ったので、3番を返しています（<code>close(3)</code>）</b>。講義 1-2 の4つが、この順で並んでいます。</div></details>
   <div class="foot">演習A ／ 第6週目</div>
 </section>
 
 <!-- ============================ B ============================ -->
 <section class="sheet k2" id="exB" data-start="9:35" data-end="9:55" data-label="演習B">
   <div class="eyebrow"><span class="no">B</span>BREAK<span class="badge">9:35〜9:55</span></div>
-  <h1><span class="tag must">必須</span>演習B　<code>mycat1</code> を書いて、壊す</h1>
+  <h1><span class="tag must">必須</span>演習B　<code>mycat1</code> を書いて、壊して、のぞく</h1>
 
   <h2>B-1 <code>mycat1.c</code> を打って、コンパイルする</h2>
   <p class="note">エディタで <code>mycat1.c</code> を作り、次のとおりに<b>打って</b>ください（<code>/* */</code> の中は説明なので、打たなくてもかまいません）。<code>main</code> の中は7行です。</p>
@@ -598,54 +582,50 @@ int main(int argc, char *argv[])
   <div class="outlabel">こう出れば正解</div>
   <pre class="out">（何も出ない。次のプロンプト $ が出る）</pre>
   <div class="timerule"><b>8分たっても打ち終わらなければ、コピーボタンを使ってかまいません。</b>打つことは手段です。B-3 に届かないほうが、ずっと損です。</div>
-  <div class="cmdlist">
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">argv[1]</span><span class="cmdtag">1つ目の言葉</span></div>
-      <p><span class="lbl">何か</span>コマンドの後ろに書いた1つ目の言葉です。<code>./mycat1 numbers.txt</code> なら <code>"numbers.txt"</code>。</p></div>
-    <div class="cmd"><div class="cmdhead"><span class="cmdname">while ((n = read(…)) &gt; 0)</span><span class="cmdtag">くり返す</span></div>
-      <p><span class="lbl">何をする</span><code>read</code> が1バイト以上読めたあいだ、くり返します。読み終わると <code>read</code> は 0 を返すので、ループが終わります。</p></div>
-  </div>
   <div class="stepcheck" data-step="b1"><span class="sl">B-1 mycat1 をコンパイルした</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-b1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="b1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
 
-  <h2>B-2 本物の <code>cat</code> と比べる</h2>
-  <pre class="code">./mycat1 numbers.txt | wc -l    <span class="cmt"># 自作で 200 行出るか</span>
-cat numbers.txt | wc -l         <span class="cmt"># 本物も 200</span></pre>
-  <div class="outlabel">こう出れば正解</div>
-  <pre class="out">200
-200</pre>
-
-  <h2>B-3 壊す ― 無いファイルを渡す<span class="tag must" style="margin-left:8px;">今日の中心</span></h2>
-  <p class="note"><code>nofile.txt</code> というファイルは<b>ありません</b>。本物と自作に、同じものを渡します。</p>
+  <h2>B-2 壊す ― 無いファイルを渡す</h2>
+  <p class="note"><code>nofile.txt</code> というファイルは<b>ありません</b>。本物と自作に、同じものを渡します。<code>echo $?</code> は、<b>すぐ前のコマンドの終わり方</b>（0 なら成功、0 以外なら失敗）を出します。</p>
   <pre class="code">cat nofile.txt         <span class="cmt"># ① 本物の cat に、無いファイルを渡す</span>
 echo $?                <span class="cmt">#    終わり方を見る</span>
 ./mycat1 nofile.txt    <span class="cmt"># ② 自作の mycat1 に、同じものを渡す</span>
 echo $?                <span class="cmt">#    終わり方を見る</span></pre>
-  <div class="outlabel">こういう形で出ます（○ のところを、自分の画面で確かめて送る）</div>
+  <div class="outlabel">こういう形で出ます（○ のところを、自分の画面で確かめる）</div>
   <pre class="out">cat: nofile.txt: No such file or directory
-○        ← ① の終わり方
-○        ← ② の終わり方（② は、この数字1つだけ）</pre>
+1        ← ① 本物は「失敗」で終わる
+○        ← ② mycat1 は、この数字1つだけ</pre>
   <p class="note">1行目は、日本語で <code>cat: nofile.txt: そのようなファイルやディレクトリはありません</code> と出ることもあります（どちらでも正解です）。</p>
+
+  <h2>B-3 のぞく ― どこで失敗していたか<span class="tag must" style="margin-left:8px;">今日の中心</span></h2>
+  <p class="note"><code>mycat1</code> は何も言いませんでした。<code>strace</code> で、カーネルとのやりとりをのぞきます。</p>
+  <pre class="code">strace -e trace=openat,read,write,close ./mycat1 nofile.txt</pre>
+  <div class="outlabel">こういう形で出ます（はじめの数行は準備。<b>"nofile.txt" の行から下を読む</b>）</div>
+  <pre class="out">  ……
+openat(AT_FDCWD, "nofile.txt", O_RDONLY) = ○ ENOENT (No such file or directory)
+read(○, 0x7ffd3c5e1a40, 4096)           = -1 EBADF (Bad file descriptor)
+close(○)                                = -1 EBADF (Bad file descriptor)
++++ exited with 0 +++</pre>
 
   <div class="pair" data-act="b">
   <div class="send" data-act="b">
-    <h4><span class="tag must">必須</span>B を送る（<code>echo $?</code> に出た数）</h4>
-    <div class="row"><span class="lab">① 本物の cat</span><span class="chips"><label><input type="radio" name="catx" value="z">0</label><label><input type="radio" name="catx" value="one">1</label><label><input type="radio" name="catx" value="o">そのほか</label></span></div>
-    <div class="row"><span class="lab">② 自作の mycat1</span><span class="chips"><label><input type="radio" name="myx" value="z">0</label><label><input type="radio" name="myx" value="one">1</label><label><input type="radio" name="myx" value="o">そのほか</label></span></div>
+    <h4><span class="tag must">必須</span>B を送る</h4>
+    <div class="row"><span class="lab">② mycat1 の <code>echo $?</code></span><span class="chips"><label><input type="radio" name="catx" value="z">0</label><label><input type="radio" name="catx" value="one">1</label><label><input type="radio" name="catx" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">strace で、<code>"nofile.txt"</code> を開いた行の返事</span><span class="chips"><label><input type="radio" name="myx" value="m1">-1</label><label><input type="radio" name="myx" value="z">0</label><label><input type="radio" name="myx" value="p3">3</label><label><input type="radio" name="myx" value="p4">4</label><label><input type="radio" name="myx" value="o">そのほか</label></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
-  <div class="live"><h4>みんなの終わり方</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="exitb"></div></div>
+  <div class="live"><h4>みんなの mycat1</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="exitb"></div></div>
   </div>
 
   <details class="ans"><summary>何が起きたか（送ってから開く）</summary><div>
-  本物の <code>cat</code> は「そんなファイルはない」と言って、<b>1（失敗）</b>で終わりました。<code>mycat1</code> は何も言わず、<b>0（成功）</b>で終わりました。<br>
-  <code>open</code> はちゃんと <b>-1</b> を返していました（A-2 の ④ と同じ）。<code>mycat1</code> はそれを確かめずに、-1 番で <code>read</code> しました。<code>read</code> も失敗して、ループは1回も回らずに <code>return 0;</code> まで来ました。<br>
-  <b>打ち間違いは1文字もありません。確かめる行が、無かっただけです。</b>毎晩 <code>./mycat1 data.txt &gt; backup.txt</code> を自動で動かしていたら、<code>data.txt</code> が消えた日から、<code>backup.txt</code> は毎晩<b>空で上書き</b>され、それでも「成功」で終わります。最後の正しいバックアップまで消えます。</div></details>
+  カーネルは、<code>openat</code> に <b>-1</b>（理由 <code>ENOENT</code>：そんなファイルは無い）と、ちゃんと返事をしていました。<code>mycat1</code> はそれを確かめずに、<b>-1 番で <code>read</code> を頼み</b>、また -1（理由 <code>EBADF</code>：そんな番号は無い）をもらいました。ループは1回も回らず、<code>close(-1)</code> も失敗し、最後は <code>return 0;</code> で <b>「成功」（<code>exited with 0</code>）</b>で終わりました。<br>
+  <b>打ち間違いは1文字もありません。失敗の返事は3回も来ていたのに、確かめる行が無かっただけです。</b>毎晩 <code>./mycat1 data.txt &gt; backup.txt</code> を自動で動かしていたら、<code>data.txt</code> が消えた日から、<code>backup.txt</code> は毎晩<b>空で上書き</b>され、それでも「成功」で終わります。</div></details>
   <div class="foot">演習B ／ 第6週目</div>
 </section>
 
 <!-- ============================ C ============================ -->
 <section class="sheet k3" id="exC" data-start="9:55" data-end="10:12" data-label="演習C">
   <div class="eyebrow"><span class="no">C</span>FIX<span class="badge">9:55〜10:12</span></div>
-  <h1><span class="tag must">必須</span>演習C　<code>mycat2</code> で直す</h1>
+  <h1><span class="tag must">必須</span>演習C　<code>mycat2</code> で直して、もう一度のぞく</h1>
 
   <h2>C-1 写して、★の3か所を足す</h2>
   <pre class="code">cp mycat1.c mycat2.c    <span class="cmt"># mycat1.c を写して mycat2.c を作る</span></pre>
@@ -663,8 +643,8 @@ int main(int argc, char *argv[])
     int  fd, n;
 
     fd = open(argv[1], O_RDONLY);               /* ① 番号をもらう   */
-    if (fd == -1) {                             /* ★変更2：札が出なかったら */
-        perror(argv[1]);                        /*   理由を2番に書いて       */
+    if (fd == -1) {                             /* ★変更2：返事が -1 なら */
+        perror(argv[1]);                        /*   理由を2番に書いて     */
         return 1;                               /* ★変更3：「失敗」で終わる */
     }
     while ((n = read(fd, buf, BUFSIZE)) &gt; 0)    /* ② その番号で読む */
@@ -675,28 +655,33 @@ int main(int argc, char *argv[])
   <pre class="code">gcc -Wall -o mycat2 mycat2.c</pre>
   <div class="cmdlist">
     <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更2　if (fd == -1)</span><span class="cmdtag">今日の本体</span></div>
-      <p><span class="lbl">何をする</span>札が -1 なら、それより先へ進まない。<b>今日いちばん大事な1行</b>です。</p></div>
+      <p><span class="lbl">何をする</span>返事が -1 なら、それより先へ進まない。<b>今日いちばん大事な1行</b>です。</p></div>
     <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更1・perror(argv[1])</span><span class="cmdtag">理由を出す</span></div>
-      <p><span class="lbl">何をする</span>失敗の理由を人の言葉にして、<b>2番（標準エラー出力）</b>に書く関数です（教科書 2.10）。使うには <code>#include &lt;stdio.h&gt;</code> が要ります。</p></div>
+      <p><span class="lbl">何をする</span>失敗の理由（<code>ENOENT</code> など）を人の言葉にして、<b>2番</b>に書く関数です（教科書 2.10）。使うには <code>#include &lt;stdio.h&gt;</code> が要ります。</p></div>
     <div class="cmd"><div class="cmdhead"><span class="cmdname">★変更3　return 1;</span><span class="cmdtag">失敗で終わる</span></div>
       <p><span class="lbl">何をする</span>この <b>1</b> が <code>echo $?</code> に出ます。本物の <code>cat</code> と同じ終わり方になります。</p></div>
   </div>
   <div class="stepcheck" data-step="c1"><span class="sl">C-1 mycat2 をコンパイルした</span><button type="button" class="sdone">できた</button><button type="button" class="sstuck">ここで止まった</button><span class="scount" data-show="step-c1">できた <b>0</b>人 ／ 止まっている <b>0</b>人</span><span class="shint">状態が変わったら押し直す</span><span class="selapsed" data-first="c1">最初の1人が押してから <b>--分--秒</b>（まだ誰も押していません）</span><span class="msg"></span></div>
 
-  <h2>C-2 本物と同じ終わり方になったか</h2>
+  <h2>C-2 直ったかを、2つの方法で確かめる</h2>
   <pre class="code">./mycat2 nofile.txt              <span class="cmt"># 無いファイルを渡す</span>
 echo $?                          <span class="cmt"># 終わり方を見る</span>
-./mycat2 numbers.txt | wc -l     <span class="cmt"># ふつうのときは、今まで通り 200</span></pre>
-  <div class="outlabel">こう出れば正解</div>
+strace -e trace=openat,read,write,close ./mycat2 nofile.txt    <span class="cmt"># のぞく</span></pre>
+  <div class="outlabel">こういう形で出ます（strace のほうは、"nofile.txt" の行から下）</div>
   <pre class="out">nofile.txt: No such file or directory
 1
-200</pre>
+  ……
+openat(AT_FDCWD, "nofile.txt", O_RDONLY) = -1 ENOENT (No such file or directory)
+write(2, "nofile.txt: No such file or dire"..., 38nofile.txt: No such file or directory
+) = 38
++++ exited with 1 +++</pre>
+  <p class="note"><b><code>read</code> の行が消え、代わりに <code>write(2, …)</code> が出ています。</b><code>perror</code> も、2番への <code>write</code> をカーネルに頼んでいます（<code>strace</code> の行の途中に、その文が画面に割り込んで出ます）。</p>
 
   <div class="pair" data-act="c">
   <div class="send" data-act="c">
     <h4><span class="tag must">必須</span>C を送る</h4>
-    <div class="row"><span class="lab">mycat2 の echo $?</span><span class="chips"><label><input type="radio" name="fixx" value="z">0</label><label><input type="radio" name="fixx" value="one">1</label><label><input type="radio" name="fixx" value="o">そのほか</label></span></div>
-    <div class="row"><span class="lab">理由（No such file or directory）が出たか</span><span class="chips"><label><input type="radio" name="msg" value="yes">出た</label><label><input type="radio" name="msg" value="no">出なかった</label></span></div>
+    <div class="row"><span class="lab">mycat2 の <code>echo $?</code></span><span class="chips"><label><input type="radio" name="fixx" value="z">0</label><label><input type="radio" name="fixx" value="one">1</label><label><input type="radio" name="fixx" value="o">そのほか</label></span></div>
+    <div class="row"><span class="lab">strace に <code>write(2, …)</code> の行が出たか</span><span class="chips"><label><input type="radio" name="msg" value="yes">出た</label><label><input type="radio" name="msg" value="no">出なかった</label></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
   <div class="live"><h4>みんなの mycat2</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="exitc"></div></div>
@@ -706,20 +691,29 @@ echo $?                          <span class="cmt"># 終わり方を見る</span
 
 <!-- ============================ D ============================ -->
 <section class="sheet k4" id="exD" data-start="10:12" data-end="10:17" data-label="演習D">
-  <div class="eyebrow"><span class="no">D</span>WHERE<span class="badge">10:12〜10:17</span></div>
-  <h1><span class="tag plus">余裕があれば</span>演習D　理由は、何番に出ているか</h1>
-  <p class="lead"><code>&gt;</code> は <b>1番（標準出力）だけ</b>をファイルへ付け替えます（第3週目）。<code>perror</code> の理由は、どこに出るでしょうか。</p>
-  <pre class="code">./mycat2 nofile.txt &gt; out.txt    <span class="cmt"># 1番を out.txt に付け替えて動かす</span>
-wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バイト）を見る</span></pre>
+  <div class="eyebrow"><span class="no">D</span>COMPARE<span class="badge">10:12〜10:17</span></div>
+  <h1><span class="tag plus">余裕があれば</span>演習D　本物の <code>cat</code> も、-1 をもらっていたか</h1>
+  <p class="lead">本物の <code>cat</code> に無いファイルを渡したときも、のぞいてみます。</p>
+  <pre class="code">strace -e trace=openat,write cat nofile.txt</pre>
+  <div class="outlabel">こういう形で出ます（はじめの数行は準備。"nofile.txt" の行から下を読む）</div>
+  <pre class="out">  ……
+openat(AT_FDCWD, "nofile.txt", O_RDONLY) = ○ ENOENT (No such file or directory)
+write(2, "cat: ", 5cat: )                    = 5
+write(2, "nofile.txt", 10nofile.txt)              = 10
+write(2, ": \343\201\235\343\201\256\343\202\210"..., 68: そのようなファイルやディレクトリはありません) = 68
+write(2, "\n", 1
+)                       = 1
++++ exited with 1 +++</pre>
+  <p class="note">本物の <code>cat</code> は、理由の文を<b>何回かの <code>write(2, …)</code> に分けて</b>書きます（<code>mycat2</code> の <code>perror</code> は1回でした）。日本語の文字は、<code>strace</code> では <code>\343\201\235</code> のような数の並びで出ます（1文字が3バイト）。"nofile.txt" の行の前に、日本語の文を読むための <code>openat</code> の行も増えます。</p>
   <div class="pair" data-act="d">
   <div class="send" data-act="d">
     <h4>D を送る</h4>
-    <div class="row"><span class="lab">理由は画面に出たか</span><span class="chips"><label><input type="radio" name="screen" value="yes">画面に出た</label><label><input type="radio" name="screen" value="no">出なかった</label></span></div>
+    <div class="row"><span class="lab">本物の cat も、<code>"nofile.txt"</code> の返事は -1 だったか</span><span class="chips"><label><input type="radio" name="screen" value="yes">-1 だった</label><label><input type="radio" name="screen" value="no">違った</label></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
   <div class="live"><h4>みんなの答え</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="screen"></div></div>
   </div>
-  <details class="ans"><summary>答え（送ってから開く）</summary><div>理由は<b>画面に出て</b>、<code>out.txt</code> は <b>0 バイト</b>です。<code>perror</code> は<b>2番</b>に書くので、1番を付け替えても画面に残ります。<b>データは1番、エラーは2番</b>に分けてあるから、<code>&gt;</code> で保存したファイルにエラーの文が混ざりません。</div></details>
+  <details class="ans"><summary>答え（送ってから開く）</summary><div>本物の <code>cat</code> も、<b>同じ -1（<code>ENOENT</code>）をもらっています</b>。そのあと <code>read</code> には行かず、2番に理由を書いて、失敗で終わります。<b>本物も失敗はします。違いは、返事を確かめているかどうかだけです。</b></div></details>
   <div class="foot">演習D ／ 第6週目</div>
 </section>
 
@@ -732,17 +726,30 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
   <div class="pair" data-act="r">
   <div class="send" data-act="r">
     <h4><span class="tag must">必須</span>振り返りを送る</h4>
-    <div class="row"><span class="lab">今日の難しさ</span><span class="chips"><label><input type="radio" name="diff" value="1">1 とても簡単</label><label><input type="radio" name="diff" value="2">2</label><label><input type="radio" name="diff" value="3">3 ちょうどよい</label><label><input type="radio" name="diff" value="4">4</label><label><input type="radio" name="diff" value="5">5 とても難しい</label></span></div>
-    <div class="row"><span class="lab">★ <code>mycat1</code> は無いファイルで、なぜ黙って「成功」したのか（1文）</span><span><textarea name="why" placeholder="open が ○ を返したのに、…"></textarea></span></div>
+    <div class="row"><span class="lab">★ <code>mycat1</code> は無いファイルで、なぜ黙って「成功」したのか（strace で見えたことを使って1文）</span><span><textarea name="why" placeholder="openat の返事は ○ だったのに、…"></textarea></span></div>
     <div class="row"><span class="lab">質問（任意。次の回の最初に答えます）</span><span><textarea name="q"></textarea></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
-  <div class="live"><h4>今日の難しさ</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="diff"></div></div>
+  <div class="live"><h4>どこまで来たか</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="progress"></div></div>
   </div>
-  <div class="axis" style="margin-top:16px;font-size:16px;text-align:center;"><b>番号がもらえなかったら、-1 が返る。確かめなければ、プログラムは黙る。</b></div>
+  <div class="axis" style="margin-top:16px;font-size:16px;text-align:center;"><b>プログラムが黙っていても、カーネルの返事は strace で見える。返事を確かめなければ、プログラムは黙る。</b></div>
 
   <h2>授業のあとで</h2>
-  <p class="note"><b>今日の提出物はありません。</b>中間レポートを進めてください（入口ページの「中間レポート」）。<b>課題1は今日の授業の前までが目安でした。まだの人は早めに。課題2まで含めた締切は 11月23日（月・祝）23:59</b>、提出は eclass です。今日の授業の中では、中間レポートの時間は取りません。課題1の <code>bufcp.c</code> の22行目は、今日の <code>mycat2</code> の ★変更2・3 と同じ形です。</p>
+  <p class="note"><b>今日の提出物はありません。</b>中間レポートを進めてください（入口ページの「中間レポート」）。<b>課題2まで含めた締切は 11月23日（月・祝）23:59</b>、提出は eclass です。今日の授業の中では、中間レポートの時間は取りません。課題1の <code>bufcp.c</code> の22行目は、今日の <code>mycat2</code> の ★変更2・3 と同じ形です。</p>
+
+  <h2>今日の授業アンケート（1分）</h2>
+  <div class="pair" data-act="v">
+  <div class="send" data-act="v">
+    <h4><span class="tag must">必須</span>アンケートを送る（4つとも答えてから送る）</h4>
+    <div class="row"><span class="lab">今日の難しさ</span><span class="chips"><label><input type="radio" name="diff" value="1">1 とても簡単</label><label><input type="radio" name="diff" value="2">2</label><label><input type="radio" name="diff" value="3">3 ちょうどよい</label><label><input type="radio" name="diff" value="4">4</label><label><input type="radio" name="diff" value="5">5 とても難しい</label></span></div>
+    <div class="row"><span class="lab">進む速さ</span><span class="chips"><label><input type="radio" name="pace" value="fast">速かった</label><label><input type="radio" name="pace" value="ok">ちょうどよい</label><label><input type="radio" name="pace" value="slow">遅かった</label></span></div>
+    <div class="row"><span class="lab">時間が足りなかった所（いちばん足りなかった所を1つ）</span><span class="chips"><label><input type="radio" name="short" value="none">なかった</label><label><input type="radio" name="short" value="lec">講義</label><label><input type="radio" name="short" value="a">演習A</label><label><input type="radio" name="short" value="b">演習B</label><label><input type="radio" name="short" value="c">演習C</label><label><input type="radio" name="short" value="d">演習D</label><label><input type="radio" name="short" value="wrap">まとめ</label></span></div>
+    <div class="row"><span class="lab">感想・分かりにくかった所（1文。空欄では送れません）</span><span><textarea name="note"></textarea></span></div>
+    <p class="hint">次の回と来年度の進め方を直すために使います。成績には関係しません。</p>
+    <button type="button" class="go">送る</button><span class="msg"></span>
+  </div>
+  <div class="live"><h4>みんなの答え（人数だけ。感想の文は出ません）</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="diff"></div></div>
+  </div>
   <div class="foot">まとめ ／ 第6週目</div>
 </section>
 
@@ -754,8 +761,11 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
   <table class="levels">
     <thead><tr><th style="width:42%;">画面に出た文字</th><th>まず確かめること</th></tr></thead>
     <tbody>
-      <tr><td><code>wc: numbers.txt: No such file or directory</code></td><td><code>pwd</code> で今いる場所が <code>~/syspro/week07</code> か。違えば A-1 の <code>cd</code> から。</td></tr>
-      <tr><td><code>fdnum.c: No such file or directory</code>（gcc で）</td><td>エディタの保存先が <code>~/syspro/week07</code> か。<code>ls</code> で <code>fdnum.c</code> が見えるか。</td></tr>
+      <tr><td><code>strace: command not found</code></td><td>手を挙げてください（その PC に strace が入っていません）。</td></tr>
+      <tr><td><code>strace: … Operation not permitted</code></td><td>手を挙げてください。</td></tr>
+      <tr><td>A-2 で <code>read</code>・<code>write</code> の行が出ない</td><td><code>&gt; /dev/null</code> を付け忘れていないか。付けていても出なければ、<code>"numbers.txt"</code> の行の返事だけ見て送り、手を挙げる（<code>cat</code> の版によって、別の頼み方をすることがあります）。</td></tr>
+      <tr><td><code>strace</code> の行が多すぎて読めない</td><td><code>-e trace=openat,read,write,close</code> を付け忘れていないか。<code>"numbers.txt"</code>（または <code>"nofile.txt"</code>）が出てくる行から下だけ読む。</td></tr>
+      <tr><td><code>cat: numbers.txt: No such file or directory</code></td><td><code>pwd</code> で今いる場所が <code>~/syspro/week07</code> か。違えば A-1 の <code>cd</code> から。</td></tr>
       <tr><td><code>warning: implicit declaration of function 'perror'</code></td><td><code>mycat2.c</code> の ★変更1（<code>#include &lt;stdio.h&gt;</code>）が抜けている。</td></tr>
       <tr><td><code>error: expected ';'</code></td><td>言われた行かその1つ上の行の、最後の <code>;</code> が抜けている。</td></tr>
       <tr><td><code>bash: ./mycat1: No such file or directory</code></td><td><code>gcc</code> が済んでいるか。<code>ls -l mycat1</code> で確かめる。</td></tr>
@@ -767,16 +777,18 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
   </table>
   <h2>用語集</h2>
   <dl class="gloss">
-    <dt>ファイルディスクリプタ</dt><dd><code>open</code> が返す小さな番号（番号札）。<code>read</code>・<code>write</code> はこの番号でファイルを指す。0・1・2 は起動したときから配られている。</dd>
     <dt>システムコール</dt><dd>プログラムが、カーネル（OS の中心）に仕事を頼むための窓口。<code>open</code>・<code>read</code>・<code>write</code>・<code>close</code> など。</dd>
-    <dt>-1</dt><dd><code>open</code> などのシステムコールが失敗したときに返す値。「札は出せません」の合図。</dd>
-    <dt>終わり方（終了ステータス）</dt><dd>プログラムが終わるときに返す数。<code>main</code> の <code>return</code> の数。0 が成功、0 以外が失敗。<code>echo $?</code> で見る。</dd>
+    <dt>strace</dt><dd>コマンドを動かしながら、そのコマンドが頼んだシステムコールと返事を1行ずつ出すコマンド。出力は2番に出る。</dd>
+    <dt>openat</dt><dd><code>strace</code> で見える、<code>open</code> の頼み方。中身は <code>open</code> と同じ。</dd>
+    <dt>ファイルディスクリプタ</dt><dd><code>open</code> が返す小さな番号。<code>read</code>・<code>write</code> はこの番号でファイルを指す。0・1・2 は起動したときから配られている。</dd>
+    <dt>-1</dt><dd>システムコールが失敗したときの返事。<code>strace</code> では、後ろに理由の短い名前が付く。</dd>
+    <dt>ENOENT</dt><dd>理由の名前の1つ。「そんなファイル（やディレクトリ）は無い」。</dd>
+    <dt>EBADF</dt><dd>理由の名前の1つ。「そんな番号（ファイルディスクリプタ）は無い」。</dd>
+    <dt>終わり方（終了ステータス）</dt><dd>プログラムが終わるときに返す数。<code>main</code> の <code>return</code> の数。0 が成功、0 以外が失敗。<code>echo $?</code> で見る。<code>strace</code> では最後の <code>+++ exited with ○ +++</code> に出る。</dd>
     <dt>perror</dt><dd>失敗の理由を、人の言葉にして2番（標準エラー出力）に書く関数。<code>#include &lt;stdio.h&gt;</code> が要る。</dd>
-    <dt>標準エラー出力（2番）</dt><dd>エラーの文を書く先。ふつうは画面。<code>&gt;</code> では付け替わらない。</dd>
-    <dt>argv[1]</dt><dd>コマンドの後ろに書いた1つ目の言葉。</dd>
-    <dt>seq</dt><dd>数を順に並べて出力するコマンド。<code>seq 200</code> で 1〜200。</dd>
+    <dt>/dev/null</dt><dd>書いたものを捨てる特別なファイル。<code>&gt; /dev/null</code> で1番の出力を捨てる。</dd>
   </dl>
-  <p class="note">Molay『Unixシステムプログラミング』2.5.2・2.10 ／ Linux標準教科書（LPI-Japan） ／ Eric S. Raymond『伽藍とバザール』山形浩生 訳（教訓8 を引用）。<br>『伽藍とバザール』訳文の版権表示：© 2000 YAMAGATA Hiroo. この版権表示を残す限りにおいてこの翻訳は商業利用を含む複製、再配布が自由に認められる。プロジェクト杉田玄白 正式参加作品。原文 <code>http://www.catb.org/~esr/writings/cathedral-bazaar/</code> ／ 翻訳 <code>http://cruel.org/freeware/cathedral.html</code></p>
+  <p class="note">Molay『Unixシステムプログラミング』2.5.2・2.10 ／ <code>man strace</code> ／ Linux標準教科書（LPI-Japan） ／ Eric S. Raymond『伽藍とバザール』山形浩生 訳（教訓8 を引用）。<br>『伽藍とバザール』訳文の版権表示：© 2000 YAMAGATA Hiroo. この版権表示を残す限りにおいてこの翻訳は商業利用を含む複製、再配布が自由に認められる。プロジェクト杉田玄白 正式参加作品。原文 <code>http://www.catb.org/~esr/writings/cathedral-bazaar/</code> ／ 翻訳 <code>http://cruel.org/freeware/cathedral.html</code></p>
   <div class="foot">困ったとき・用語集 ／ 第6週目</div>
 </section>
 
@@ -790,10 +802,12 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
 
   <h2>どこまで来たか</h2>
   <div class="live"><div data-show="progress"></div></div>
-  <h2>番号と終わり方</h2>
-  <div class="live"><h4>④ 無いファイルを open（予想と、出た数）</h4><div data-show="fd"></div></div>
-  <div class="live"><h4>無いファイルを渡したときの終わり方</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
-  <div class="live"><h4>理由は画面に出たか（演習D）</h4><div data-show="screen"></div></div>
+  <h2>返事と終わり方</h2>
+  <div class="live"><h4>numbers.txt を開いた行の返事（予想と、実際）</h4><div data-show="fd"></div></div>
+  <div class="live"><h4>無いファイルを渡したとき</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
+  <div class="live"><h4>本物の cat も -1 だったか（演習D）</h4><div data-show="screen"></div></div>
+  <h2>授業アンケート</h2>
+  <div class="live"><h4>難しさ・進む速さ・時間が足りなかった所</h4><div data-show="diff"></div></div>
 
   <div class="foot">みんなの進み具合 ／ 第6週目</div>
 </section>
@@ -804,10 +818,10 @@ wc -c out.txt                    <span class="cmt"># out.txt の大きさ（バ�
     <select>
       <option value="">選んでください</option>
       <option value="dir">作業場所・numbers.txt</option>
-      <option value="paste">fdnum.c を作る（貼る）</option>
-      <option value="gcc">コンパイル（gcc）</option>
+      <option value="strace">strace が動かない</option>
+      <option value="read">strace の出力の読み方</option>
       <option value="type">mycat1.c を打つ</option>
-      <option value="exit">echo $? の読み方</option>
+      <option value="gcc">コンパイル（gcc）</option>
       <option value="fix">mycat2.c に足す</option>
       <option value="other">そのほか</option>
     </select>
@@ -1059,30 +1073,32 @@ window.LIVE_URL = "https://script.google.com/macros/s/AKfycbx2k64kQa228DrJNfNZZ3
     fill('steps', (r.steps || []).length ? bars(r.steps.map(function(x){ return {l:x.l, n:x.n}; }), '', N) : NONE);
     FIRST = r.stepFirst || {}; if (r.now) OFFSET = r.now - Date.now(); tick();
     DONE = {}; (r.steps || []).forEach(function(x){ DONE[x.k] = x.n; }); drawDone();
-    var P = [['a1', 'A-1 作業場所'], ['a', 'A 番号を当てた'], ['b1', 'B-1 mycat1'], ['b', 'B 壊した'],
-             ['c1', 'C-1 mycat2'], ['c', 'C 直した'], ['d', 'D 2番'], ['r', '振り返り']];
+    var P = [['a1', 'A-1 作業場所'], ['a', 'A のぞいた'], ['b1', 'B-1 mycat1'], ['b', 'B 壊した'],
+             ['c1', 'C-1 mycat2'], ['c', 'C 直した'], ['d', 'D 本物も -1'], ['r', '振り返り'], ['v', 'アンケート']];
     fill('progress', '<div class="prog p8">' + P.map(function(x){ return '<div><b>' + (p[x[0]] || 0) + '</b><span>' + x[1] + '</span></div>'; }).join('') +
       '</div><p class="lstat">' + N + '人中の人数</p>');
     var S = r.show || {};
-    // A：④ の予想と、出た数
+    // A：numbers.txt を開いた行の返事（予想と実際）
     fill('fd', !S.a ? WAIT : (!r.a || !r.a.n ? NONE :
-      '<div class="legend"><span class="am">予想</span><span>出た数</span></div><div class="cmp3">' +
-      FD.map(function(k){ return '<div class="grp"><div class="gl">④ が ' + k[1] + '</div>' + bars([{l:'予想', n:r.a.pred[k[0]] || 0, c:'am'}, {l:'出た数', n:r.a.got[k[0]] || 0}], '', r.a.n) + '</div>'; }).join('') +
+      '<div class="legend"><span class="am">予想</span><span>実際</span></div><div class="cmp3">' +
+      FD.map(function(k){ return '<div class="grp"><div class="gl">返事が ' + k[1] + '</div>' + bars([{l:'予想', n:r.a.pred[k[0]] || 0, c:'am'}, {l:'実際', n:r.a.got[k[0]] || 0}], '', r.a.n) + '</div>'; }).join('') +
       '</div><p>予想が当たった人：<span class="bignum">' + r.a.hit + '</span> ／ ' + r.a.n + ' 人</p>'));
-    // B：本物の cat と mycat1 の終わり方
+    // B：mycat1 の終わり方と、strace で見た openat の返事
     fill('exitb', !S.b ? WAIT : (!r.b || !r.b.n ? NONE :
-      '<h4 style="margin-top:4px;">本物の cat の終わり方</h4>' + bars(rows(r.b.cat, EXIT, 'tl'), '', r.b.n) +
-      '<h4 style="margin-top:10px;">mycat1 の終わり方</h4>' + bars(rows(r.b.my, EXIT, 'am'), '', r.b.n) + '<p class="lstat">' + r.b.n + '人が送りました</p>'));
+      '<h4 style="margin-top:4px;">mycat1 の終わり方（echo $?）</h4>' + bars(rows(r.b.cat, EXIT, 'am'), '', r.b.n) +
+      '<h4 style="margin-top:10px;">strace で見た "nofile.txt" の返事</h4>' + bars(rows(r.b.my, FD, 'tl'), '', r.b.n) + '<p class="lstat">' + r.b.n + '人が送りました</p>'));
     // C：mycat2 の終わり方
     fill('exitc', !S.c ? WAIT : (!r.c || !r.c.n ? NONE :
       '<h4 style="margin-top:4px;">mycat2 の終わり方</h4>' + bars(rows(r.c.fix, EXIT)) +
-      '<p>理由（No such file or directory）が出た人 <span class="bignum">' + r.c.msg + '</span> ／ ' + r.c.n + ' 人</p>'));
-    // D：> out.txt でも画面に出たか
-    fill('screen', !S.d ? WAIT : (!r.d || !r.d.n ? NONE : bars([{l:'画面に出た', n:r.d.yes}, {l:'出なかった', n:r.d.no, c:'am'}])));
-    // 振り返り：難しさ
+      '<p>strace に write(2, …) が出た人 <span class="bignum">' + r.c.msg + '</span> ／ ' + r.c.n + ' 人</p>'));
+    // D：本物の cat も -1 をもらっていたか
+    fill('screen', !S.d ? WAIT : (!r.d || !r.d.n ? NONE : bars([{l:'-1 だった', n:r.d.yes}, {l:'違った', n:r.d.no, c:'am'}])));
+    // 授業アンケート：難しさ・進む速さ・時間が足りなかった所（CONVENTIONS 1-12）
     fill('diff', !S.r ? WAIT : (!r.r || !r.r.n ? NONE :
       bars([1, 2, 3, 4, 5].map(function(i){ return {l:i + (i === 1 ? '（とても簡単）' : i === 3 ? '（ちょうどよい）' : i === 5 ? '（とても難しい）' : ''), n:r.r.diff[i - 1], c:i >= 4 ? 'am' : ''}; })) +
-      '<p>送った人 <b>' + r.r.n + '</b> 人。4・5 を選んだ人 <span class="bignum">' + (r.r.diff[3] + r.r.diff[4]) + '</span> 人</p>'));
+      '<p>送った人 <b>' + r.r.n + '</b> 人。4・5 を選んだ人 <span class="bignum">' + (r.r.diff[3] + r.r.diff[4]) + '</span> 人</p>' +
+      (r.r.pace ? '<h4 style="margin-top:10px;">進む速さ</h4>' + bars(r.r.pace) : '') +
+      (r.r.short ? '<h4 style="margin-top:10px;">時間が足りなかった所</h4>' + bars(r.r.short) : '')));
     var sk = Object.keys(r.stuck || {}).map(function(k){ return r.stuck[k]; }).filter(function(x){ return x.n > 0; });
     fill('stuck', !S.stuck ? WAIT : '<p>いま止まっている人 <span class="bignum">' + (r.stuckN || 0) + '</span> 人</p>' + (sk.length ? bars(sk, 'am') : ''));
     if (passIn) me.querySelector('.passrow').style.display = r.pass ? 'block' : 'none';
