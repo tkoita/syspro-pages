@@ -452,7 +452,7 @@ details.ans .figure.fg{margin:10px 0 0;}
   <div class="meta">
     <span><b>作業場所</b> <code>~/syspro/week07</code></span>
     <span><b>環境</b> Linux ／ ターミナル ／ gcc ／ strace</span>
-    <span><b>AI</b> 今日は使いません</span>
+    <span><b>AI</b> 演習D（余裕があれば）で Copilot に聞く</span>
     <span><b>教材</b> 教科書2章 2.5.2・2.10 ／ <code>man strace</code></span>
   </div>
   <h2>今日の流れ</h2>
@@ -695,30 +695,34 @@ write(2, "nofile.txt: No such file or dire"..., 38nofile.txt: No such file or di
 
 <!-- ============================ D ============================ -->
 <section class="sheet k4" id="exD" data-start="10:12" data-end="10:17" data-label="演習D">
-  <div class="eyebrow"><span class="no">D</span>COMPARE<span class="badge">10:12〜10:17</span></div>
-  <h1><span class="tag plus">余裕があれば</span>演習D　本物の <code>cat</code> も、-1 をもらっていたか</h1>
-  <p class="lead">本物の <code>cat</code> に無いファイルを渡したときも、のぞいてみます。</p>
-  <pre class="code">strace -e trace=openat,write cat nofile.txt</pre>
-  <div class="outlabel">こういう形で出ます（はじめの数行は準備。"nofile.txt" の行から下を読む）</div>
-  <pre class="out">  ……
-openat(AT_FDCWD, "nofile.txt", O_RDONLY) = ○ ENOENT (No such file or directory)
-write(2, "cat: ", 5cat: )                    = 5
-write(2, "nofile.txt", 10nofile.txt)              = 10
-write(2, ": \343\201\235\343\201\256\343\202\210"..., 68: そのようなファイルやディレクトリはありません) = 68
-write(2, "\n", 1
-)                       = 1
-+++ exited with 1 +++</pre>
-  <p class="note">本物の <code>cat</code> は、理由の文を<b>何回かの <code>write(2, …)</code> に分けて</b>書きます。日本語の文字は <code>\343\201\235</code> のような数の並びで出ます（1文字が3バイト）。</p>
+  <div class="eyebrow"><span class="no">D</span>ASK AI<span class="badge">10:12〜10:17</span></div>
+  <h1><span class="tag plus">余裕があれば</span>演習D　AI の説明を、strace で採点する</h1>
+  <p class="lead">B-3 で見たことを、AI（Copilot）にも聞いてみます。<b>AI の答えが合っているかは、自分の strace の3行で確かめます。</b></p>
+  <div class="figure fg" id="fig-aicheck"><svg viewBox="0 0 720 218" role="img" aria-label="Copilot の答えの3点を、自分の strace の3行と1つずつ見比べる"><rect x="14" y="40" width="270" height="150" rx="14" fill="#F1EBFE" stroke="#CDBBF5" stroke-width="1.8"/><path d="M60,189 l-10,20 l30,-20 z" fill="#F1EBFE" stroke="#CDBBF5" stroke-width="1.8" stroke-linejoin="round"/><rect x="52" y="184" width="30" height="6" fill="#F1EBFE"/><circle cx="40" cy="24" r="13" fill="#6D28D9"/><text x="40.0" y="29.0" font-size="12" font-weight="800" fill="#fff" text-anchor="middle">AI</text><text x="60.0" y="29.0" font-size="14" font-weight="800" fill="#4C1D95" text-anchor="start">Copilot の答え</text><rect x="28" y="61" width="242" height="30" rx="8" fill="#fff" stroke="#CDBBF5" stroke-width="1.4"/><text x="40.0" y="81.0" font-size="14" font-weight="800" fill="#4C1D95" text-anchor="start">①</text><text x="62.0" y="81.0" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">read は … を返す</text><rect x="28" y="101" width="242" height="30" rx="8" fill="#fff" stroke="#CDBBF5" stroke-width="1.4"/><text x="40.0" y="121.0" font-size="14" font-weight="800" fill="#4C1D95" text-anchor="start">②</text><text x="62.0" y="121.0" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">close は … を返す</text><rect x="28" y="141" width="242" height="30" rx="8" fill="#fff" stroke="#CDBBF5" stroke-width="1.4"/><text x="40.0" y="161.0" font-size="14" font-weight="800" fill="#4C1D95" text-anchor="start">③</text><text x="62.0" y="161.0" font-size="13" font-weight="700" fill="#1f2933" text-anchor="start">プログラムは … する</text><path d="M440,38 h266 v136 l-2,0 M440,38 v136 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6 l6,6 l6,-6" fill="none"/><path d="M440,38 h266 v136 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 l-6,6 l-6,-6 L440,174 z" fill="#FFFDF6" stroke="#E8A317" stroke-width="1.8" stroke-linejoin="round"/><text x="452.0" y="79.0" font-size="13" font-weight="800" fill="#0E4A82" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="31.2" lengthAdjust="spacing">read</text><text x="483.2" y="79.0" font-size="13" font-weight="500" fill="#52606d" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="93.6" lengthAdjust="spacing">(-1, …)   = </text><text x="576.8" y="79.0" font-size="13" font-weight="800" fill="#8C2D12" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="15.6" lengthAdjust="spacing">-1</text><text x="592.4" y="79.0" font-size="13" font-weight="700" fill="#8C2D12" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="46.8" lengthAdjust="spacing"> EBADF</text><text x="452.0" y="119.0" font-size="13" font-weight="800" fill="#0E4A82" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="39.0" lengthAdjust="spacing">close</text><text x="491.0" y="119.0" font-size="13" font-weight="500" fill="#52606d" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="85.8" lengthAdjust="spacing">(-1)     = </text><text x="576.8" y="119.0" font-size="13" font-weight="800" fill="#8C2D12" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="15.6" lengthAdjust="spacing">-1</text><text x="592.4" y="119.0" font-size="13" font-weight="700" fill="#8C2D12" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="46.8" lengthAdjust="spacing"> EBADF</text><text x="452.0" y="159.0" font-size="13" font-weight="500" fill="#52606d" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="132.6" lengthAdjust="spacing">+++ exited with  </text><rect x="580.6" y="143.0" width="15.8" height="24.0" rx="5" fill="#E3F5F2" stroke="#0F6B60" stroke-width="1.5"/><text x="584.6" y="159.0" font-size="13" font-weight="800" fill="#0A4A42" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="7.8" lengthAdjust="spacing">0</text><text x="592.4" y="159.0" font-size="13" font-weight="500" fill="#52606d" text-anchor="start" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="39.0" lengthAdjust="spacing">  +++</text><line x1="698.6" y1="26.6" x2="708.6" y2="36.6" stroke="#8A6200" stroke-width="7.0" stroke-linecap="round"/><circle cx="690" cy="18" r="12" fill="rgba(253,240,212,.55)" stroke="#E8A317" stroke-width="5.0"/><path d="M683.4,14.4 a7.4,7.4 0 0 1 6.0,-3.8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><text x="670.0" y="26.0" font-size="14" font-weight="800" fill="#8A6200" text-anchor="end" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="50.4" lengthAdjust="spacing">strace</text><text x="446.0" y="26.0" font-size="13" font-weight="800" fill="#8A6200" text-anchor="start">自分の画面の3行</text><path d="M288,76 H436" stroke="#94a3b8" stroke-width="2.6" stroke-dasharray="2 7" stroke-linecap="round"/><circle cx="362" cy="76" r="15" fill="#fff" stroke="#334155" stroke-width="2.4"/><text x="362.0" y="82.0" font-size="15" font-weight="800" fill="#334155" text-anchor="middle">？</text><path d="M288,116 H436" stroke="#94a3b8" stroke-width="2.6" stroke-dasharray="2 7" stroke-linecap="round"/><circle cx="362" cy="116" r="15" fill="#fff" stroke="#334155" stroke-width="2.4"/><text x="362.0" y="122.0" font-size="15" font-weight="800" fill="#334155" text-anchor="middle">？</text><path d="M288,156 H436" stroke="#94a3b8" stroke-width="2.6" stroke-dasharray="2 7" stroke-linecap="round"/><circle cx="362" cy="156" r="15" fill="#fff" stroke="#334155" stroke-width="2.4"/><text x="362.0" y="162.0" font-size="15" font-weight="800" fill="#334155" text-anchor="middle">？</text><text x="362.0" y="206.0" font-size="12.5" font-weight="800" fill="#334155" text-anchor="middle">合っている・違っている・言わなかった</text></svg><p class="cap"><b>紫＝AI の答え、アンバー＝strace が書いた紙（自分の画面）。</b>① ② ③ を1つずつ見比べます。食い違ったら、正しいのは紙のほうです。</p></div>
+
+  <h2>D-1 Copilot に聞く</h2>
+  <p class="note">Windows のブラウザで Copilot（Microsoft 365）を開き、次の文を入れます（短いので、打ってかまいません）。</p>
+  <pre class="code">C言語で、open が失敗して -1 を返したのに、返事を確かめずに read と close を呼びました。
+read と close は何を返しますか。プログラムは止まりますか。3行で答えてください。</pre>
+  <div class="timerule"><b>1分待っても答えが出なければ、下の「AI の答えの例」で採点してかまいません。</b>AI の答えは人によって違います。</div>
+  <details class="ans"><summary>AI の答えの例（答えが出ないとき用。先生が作った例です）</summary><div>
+  ① read は -1 を返します（EBADF）。<br>② close も -1 を返します（EBADF）。<br>③ 多くの場合、プログラムはエラーメッセージを出して異常終了します。</div></details>
+
+  <h2>D-2 自分の strace の3行で、採点する</h2>
+  <p class="note">B-3 の出力（<code>strace … ./mycat1 nofile.txt</code>）の、次の3行と見比べます。<b>それぞれ「合っている・違っている・AI は言わなかった」のどれかを決めてください。</b></p>
+  <div class="outlabel">採点に使う、自分の画面の3行</div>
+  <pre class="out">read(-1, …)   = -1 EBADF (Bad file descriptor)     ← ① read の返事
+close(-1)     = -1 EBADF (Bad file descriptor)     ← ② close の返事
++++ exited with 0 +++                              ← ③ 止まらず、「成功」で終わった</pre>
   <div class="pair" data-act="d">
   <div class="send" data-act="d">
     <h4>D を送る</h4>
-    <div class="row"><span class="lab">本物の cat も、<code>"nofile.txt"</code> の返事は -1 だったか</span><span class="chips"><label><input type="radio" name="screen" value="yes">-1 だった</label><label><input type="radio" name="screen" value="no">違った</label></span></div>
+    <div class="row"><span class="lab">AI の答えに、自分の strace の3行と<b>食い違う所</b>は</span><span class="chips"><label><input type="radio" name="screen" value="yes">あった</label><label><input type="radio" name="screen" value="no">なかった</label></span></div>
     <button type="button" class="go">送る</button><span class="msg"></span>
   </div>
   <div class="live"><h4>みんなの答え</h4><div class="lstat" data-show="time"></div><p class="lockmsg">「送る」を押すと、ここに全員の状況が出ます。</p><div data-show="screen"></div></div>
   </div>
-  <details class="ans"><summary>答え（送ってから開く）</summary><div>本物の <code>cat</code> も、<b>同じ -1（<code>ENOENT</code>）をもらっています</b>。そのあと <code>read</code> には行かず、2番に理由を書いて、失敗で終わります。
-  <div class="figure fg" id="fig-three"><svg viewBox="0 0 720 284" role="img" aria-label="本物の cat も mycat2 も mycat1 も同じ -1 をもらう。違いは返事を確かめるかどうかだけ"><rect x="210" y="6" width="300" height="26" rx="13" fill="#334155"/><text x="360.0" y="24.0" font-size="13" font-weight="800" fill="#fff" text-anchor="middle">カーネルの返事は、3つとも同じ -1</text><g opacity="1"><path d="M285.1,36.0 Q205.6,46.0 135.9,54.8" fill="none" stroke="#BE3E1B" stroke-width="3" stroke-linecap="round"/><polygon points="126.0,56.0 135.2,49.0 136.6,60.5" fill="#BE3E1B"/></g><g transform="translate(126.0,86.0) scale(0.8)"><polygon points="19.4,9.0 8.0,20.4 -8.0,20.4 -19.4,9.0 -19.4,-7.0 -8.0,-18.4 8.0,-18.4 19.4,-7.0" fill="#BE3E1B" stroke="#8C2D12" stroke-width="2.4" stroke-linejoin="round"/><text x="0" y="7.5" font-size="18" font-weight="800" fill="#fff" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace">-1</text></g><g transform="translate(126.0,166.0) scale(0.95)"><line x1="0" y1="-32" x2="0" y2="-43" stroke="#0E4A82" stroke-width="3"/><circle cx="0" cy="-46" r="4.5" fill="#0E4A82"/><rect x="-23" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="8" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="-36" y="-32" width="72" height="64" rx="16" fill="#1668B5"/><rect x="-27" y="-23" width="54" height="40" rx="11" fill="#fff"/><circle cx="-11.0" cy="-11.2" r="4.6" fill="#1f2933"/><circle cx="11.0" cy="-11.2" r="4.6" fill="#1f2933"/><ellipse cx="0" cy="7" rx="6.5" ry="5" fill="#1f2933"/></g><text x="126.0" y="220.1" font-size="13" font-weight="800" fill="#0E4A82" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="23.4" lengthAdjust="spacing">cat</text><text x="126.0" y="232.0" font-size="11.5" font-weight="700" fill="#52606d" text-anchor="middle">本物</text><path d="M186,149 l-12,13 l11.2,-13 z" fill="#FAE5DD" stroke="#BE3E1B" stroke-width="2" stroke-linejoin="round"/><rect x="170" y="118" width="70" height="32" rx="10" fill="#FAE5DD" stroke="#BE3E1B" stroke-width="2"/><rect x="175.5" y="147" width="9" height="3.4" fill="#FAE5DD"/><text x="205.0" y="138.9" font-size="13.5" font-weight="700" fill="#8C2D12" text-anchor="middle">無い！</text><g transform="translate(188.0,216.0) scale(0.78)"><line x1="0" y1="0" x2="0" y2="-52" stroke="#334155" stroke-width="3.4" stroke-linecap="round"/><path d="M2,-52 h82 l-9,13 l9,13 h-82 z" fill="#BE3E1B" stroke="#BE3E1B" stroke-width="2"/><text x="40.0" y="-33.5" font-size="14.5" font-weight="800" fill="#fff" text-anchor="middle">1 失敗</text><ellipse cx="0" cy="1" rx="9" ry="3" fill="#94a3b8"/></g><g opacity="1"><path d="M360.0,36.0 Q360.0,46.0 360.0,46.0" fill="none" stroke="#BE3E1B" stroke-width="3" stroke-linecap="round"/><polygon points="360.0,56.0 354.2,46.0 365.8,46.0" fill="#BE3E1B"/></g><g transform="translate(360.0,86.0) scale(0.8)"><polygon points="19.4,9.0 8.0,20.4 -8.0,20.4 -19.4,9.0 -19.4,-7.0 -8.0,-18.4 8.0,-18.4 19.4,-7.0" fill="#BE3E1B" stroke="#8C2D12" stroke-width="2.4" stroke-linejoin="round"/><text x="0" y="7.5" font-size="18" font-weight="800" fill="#fff" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace">-1</text></g><g transform="translate(360.0,166.0) scale(0.95)"><line x1="0" y1="-32" x2="0" y2="-43" stroke="#0E4A82" stroke-width="3"/><circle cx="0" cy="-46" r="4.5" fill="#0E4A82"/><rect x="-23" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="8" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="-36" y="-32" width="72" height="64" rx="16" fill="#1668B5"/><rect x="-27" y="-23" width="54" height="40" rx="11" fill="#fff"/><circle cx="-11.0" cy="-11.2" r="4.6" fill="#1f2933"/><circle cx="11.0" cy="-11.2" r="4.6" fill="#1f2933"/><ellipse cx="0" cy="7" rx="6.5" ry="5" fill="#1f2933"/></g><text x="360.0" y="220.1" font-size="13" font-weight="800" fill="#0E4A82" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="46.8" lengthAdjust="spacing">mycat2</text><text x="360.0" y="232.0" font-size="11.5" font-weight="700" fill="#52606d" text-anchor="middle">直した後</text><path d="M420,149 l-12,13 l11.2,-13 z" fill="#FAE5DD" stroke="#BE3E1B" stroke-width="2" stroke-linejoin="round"/><rect x="404" y="118" width="70" height="32" rx="10" fill="#FAE5DD" stroke="#BE3E1B" stroke-width="2"/><rect x="409.5" y="147" width="9" height="3.4" fill="#FAE5DD"/><text x="439.0" y="138.9" font-size="13.5" font-weight="700" fill="#8C2D12" text-anchor="middle">無い！</text><g transform="translate(422.0,216.0) scale(0.78)"><line x1="0" y1="0" x2="0" y2="-52" stroke="#334155" stroke-width="3.4" stroke-linecap="round"/><path d="M2,-52 h82 l-9,13 l9,13 h-82 z" fill="#BE3E1B" stroke="#BE3E1B" stroke-width="2"/><text x="40.0" y="-33.5" font-size="14.5" font-weight="800" fill="#fff" text-anchor="middle">1 失敗</text><ellipse cx="0" cy="1" rx="9" ry="3" fill="#94a3b8"/></g><g opacity="1"><path d="M434.9,36.0 Q514.4,46.0 584.1,54.8" fill="none" stroke="#BE3E1B" stroke-width="3" stroke-linecap="round"/><polygon points="594.0,56.0 583.4,60.5 584.8,49.0" fill="#BE3E1B"/></g><g transform="translate(594.0,86.0) scale(0.8)"><polygon points="19.4,9.0 8.0,20.4 -8.0,20.4 -19.4,9.0 -19.4,-7.0 -8.0,-18.4 8.0,-18.4 19.4,-7.0" fill="#BE3E1B" stroke="#8C2D12" stroke-width="2.4" stroke-linejoin="round"/><text x="0" y="7.5" font-size="18" font-weight="800" fill="#fff" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace">-1</text></g><g transform="translate(594.0,166.0) scale(0.95)"><line x1="0" y1="-32" x2="0" y2="-43" stroke="#0E4A82" stroke-width="3"/><circle cx="0" cy="-46" r="4.5" fill="#0E4A82"/><rect x="-23" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="8" y="29" width="15" height="10" rx="3" fill="#0E4A82"/><rect x="-36" y="-32" width="72" height="64" rx="16" fill="#1668B5"/><rect x="-27" y="-23" width="54" height="40" rx="11" fill="#fff"/><path d="M-16,-8 q5,5 10,0 M6,-8 q5,5 10,0" fill="none" stroke="#1f2933" stroke-width="2.6" stroke-linecap="round"/><path d="M-11,7 h22 M-7,4 v6 M-2.3,4 v6 M2.3,4 v6 M7,4 v6" fill="none" stroke="#1f2933" stroke-width="2.4" stroke-linecap="round"/></g><text x="594.0" y="220.1" font-size="13" font-weight="800" fill="#0E4A82" text-anchor="middle" font-family="SFMono-Regular,Consolas,Menlo,DejaVu Sans Mono,monospace" style="white-space:pre" textLength="46.8" lengthAdjust="spacing">mycat1</text><text x="594.0" y="232.0" font-size="11.5" font-weight="700" fill="#52606d" text-anchor="middle">直す前</text><path d="M654,149 l-12,13 l11.2,-13 z" fill="#fff" stroke="#94a3b8" stroke-width="2" stroke-linejoin="round"/><rect x="638" y="118" width="58" height="32" rx="10" fill="#fff" stroke="#94a3b8" stroke-width="2"/><rect x="643.5" y="147" width="9" height="3.4" fill="#fff"/><text x="667.0" y="139.4" font-size="15" font-weight="700" fill="#52606d" text-anchor="middle">……</text><g transform="translate(656.0,216.0) scale(0.78)"><line x1="0" y1="0" x2="0" y2="-52" stroke="#334155" stroke-width="3.4" stroke-linecap="round"/><path d="M2,-52 h82 l-9,13 l9,13 h-82 z" fill="#0F6B60" stroke="#0F6B60" stroke-width="2"/><text x="40.0" y="-33.5" font-size="14.5" font-weight="800" fill="#fff" text-anchor="middle">0 成功</text><ellipse cx="0" cy="1" rx="9" ry="3" fill="#94a3b8"/></g><path d="M40,246 v8 h416 v-8" fill="none" stroke="#0F6B60" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text x="248.0" y="274.0" font-size="13.5" font-weight="800" fill="#0A4A42" text-anchor="middle">open の返事を確かめる</text><path d="M520,246 v8 h170 v-8" fill="none" stroke="#BE3E1B" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><text x="605.0" y="274.0" font-size="13.5" font-weight="800" fill="#8C2D12" text-anchor="middle">確かめない</text></svg><p class="cap"><b>本物も失敗はします。</b>もらう返事は同じ -1（赤い八角形）。違いは、<b>それを確かめるかどうかだけ</b>です。</p></div></div></details>
+  <details class="ans"><summary>採点のしかた（送ってから開く）</summary><div><b>AI が合っていても違っていても、決め手は自分の画面の3行です。</b>AI が「エラーメッセージが出る」「異常終了する」と答えていたら、それは今日の出力と食い違います（<code>mycat1</code> は何も言わず、<code>exited with 0</code>）。「AI の答えの例」では、①② が合っていて、③ が違っています。</div></details>
   <div class="foot">演習D ／ 第6週目</div>
 </section>
 
@@ -812,7 +816,7 @@ write(2, "\n", 1
   <h2>返事と終わり方</h2>
   <div class="live"><h4>numbers.txt を開いた行の返事（予想と、実際）</h4><div data-show="fd"></div></div>
   <div class="live"><h4>無いファイルを渡したとき</h4><div data-show="exitb"></div><div data-show="exitc"></div></div>
-  <div class="live"><h4>本物の cat も -1 だったか（演習D）</h4><div data-show="screen"></div></div>
+  <div class="live"><h4>AI の答えに、strace と食い違う所はあったか（演習D）</h4><div data-show="screen"></div></div>
   <h2>授業アンケート</h2>
   <div class="live"><h4>難しさ・進む速さ・時間が足りなかった所</h4><div data-show="diff"></div></div>
 
@@ -1081,7 +1085,7 @@ window.LIVE_URL = "https://script.google.com/macros/s/AKfycbx2k64kQa228DrJNfNZZ3
     FIRST = r.stepFirst || {}; if (r.now) OFFSET = r.now - Date.now(); tick();
     DONE = {}; (r.steps || []).forEach(function(x){ DONE[x.k] = x.n; }); drawDone();
     var P = [['a1', 'A-1 作業場所'], ['a', 'A のぞいた'], ['b1', 'B-1 mycat1'], ['b', 'B 壊した'],
-             ['c1', 'C-1 mycat2'], ['c', 'C 直した'], ['d', 'D 本物も -1'], ['r', '振り返り'], ['v', 'アンケート']];
+             ['c1', 'C-1 mycat2'], ['c', 'C 直した'], ['d', 'D AI を採点'], ['r', '振り返り'], ['v', 'アンケート']];
     fill('progress', '<div class="prog p8">' + P.map(function(x){ return '<div><b>' + (p[x[0]] || 0) + '</b><span>' + x[1] + '</span></div>'; }).join('') +
       '</div><p class="lstat">' + N + '人中の人数</p>');
     var S = r.show || {};
@@ -1099,7 +1103,7 @@ window.LIVE_URL = "https://script.google.com/macros/s/AKfycbx2k64kQa228DrJNfNZZ3
       '<h4 style="margin-top:4px;">mycat2 の終わり方</h4>' + bars(rows(r.c.fix, EXIT)) +
       '<p>strace に write(2, …) が出た人 <span class="bignum">' + r.c.msg + '</span> ／ ' + r.c.n + ' 人</p>'));
     // D：本物の cat も -1 をもらっていたか
-    fill('screen', !S.d ? WAIT : (!r.d || !r.d.n ? NONE : bars([{l:'-1 だった', n:r.d.yes}, {l:'違った', n:r.d.no, c:'am'}])));
+    fill('screen', !S.d ? WAIT : (!r.d || !r.d.n ? NONE : bars([{l:'あった', n:r.d.yes}, {l:'なかった', n:r.d.no, c:'am'}])));
     // 授業アンケート：難しさ・進む速さ・時間が足りなかった所（CONVENTIONS 1-12）
     fill('diff', !S.r ? WAIT : (!r.r || !r.r.n ? NONE :
       bars([1, 2, 3, 4, 5].map(function(i){ return {l:i + (i === 1 ? '（とても簡単）' : i === 3 ? '（ちょうどよい）' : i === 5 ? '（とても難しい）' : ''), n:r.r.diff[i - 1], c:i >= 4 ? 'am' : ''}; })) +
@@ -1267,7 +1271,7 @@ html.vg-locked, html.vg-locked body{overflow:hidden;}
       '<div class="vg-t">学籍番号を入れてください</div>' +
       '<p class="vg-d">入れると、資料が開きます。入れるのは最初の1回だけです（このブラウザが覚えます）。</p>' +
       '<input class="vg-in" inputmode="numeric" placeholder="1116240000" aria-label="学籍番号">' +
-      '<button type="submit" class="vg-go">資料を開く</button>' +
+      '<button type="button" class="vg-go">資料を開く</button>' +
       '<p class="vg-msg"></p>' +
       '<p class="vg-note">この資料を見ていた時間（画面に出ていて、5分以内に操作したとき）を、学籍番号といっしょに記録します。</p>' +
       '</form>';
@@ -1275,8 +1279,12 @@ html.vg-locked, html.vg-locked body{overflow:hidden;}
     var f = gate.querySelector('form'), inp = gate.querySelector('.vg-in'), m = gate.querySelector('.vg-msg'), b = gate.querySelector('.vg-go');
     if (msg) m.textContent = msg;
     setTimeout(function(){ try { inp.focus(); } catch(e) {} }, 50);
-    f.addEventListener('submit', function(ev){
-      ev.preventDefault();
+    // フォームの送信に頼らない（プレビューなど、送信が止められている枠の中でも開けるように。2026-11-14）
+    f.addEventListener('submit', function(ev){ ev.preventDefault(); });
+    inp.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); go(); } });
+    b.addEventListener('click', go);
+    function go(){
+      if (b.disabled) return;
       var s = norm(inp.value);
       if (!okForm(s)){ m.textContent = '学籍番号（数字だけ）を入れてください'; return; }
       if (!URL){ sid = s; store(KEY, s); open_(); return; }
@@ -1289,7 +1297,7 @@ html.vg-locked, html.vg-locked body{overflow:hidden;}
         // つながらないときは、形だけ確かめて開く（記録は、つながったときから）
         b.disabled = false; sid = s; store(KEY, s); open_();
       });
-    });
+    }
   }
   // 右下の小さな札（下4桁と「変える」）
   function badge(){
